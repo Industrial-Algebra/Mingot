@@ -363,6 +363,243 @@ view! {
 
 **Note:** Use `cols` for a fixed grid or `min_child_width` for a responsive auto-fit grid. `min_child_width` takes precedence if both are provided.
 
+### Header
+
+A header component for page layouts with positioning options.
+
+```rust
+use mingot::{Header, HeaderHeight, HeaderPosition, Navbar, NavbarLink, NavbarBrand};
+
+// Basic header
+view! {
+    <Header with_border=true>
+        <Container>
+            "My Application"
+        </Container>
+    </Header>
+}
+
+// Sticky header with navigation
+view! {
+    <Header
+        height=HeaderHeight::Md
+        position=HeaderPosition::Sticky
+        with_border=true
+    >
+        <Container>
+            <Group justify=GroupJustify::SpaceBetween>
+                <NavbarBrand href="/">
+                    "MyApp"
+                </NavbarBrand>
+                <Navbar>
+                    <NavbarLink href="/" active=true>"Home"</NavbarLink>
+                    <NavbarLink href="/about">"About"</NavbarLink>
+                    <NavbarLink href="/contact">"Contact"</NavbarLink>
+                </Navbar>
+            </Group>
+        </Container>
+    </Header>
+}
+
+// Fixed header
+view! {
+    <Header
+        position=HeaderPosition::Fixed
+        height=HeaderHeight::Sm
+        with_border=true
+    >
+        "Fixed header content"
+    </Header>
+}
+```
+
+**Header Props:**
+- `height`: `HeaderHeight` - Xs (48px), Sm (60px), Md (72px, default), Lg (84px), Xl (96px)
+- `position`: `HeaderPosition` - Static (default), Fixed, or Sticky
+- `with_border`: `bool` - Add bottom border (default: false)
+- `padding`: `String` - Custom padding (default: "0 {theme.spacing.md}")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+### Footer
+
+A footer component for page layouts.
+
+```rust
+use mingot::{Footer, FooterHeight, FooterPosition};
+
+// Basic footer
+view! {
+    <Footer with_border=true>
+        <Container>
+            <Text size=TextSize::Sm>
+                "© 2024 MyApp. All rights reserved."
+            </Text>
+        </Container>
+    </Footer>
+}
+
+// Footer with multiple sections
+view! {
+    <Footer
+        height=FooterHeight::Lg
+        with_border=true
+    >
+        <Container>
+            <Grid>
+                <GridCol span=4>
+                    <Stack spacing="xs">
+                        <Text weight=TextWeight::Bold>"Company"</Text>
+                        <Text size=TextSize::Sm>"About Us"</Text>
+                        <Text size=TextSize::Sm>"Careers"</Text>
+                    </Stack>
+                </GridCol>
+                <GridCol span=4>
+                    <Stack spacing="xs">
+                        <Text weight=TextWeight::Bold>"Support"</Text>
+                        <Text size=TextSize::Sm>"Help Center"</Text>
+                        <Text size=TextSize::Sm>"Contact"</Text>
+                    </Stack>
+                </GridCol>
+                <GridCol span=4>
+                    <Stack spacing="xs">
+                        <Text weight=TextWeight::Bold>"Legal"</Text>
+                        <Text size=TextSize::Sm>"Privacy"</Text>
+                        <Text size=TextSize::Sm>"Terms"</Text>
+                    </Stack>
+                </GridCol>
+            </Grid>
+        </Container>
+    </Footer>
+}
+
+// Fixed footer
+view! {
+    <Footer
+        position=FooterPosition::Fixed
+        height=FooterHeight::Md
+        with_border=true
+    >
+        "Footer content"
+    </Footer>
+}
+```
+
+**Footer Props:**
+- `height`: `FooterHeight` - Xs (48px), Sm (60px), Md (72px, default), Lg (84px), Xl (96px)
+- `position`: `FooterPosition` - Static (default) or Fixed
+- `with_border`: `bool` - Add top border (default: false)
+- `padding`: `String` - Custom padding (default: "0 {theme.spacing.md}")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+### Navbar
+
+A navigation bar component with link support and active states.
+
+```rust
+use mingot::{Navbar, NavbarLink, NavbarBrand, NavbarOrientation, NavbarVariant};
+
+// Horizontal navbar (default)
+view! {
+    <Navbar>
+        <NavbarBrand href="/">"MyApp"</NavbarBrand>
+        <NavbarLink href="/" active=true>"Home"</NavbarLink>
+        <NavbarLink href="/products">"Products"</NavbarLink>
+        <NavbarLink href="/about">"About"</NavbarLink>
+        <NavbarLink href="/contact">"Contact"</NavbarLink>
+    </Navbar>
+}
+
+// Vertical navbar
+view! {
+    <Navbar orientation=NavbarOrientation::Vertical>
+        <NavbarLink href="/" active=true>"Dashboard"</NavbarLink>
+        <NavbarLink href="/users">"Users"</NavbarLink>
+        <NavbarLink href="/settings">"Settings"</NavbarLink>
+    </Navbar>
+}
+
+// Different navbar variants
+view! {
+    <Stack spacing="lg">
+        // Default variant (underline)
+        <Navbar>
+            <NavbarLink href="/" active=true variant=NavbarVariant::Default>
+                "Home"
+            </NavbarLink>
+            <NavbarLink href="/about" variant=NavbarVariant::Default>
+                "About"
+            </NavbarLink>
+        </Navbar>
+
+        // Subtle variant (background highlight)
+        <Navbar>
+            <NavbarLink href="/" active=true variant=NavbarVariant::Subtle>
+                "Home"
+            </NavbarLink>
+            <NavbarLink href="/about" variant=NavbarVariant::Subtle>
+                "About"
+            </NavbarLink>
+        </Navbar>
+
+        // Pills variant (rounded background)
+        <Navbar>
+            <NavbarLink href="/" active=true variant=NavbarVariant::Pills>
+                "Home"
+            </NavbarLink>
+            <NavbarLink href="/about" variant=NavbarVariant::Pills>
+                "About"
+            </NavbarLink>
+        </Navbar>
+    </Stack>
+}
+
+// Navbar with click handlers
+view! {
+    <Navbar>
+        <NavbarLink
+            href="/dashboard"
+            on_click=Callback::new(|ev| {
+                ev.prevent_default();
+                // Handle navigation
+                logging::log!("Navigate to dashboard");
+            })
+        >
+            "Dashboard"
+        </NavbarLink>
+    </Navbar>
+}
+
+// Disabled link
+view! {
+    <Navbar>
+        <NavbarLink href="/" active=true>"Home"</NavbarLink>
+        <NavbarLink href="/coming-soon" disabled=true>"Coming Soon"</NavbarLink>
+    </Navbar>
+}
+```
+
+**Navbar Props:**
+- `orientation`: `NavbarOrientation` - Horizontal (default) or Vertical
+- `spacing`: `String` - Gap between nav items (default: theme.spacing.sm)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**NavbarLink Props:**
+- `href`: `String` - Link destination
+- `active`: `bool` - Whether this link is active (default: false)
+- `variant`: `NavbarVariant` - Default, Subtle, or Pills (default: Default)
+- `disabled`: `bool` - Disable the link (default: false)
+- `on_click`: `Callback<MouseEvent>` - Click handler
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**NavbarBrand Props:**
+- `href`: `String` - Link destination (optional, renders as div if not provided)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -1126,11 +1363,12 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Dark mode support
 - [x] Table component with sortable columns and pagination
 - [x] Responsive grid layout system (Grid, GridCol, SimpleGrid)
+- [x] Navigation components (Header, Footer, Navbar)
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
 - [ ] More data display components (Card, Badge, Avatar)
-- [ ] Navigation components (Tabs, Menu, Breadcrumbs)
+- [ ] More navigation components (Tabs, Menu, Breadcrumbs)
 - [ ] Feedback components (Alert, Notification, Progress)
 - [ ] CSS-in-Rust styling with style generation
 - [ ] More comprehensive theming options

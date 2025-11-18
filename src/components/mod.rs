@@ -7,6 +7,11 @@ pub mod group;
 
 // Layout components
 pub mod grid;
+pub mod header;
+pub mod footer;
+
+// Navigation components
+pub mod navbar;
 
 // Form components
 pub mod input;
@@ -28,6 +33,9 @@ pub use text::*;
 pub use stack::*;
 pub use group::*;
 pub use grid::*;
+pub use header::*;
+pub use footer::*;
+pub use navbar::*;
 pub use input::*;
 pub use textarea::*;
 pub use select::*;
