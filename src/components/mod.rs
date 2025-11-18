@@ -34,10 +34,12 @@ pub mod switch;
 pub mod modal;
 pub mod drawer;
 pub mod tooltip;
+pub mod popover;
 
 // Feedback components
 pub mod alert;
 pub mod progress;
+pub mod notification;
 
 // Data display components
 pub mod table;
@@ -78,8 +80,10 @@ pub use switch::*;
 pub use modal::*;
 pub use drawer::*;
 pub use tooltip::*;
+pub use popover::*;
 pub use alert::*;
 pub use progress::*;
+pub use notification::*;
 pub use table::*;
 pub use avatar::*;
 pub use badge::*;

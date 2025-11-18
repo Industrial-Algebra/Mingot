@@ -2692,6 +2692,384 @@ view! {
 - Breadcrumbs automatically flex-wrap on smaller screens
 - Use for showing navigation hierarchy
 
+### Popover
+
+Interactive floating content anchored to a target element.
+
+```rust
+use mingot::{Popover, PopoverTarget, PopoverDropdown, PopoverPosition, Button};
+
+// Basic popover
+let opened = RwSignal::new(false);
+
+view! {
+    <Popover opened=Some(opened)>
+        <PopoverTarget>
+            <Button>"Click me"</Button>
+        </PopoverTarget>
+        <PopoverDropdown>
+            <Stack spacing="sm">
+                <Text weight=TextWeight::Bold>"Popover Title"</Text>
+                <Text size=TextSize::Sm>"This is some content in the popover"</Text>
+            </Stack>
+        </PopoverDropdown>
+    </Popover>
+}
+
+// Different positions
+view! {
+    <Group>
+        <Popover position=PopoverPosition::Top>
+            <PopoverTarget>
+                <Button>"Top"</Button>
+            </PopoverTarget>
+            <PopoverDropdown>
+                <Text>"Appears on top"</Text>
+            </PopoverDropdown>
+        </Popover>
+
+        <Popover position=PopoverPosition::Bottom>
+            <PopoverTarget>
+                <Button>"Bottom"</Button>
+            </PopoverTarget>
+            <PopoverDropdown>
+                <Text>"Appears on bottom"</Text>
+            </PopoverDropdown>
+        </Popover>
+
+        <Popover position=PopoverPosition::Left>
+            <PopoverTarget>
+                <Button>"Left"</Button>
+            </PopoverTarget>
+            <PopoverDropdown>
+                <Text>"Appears on left"</Text>
+            </PopoverDropdown>
+        </Popover>
+
+        <Popover position=PopoverPosition::Right>
+            <PopoverTarget>
+                <Button>"Right"</Button>
+            </PopoverTarget>
+            <PopoverDropdown>
+                <Text>"Appears on right"</Text>
+            </PopoverDropdown>
+        </Popover>
+    </Group>
+}
+
+// With arrow
+view! {
+    <Popover with_arrow=true>
+        <PopoverTarget>
+            <Button>"With Arrow"</Button>
+        </PopoverTarget>
+        <PopoverDropdown>
+            <Text>"Popover with pointing arrow"</Text>
+        </PopoverDropdown>
+    </Popover>
+}
+
+// Custom width
+view! {
+    <Popover width=Some("400px".to_string())>
+        <PopoverTarget>
+            <Button>"Wide Popover"</Button>
+        </PopoverTarget>
+        <PopoverDropdown>
+            <Stack spacing="md">
+                <Text weight=TextWeight::Bold>"Wide Content"</Text>
+                <Text>
+                    "This popover is wider than the default 260px to accommodate more content."
+                </Text>
+            </Stack>
+        </PopoverDropdown>
+    </Popover>
+}
+
+// With form
+view! {
+    <Popover width=Some("300px".to_string())>
+        <PopoverTarget>
+            <Button>"Add Comment"</Button>
+        </PopoverTarget>
+        <PopoverDropdown>
+            <Stack spacing="md">
+                <Text weight=TextWeight::Bold>"New Comment"</Text>
+                <Textarea
+                    placeholder="Write your comment..."
+                    rows=3
+                />
+                <Group justify="flex-end">
+                    <Button size=ButtonSize::Sm variant=ButtonVariant::Subtle>
+                        "Cancel"
+                    </Button>
+                    <Button size=ButtonSize::Sm>
+                        "Submit"
+                    </Button>
+                </Group>
+            </Stack>
+        </PopoverDropdown>
+    </Popover>
+}
+
+// Controlled popover
+let opened = RwSignal::new(false);
+
+view! {
+    <>
+        <Button on_click=move |_| opened.set(!opened.get())>
+            {move || if opened.get() { "Close" } else { "Open" }}
+        </Button>
+
+        <Popover opened=Some(opened)>
+            <PopoverTarget>
+                <div style="display: inline-block;">
+                    <Text>"Click the button above"</Text>
+                </div>
+            </PopoverTarget>
+            <PopoverDropdown>
+                <Text>"This popover is controlled externally"</Text>
+            </PopoverDropdown>
+        </Popover>
+    </>
+}
+```
+
+**Popover Components:**
+
+**Popover** - Root container
+- `opened`: `RwSignal<bool>` - Optional controlled state
+- `position`: `PopoverPosition` - Top, Bottom, Left, or Right (default: Bottom)
+- `with_arrow`: `bool` - Show pointing arrow (default: false)
+- `width`: `String` - Custom width (default: "260px")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**PopoverTarget** - Clickable trigger element
+- Wraps any element that should trigger the popover
+- Click to toggle popover open/closed
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**PopoverDropdown** - Floating content container
+- Positioned relative to target
+- Contains popover content
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Unlike Tooltip, Popover can contain interactive content (buttons, forms, etc.)
+- Click target to toggle, click outside to close
+- Use for complex hover content, forms, or actions
+- Position automatically adjusts to avoid viewport edges
+- Arrow helps visually connect popover to target
+
+### Notification
+
+Toast-style notifications that appear in screen corners.
+
+```rust
+use mingot::{NotificationProvider, NotificationPosition, NotificationColor, NotificationData, use_notifications, show_notification, Button};
+
+// Wrap your app with NotificationProvider
+view! {
+    <NotificationProvider>
+        <App />
+    </NotificationProvider>
+}
+
+// Use notifications in components
+#[component]
+fn App() -> impl IntoView {
+    let show = use_notifications();
+
+    let show_info = move |_| {
+        show(NotificationData {
+            id: 0,
+            title: Some("Info".to_string()),
+            message: "This is an informational message".to_string(),
+            color: NotificationColor::Info,
+            icon: None,
+            auto_close: Some(5000),
+        });
+    };
+
+    let show_success = move |_| {
+        show(NotificationData {
+            id: 0,
+            title: Some("Success".to_string()),
+            message: "Operation completed successfully!".to_string(),
+            color: NotificationColor::Success,
+            icon: None,
+            auto_close: Some(5000),
+        });
+    };
+
+    view! {
+        <Group>
+            <Button on_click=show_info>"Show Info"</Button>
+            <Button on_click=show_success>"Show Success"</Button>
+        </Group>
+    }
+}
+
+// Different positions
+view! {
+    <NotificationProvider position=NotificationPosition::TopRight>
+        <App />
+    </NotificationProvider>
+}
+
+// Available positions:
+// - TopLeft
+// - TopRight (default)
+// - TopCenter
+// - BottomLeft
+// - BottomRight
+// - BottomCenter
+
+// Using the helper function
+#[component]
+fn QuickNotifications() -> impl IntoView {
+    let show = use_notifications();
+
+    view! {
+        <Stack spacing="sm">
+            <Button on_click=move |_| {
+                show(show_notification(
+                    "This is a quick notification",
+                    NotificationColor::Info,
+                    None
+                ));
+            }>
+                "Simple Notification"
+            </Button>
+
+            <Button on_click=move |_| {
+                show(show_notification(
+                    "File uploaded successfully",
+                    NotificationColor::Success,
+                    Some("Upload Complete".to_string())
+                ));
+            }>
+                "Success with Title"
+            </Button>
+
+            <Button on_click=move |_| {
+                show(show_notification(
+                    "Please check your input",
+                    NotificationColor::Warning,
+                    Some("Validation Error".to_string())
+                ));
+            }>
+                "Warning"
+            </Button>
+
+            <Button on_click=move |_| {
+                show(show_notification(
+                    "An error occurred while processing",
+                    NotificationColor::Error,
+                    Some("Error".to_string())
+                ));
+            }>
+                "Error"
+            </Button>
+        </Stack>
+    }
+}
+
+// Custom icon and auto-close duration
+#[component]
+fn CustomNotifications() -> impl IntoView {
+    let show = use_notifications();
+
+    view! {
+        <Button on_click=move |_| {
+            show(NotificationData {
+                id: 0,
+                title: Some("🎉 Congratulations!".to_string()),
+                message: "You've earned a new achievement".to_string(),
+                color: NotificationColor::Success,
+                icon: Some("🏆".to_string()),
+                auto_close: Some(10000), // 10 seconds
+            });
+        }>
+            "Show Achievement"
+        </Button>
+    }
+}
+
+// Persistent notification (no auto-close)
+#[component]
+fn PersistentNotification() -> impl IntoView {
+    let show = use_notifications();
+
+    view! {
+        <Button on_click=move |_| {
+            show(NotificationData {
+                id: 0,
+                title: Some("Action Required".to_string()),
+                message: "Please review and approve the changes".to_string(),
+                color: NotificationColor::Warning,
+                icon: None,
+                auto_close: None, // Won't auto-close
+            });
+        }>
+            "Show Persistent"
+        </Button>
+    }
+}
+
+// Max notifications limit
+view! {
+    <NotificationProvider
+        position=NotificationPosition::BottomRight
+        max_notifications=Some(3)
+    >
+        <App />
+    </NotificationProvider>
+}
+```
+
+**NotificationProvider Props:**
+- `position`: `NotificationPosition` - Screen corner placement (default: TopRight)
+- `max_notifications`: `usize` - Maximum visible notifications (default: 5)
+
+**NotificationData Fields:**
+- `id`: `usize` - Auto-assigned by system
+- `title`: `Option<String>` - Optional notification title
+- `message`: `String` - Notification message (required)
+- `color`: `NotificationColor` - Info, Success, Warning, or Error
+- `icon`: `Option<String>` - Custom icon (defaults based on color)
+- `auto_close`: `Option<u32>` - Auto-close duration in milliseconds (None = persistent)
+
+**NotificationPosition Options:**
+- TopLeft, TopRight, TopCenter
+- BottomLeft, BottomRight, BottomCenter
+
+**Default Icons:**
+- Info: ℹ️
+- Success: ✓
+- Warning: ⚠️
+- Error: ✕
+
+**Helper Functions:**
+- `use_notifications()` - Hook to show notifications
+- `show_notification(message, color, title)` - Quick notification creator with 5s auto-close
+
+**Usage Tips:**
+- Wrap your app root with NotificationProvider
+- Use `use_notifications()` hook in any child component
+- Notifications stack vertically in chosen corner
+- Click close button to dismiss manually
+- Auto-close timer shows fade-out animation
+- Oldest notifications removed when max limit reached
+- Use persistent notifications (auto_close: None) for critical messages
+- Success color for confirmations
+- Warning color for non-critical issues
+- Error color for failures
+- Info color for general messages
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -3462,14 +3840,13 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Stats and metrics components (Stats, StatsGroup, RingProgress)
 - [x] Error page components (ErrorPage with multiple error types)
 - [x] Comprehensive test suite (44 tests covering core functionality)
-- [x] Overlay components (Drawer, Tooltip)
+- [x] Overlay components (Drawer, Tooltip, Popover)
 - [x] Form components (Switch)
 - [x] Navigation components (Menu, Breadcrumbs)
 - [x] Feedback components (Alert, Progress)
+- [x] Notification system (toast-style with provider)
 - [ ] System dark mode detection (prefers-color-scheme)
-- [ ] Additional overlay components (Popover)
 - [ ] More form components (Slider, File Input, Date Picker)
-- [ ] Notification system
 - [ ] CSS-in-Rust styling with style generation
 - [ ] More comprehensive theming options
 - [ ] Accessibility improvements (ARIA labels, keyboard navigation)
