@@ -1948,6 +1948,750 @@ view! {
 - All text and icons can be overridden for full customization
 - Error pages use full viewport height for centered content
 
+### Tooltip
+
+Display helpful information on hover with positioned tooltips.
+
+```rust
+use mingot::{Tooltip, TooltipPosition, Button};
+
+// Basic tooltip
+view! {
+    <Tooltip label="Click to submit">
+        <Button>"Submit"</Button>
+    </Tooltip>
+}
+
+// Different positions
+view! {
+    <Group>
+        <Tooltip label="Top tooltip" position=TooltipPosition::Top>
+            <Button>"Top"</Button>
+        </Tooltip>
+        <Tooltip label="Right tooltip" position=TooltipPosition::Right>
+            <Button>"Right"</Button>
+        </Tooltip>
+        <Tooltip label="Bottom tooltip" position=TooltipPosition::Bottom>
+            <Button>"Bottom"</Button>
+        </Tooltip>
+        <Tooltip label="Left tooltip" position=TooltipPosition::Left>
+            <Button>"Left"</Button>
+        </Tooltip>
+    </Group>
+}
+
+// With arrow
+view! {
+    <Tooltip label="Tooltip with arrow" with_arrow=true>
+        <Button>"Hover me"</Button>
+    </Tooltip>
+}
+
+// Custom color
+view! {
+    <Tooltip label="Custom colored tooltip" color="blue" with_arrow=true>
+        <Button>"Blue tooltip"</Button>
+    </Tooltip>
+}
+
+// On any element
+view! {
+    <Tooltip label="Click for more info">
+        <span style="cursor: pointer;">"ℹ️ Hover for help"</span>
+    </Tooltip>
+}
+```
+
+**Props:**
+- `label`: `String` - Tooltip text content
+- `position`: `TooltipPosition` - Top, Bottom, Left, or Right (default: Top)
+- `with_arrow`: `bool` - Show pointing arrow (default: false)
+- `color`: `String` - Custom tooltip color from theme
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Tooltips appear on hover and disappear on mouse leave
+- Use arrows to clearly point to the target element
+- Keep tooltip text concise and helpful
+- Default color is black with white text for maximum contrast
+
+### Drawer
+
+Slide-out panel for navigation, forms, or additional content.
+
+```rust
+use mingot::{Drawer, DrawerPosition, DrawerSize, Button};
+
+// Basic drawer
+let drawer_opened = RwSignal::new(false);
+
+view! {
+    <>
+        <Button on_click=move |_| drawer_opened.set(true)>
+            "Open Drawer"
+        </Button>
+
+        <Drawer
+            opened=Signal::from(drawer_opened)
+            on_close=Callback::new(move |_| drawer_opened.set(false))
+            title="Drawer Title"
+            with_overlay=true
+            with_close_button=true
+        >
+            <p>"Drawer content goes here"</p>
+        </Drawer>
+    </>
+}
+
+// Different positions
+view! {
+    <>
+        <Drawer
+            opened=Signal::from(left_opened)
+            on_close=Callback::new(move |_| left_opened.set(false))
+            position=DrawerPosition::Left
+            title="Left Drawer"
+        >
+            <p>"Slides from left"</p>
+        </Drawer>
+
+        <Drawer
+            opened=Signal::from(right_opened)
+            on_close=Callback::new(move |_| right_opened.set(false))
+            position=DrawerPosition::Right
+            title="Right Drawer"
+        >
+            <p>"Slides from right"</p>
+        </Drawer>
+    </>
+}
+
+// Different sizes
+view! {
+    <Drawer
+        opened=Signal::from(drawer_opened)
+        position=DrawerPosition::Right
+        size=DrawerSize::Lg
+        title="Large Drawer"
+    >
+        <p>"This is a large drawer (620px)"</p>
+    </Drawer>
+}
+
+// Without overlay
+view! {
+    <Drawer
+        opened=Signal::from(drawer_opened)
+        title="No Overlay"
+        with_overlay=false
+        with_close_button=true
+    >
+        <p>"Click outside won't close this"</p>
+    </Drawer>
+}
+
+// Form in drawer
+view! {
+    <Drawer
+        opened=Signal::from(drawer_opened)
+        on_close=Callback::new(move |_| drawer_opened.set(false))
+        title="Add User"
+        with_close_button=true
+    >
+        <Stack spacing="md">
+            <Input label="Name" placeholder="John Doe" />
+            <Input label="Email" placeholder="john@example.com" />
+            <Button>"Submit"</Button>
+        </Stack>
+    </Drawer>
+}
+```
+
+**Props:**
+- `opened`: `Signal<bool>` - Controls drawer visibility
+- `on_close`: `Callback<()>` - Called when drawer should close
+- `position`: `DrawerPosition` - Left, Right, Top, or Bottom (default: Right)
+- `size`: `DrawerSize` - Xs (240px), Sm (320px), Md (440px), Lg (620px), Xl (780px), Full (100%) (default: Md)
+- `title`: `String` - Optional drawer title
+- `with_overlay`: `bool` - Show dark overlay behind drawer (default: false)
+- `with_close_button`: `bool` - Show close button in header (default: false)
+- `padding`: `String` - Custom padding (default: theme.spacing.lg)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Use Left/Right positions for navigation or forms
+- Use Top/Bottom positions for filters or notifications
+- Enable overlay for modal-like behavior
+- Drawer animates smoothly in/out with CSS transitions
+- Click overlay (when enabled) to close drawer
+
+### Alert
+
+Display important messages with different severity levels.
+
+```rust
+use mingot::{Alert, AlertVariant, AlertColor};
+
+// Basic alerts
+view! {
+    <Stack spacing="md">
+        <Alert color=AlertColor::Info>
+            "This is an informational message"
+        </Alert>
+
+        <Alert color=AlertColor::Success>
+            "Operation completed successfully!"
+        </Alert>
+
+        <Alert color=AlertColor::Warning>
+            "Please review this warning"
+        </Alert>
+
+        <Alert color=AlertColor::Error>
+            "An error occurred"
+        </Alert>
+    </Stack>
+}
+
+// With title
+view! {
+    <Alert
+        color=AlertColor::Info
+        title="New Feature Available"
+    >
+        "Check out our latest updates in the settings panel"
+    </Alert>
+}
+
+// Different variants
+view! {
+    <Stack spacing="md">
+        <Alert variant=AlertVariant::Filled color=AlertColor::Success>
+            "Filled variant with solid background"
+        </Alert>
+
+        <Alert variant=AlertVariant::Light color=AlertColor::Info>
+            "Light variant with subtle background"
+        </Alert>
+
+        <Alert variant=AlertVariant::Outline color=AlertColor::Warning>
+            "Outline variant with border"
+        </Alert>
+    </Stack>
+}
+
+// Dismissible alert
+view! {
+    <Alert
+        color=AlertColor::Info
+        title="Cookie Notice"
+        with_close_button=true
+        on_close=Callback::new(move |_| {
+            // Handle alert dismissal
+        })
+    >
+        "We use cookies to improve your experience"
+    </Alert>
+}
+
+// Custom icon
+view! {
+    <Alert
+        color=AlertColor::Success
+        icon="🎉"
+        title="Congratulations!"
+    >
+        "You've completed all tasks"
+    </Alert>
+}
+```
+
+**Props:**
+- `variant`: `AlertVariant` - Filled, Light, or Outline (default: Light)
+- `color`: `AlertColor` - Info (blue), Success (green), Warning (yellow), Error (red) (default: Info)
+- `title`: `String` - Optional alert title
+- `icon`: `String` - Custom icon (defaults based on color)
+- `with_close_button`: `bool` - Show dismiss button (default: false)
+- `on_close`: `Callback<()>` - Called when alert is dismissed
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Default Icons:**
+- Info: ℹ️
+- Success: ✓
+- Warning: ⚠️
+- Error: ✕
+
+**Usage Tips:**
+- Use Info for general notifications
+- Use Success for confirmations
+- Use Warning for cautionary messages
+- Use Error for critical issues
+- Filled variant works well for prominent messages
+- Light variant is subtle and non-intrusive
+
+### Progress
+
+Display progress for ongoing operations.
+
+```rust
+use mingot::{Progress, ProgressSize};
+
+// Basic progress bar
+let progress = RwSignal::new(65.0);
+
+view! {
+    <Progress value=Signal::from(progress) />
+}
+
+// Different sizes
+view! {
+    <Stack spacing="md">
+        <Progress value=Signal::from(progress) size=ProgressSize::Xs />
+        <Progress value=Signal::from(progress) size=ProgressSize::Sm />
+        <Progress value=Signal::from(progress) size=ProgressSize::Md />
+        <Progress value=Signal::from(progress) size=ProgressSize::Lg />
+        <Progress value=Signal::from(progress) size=ProgressSize::Xl />
+    </Stack>
+}
+
+// With label
+view! {
+    <Progress
+        value=Signal::from(progress)
+        size=ProgressSize::Lg
+        label={move || format!("{}%", progress.get())}
+    />
+}
+
+// Striped
+view! {
+    <Progress
+        value=Signal::from(progress)
+        striped=true
+    />
+}
+
+// Animated striped
+view! {
+    <Progress
+        value=Signal::from(progress)
+        striped=true
+        animate=true
+    />
+}
+
+// Custom color
+view! {
+    <Stack spacing="md">
+        <Progress value=Signal::from(progress) color="blue" />
+        <Progress value=Signal::from(progress) color="green" />
+        <Progress value=Signal::from(progress) color="yellow" />
+        <Progress value=Signal::from(progress) color="red" />
+    </Stack>
+}
+
+// File upload example
+let upload_progress = RwSignal::new(0.0);
+
+view! {
+    <Stack spacing="sm">
+        <Text>"Uploading file..."</Text>
+        <Progress
+            value=Signal::from(upload_progress)
+            color="green"
+            striped=true
+            animate=true
+            label={move || format!("{}%", upload_progress.get() as i32)}
+        />
+    </Stack>
+}
+```
+
+**Props:**
+- `value`: `Signal<f32>` - Progress value (0-100)
+- `size`: `ProgressSize` - Xs, Sm, Md, Lg, or Xl (default: Md)
+- `color`: `String` - Progress bar color (default: "blue")
+- `striped`: `bool` - Show diagonal stripes (default: false)
+- `animate`: `bool` - Animate stripes (requires striped=true) (default: false)
+- `label`: `String` - Optional label displayed in progress bar
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**ProgressSize Heights:**
+- Xs: 4px
+- Sm: 6px
+- Md: 8px
+- Lg: 12px
+- Xl: 16px
+
+**Usage Tips:**
+- Value is automatically clamped between 0-100
+- Use animated stripes for indeterminate progress
+- Label text is white for visibility on colored background
+- Larger sizes accommodate labels better
+
+### Switch
+
+Toggle switch for boolean settings.
+
+```rust
+use mingot::{Switch, SwitchSize};
+
+// Basic switch
+let enabled = RwSignal::new(false);
+
+view! {
+    <Switch checked=Some(enabled) />
+}
+
+// With label
+view! {
+    <Switch
+        checked=Some(enabled)
+        label="Enable notifications"
+    />
+}
+
+// With label and description
+view! {
+    <Switch
+        checked=Some(enabled)
+        label="Dark Mode"
+        description="Toggle between light and dark theme"
+    />
+}
+
+// Different sizes
+view! {
+    <Stack spacing="md">
+        <Switch checked=Some(enabled) size=SwitchSize::Xs label="Extra small" />
+        <Switch checked=Some(enabled) size=SwitchSize::Sm label="Small" />
+        <Switch checked=Some(enabled) size=SwitchSize::Md label="Medium" />
+        <Switch checked=Some(enabled) size=SwitchSize::Lg label="Large" />
+        <Switch checked=Some(enabled) size=SwitchSize::Xl label="Extra large" />
+    </Stack>
+}
+
+// Custom color
+view! {
+    <Switch
+        checked=Some(enabled)
+        color="green"
+        label="Enable feature"
+    />
+}
+
+// Disabled state
+view! {
+    <Switch
+        checked=Some(enabled)
+        label="Disabled switch"
+        disabled=true
+    />
+}
+
+// With change callback
+view! {
+    <Switch
+        checked=Some(enabled)
+        label="Notifications"
+        on_change=Callback::new(move |checked: bool| {
+            if checked {
+                // Enable notifications
+            } else {
+                // Disable notifications
+            }
+        })
+    />
+}
+
+// Settings form
+view! {
+    <Stack spacing="md">
+        <Switch
+            checked=Some(notifications_enabled)
+            label="Push Notifications"
+            description="Receive alerts about important updates"
+        />
+        <Switch
+            checked=Some(email_enabled)
+            label="Email Notifications"
+            description="Get daily digest emails"
+        />
+        <Switch
+            checked=Some(dark_mode)
+            label="Dark Mode"
+            description="Use dark color scheme"
+            color="blue"
+        />
+    </Stack>
+}
+```
+
+**Props:**
+- `checked`: `RwSignal<bool>` - Switch state
+- `size`: `SwitchSize` - Xs, Sm, Md, Lg, or Xl (default: Md)
+- `color`: `String` - Switch color when on (default: "blue")
+- `label`: `String` - Optional label text
+- `description`: `String` - Optional description text
+- `disabled`: `bool` - Disable interaction (default: false)
+- `on_change`: `Callback<bool>` - Called when switch toggles
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**SwitchSize Dimensions (width × height):**
+- Xs: 28×14px
+- Sm: 36×18px
+- Md: 44×22px
+- Lg: 52×26px
+- Xl: 60×30px
+
+**Usage Tips:**
+- Use for binary on/off settings
+- Label and description help clarify the switch purpose
+- Disabled switches appear at 50% opacity
+- Thumb animates smoothly when toggling
+- Color is applied only when switch is on
+
+### Menu
+
+Dropdown menu for actions and navigation.
+
+```rust
+use mingot::{Menu, MenuTarget, MenuDropdown, MenuItem, MenuDivider, MenuLabel, Button};
+
+// Basic menu
+view! {
+    <Menu>
+        <MenuTarget>
+            <Button>"Actions"</Button>
+        </MenuTarget>
+        <MenuDropdown>
+            <MenuItem>"Edit"</MenuItem>
+            <MenuItem>"Delete"</MenuItem>
+        </MenuDropdown>
+    </Menu>
+}
+
+// With icons
+view! {
+    <Menu>
+        <MenuTarget>
+            <Button>"File"</Button>
+        </MenuTarget>
+        <MenuDropdown>
+            <MenuItem icon="📄">"New File"</MenuItem>
+            <MenuItem icon="📁">"Open"</MenuItem>
+            <MenuItem icon="💾">"Save"</MenuItem>
+        </MenuDropdown>
+    </Menu>
+}
+
+// With click handlers
+view! {
+    <Menu>
+        <MenuTarget>
+            <Button>"Options"</Button>
+        </MenuTarget>
+        <MenuDropdown>
+            <MenuItem on_click=Callback::new(|_| {
+                // Handle edit
+            })>
+                "Edit"
+            </MenuItem>
+            <MenuItem on_click=Callback::new(|_| {
+                // Handle delete
+            })>
+                "Delete"
+            </MenuItem>
+        </MenuDropdown>
+    </Menu>
+}
+
+// With sections and dividers
+view! {
+    <Menu>
+        <MenuTarget>
+            <Button>"Account"</Button>
+        </MenuTarget>
+        <MenuDropdown>
+            <MenuLabel>"Account"</MenuLabel>
+            <MenuItem icon="👤">"Profile"</MenuItem>
+            <MenuItem icon="⚙️">"Settings"</MenuItem>
+
+            <MenuDivider />
+
+            <MenuLabel>"Danger Zone"</MenuLabel>
+            <MenuItem icon="🗑️">"Delete Account"</MenuItem>
+        </MenuDropdown>
+    </Menu>
+}
+
+// Disabled items
+view! {
+    <Menu>
+        <MenuTarget>
+            <Button>"Edit"</Button>
+        </MenuTarget>
+        <MenuDropdown>
+            <MenuItem>"Cut"</MenuItem>
+            <MenuItem>"Copy"</MenuItem>
+            <MenuItem disabled=true>"Paste"</MenuItem>
+        </MenuDropdown>
+    </Menu>
+}
+
+// User menu example
+view! {
+    <Menu>
+        <MenuTarget>
+            <Avatar src="user.jpg" />
+        </MenuTarget>
+        <MenuDropdown>
+            <MenuItem icon="👤">"Profile"</MenuItem>
+            <MenuItem icon="⚙️">"Settings"</MenuItem>
+            <MenuItem icon="❓">"Help"</MenuItem>
+            <MenuDivider />
+            <MenuItem
+                icon="🚪"
+                on_click=Callback::new(|_| {
+                    // Handle logout
+                })
+            >
+                "Logout"
+            </MenuItem>
+        </MenuDropdown>
+    </Menu>
+}
+```
+
+**Menu Components:**
+
+**Menu** - Root container
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**MenuTarget** - Clickable trigger element
+- Wraps any element that should trigger the menu
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**MenuDropdown** - Dropdown content container
+- Positioned absolutely below target
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**MenuItem** - Individual menu item
+- `icon`: `String` - Optional icon
+- `on_click`: `Callback<()>` - Click handler
+- `disabled`: `bool` - Disable interaction (default: false)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**MenuDivider** - Visual separator
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**MenuLabel** - Section label
+- Displays as uppercase text
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Click target to toggle menu open/closed
+- Click menu item to close menu automatically
+- Menu closes when clicking outside (via context)
+- Use MenuLabel to group related items
+- Use MenuDivider to separate sections
+- Disabled items appear at 50% opacity and don't respond to clicks
+
+### Breadcrumbs
+
+Navigation breadcrumbs to show current location in hierarchy.
+
+```rust
+use mingot::{Breadcrumbs, BreadcrumbItem};
+
+// Basic breadcrumbs
+view! {
+    <Breadcrumbs items=vec![
+        BreadcrumbItem::new("Home").href("/"),
+        BreadcrumbItem::new("Products").href("/products"),
+        BreadcrumbItem::new("Category").href("/products/category"),
+        BreadcrumbItem::new("Item"),
+    ] />
+}
+
+// Custom separator
+view! {
+    <Breadcrumbs
+        separator=">"
+        items=vec![
+            BreadcrumbItem::new("Docs").href("/docs"),
+            BreadcrumbItem::new("Components").href("/docs/components"),
+            BreadcrumbItem::new("Breadcrumbs"),
+        ]
+    />
+}
+
+// With arrow separator
+view! {
+    <Breadcrumbs
+        separator="→"
+        items=vec![
+            BreadcrumbItem::new("Home").href("/"),
+            BreadcrumbItem::new("Settings").href("/settings"),
+            BreadcrumbItem::new("Profile"),
+        ]
+    />
+}
+
+// Complex navigation
+view! {
+    <Breadcrumbs items=vec![
+        BreadcrumbItem::new("Dashboard").href("/"),
+        BreadcrumbItem::new("Projects").href("/projects"),
+        BreadcrumbItem::new("My Project").href("/projects/123"),
+        BreadcrumbItem::new("Settings").href("/projects/123/settings"),
+        BreadcrumbItem::new("Advanced"),
+    ] />
+}
+
+// File path style
+view! {
+    <Breadcrumbs
+        separator="/"
+        items=vec![
+            BreadcrumbItem::new("~").href("/"),
+            BreadcrumbItem::new("Documents").href("/documents"),
+            BreadcrumbItem::new("Projects").href("/documents/projects"),
+            BreadcrumbItem::new("mingot"),
+        ]
+    />
+}
+```
+
+**Props:**
+- `items`: `Vec<BreadcrumbItem>` - Breadcrumb items to display
+- `separator`: `String` - Custom separator (default: "/")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**BreadcrumbItem:**
+- `new(label)` - Create item with label
+- `.href(url)` - Make item clickable link
+
+**Usage Tips:**
+- Last item (current page) typically has no href
+- Items with href are styled as links (blue, clickable)
+- Items without href are styled as plain text
+- Common separators: `/`, `>`, `→`, `|`
+- Breadcrumbs automatically flex-wrap on smaller screens
+- Use for showing navigation hierarchy
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -2718,11 +3462,14 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Stats and metrics components (Stats, StatsGroup, RingProgress)
 - [x] Error page components (ErrorPage with multiple error types)
 - [x] Comprehensive test suite (44 tests covering core functionality)
-- [ ] Additional overlay components (Drawer, Popover, Tooltip)
+- [x] Overlay components (Drawer, Tooltip)
+- [x] Form components (Switch)
+- [x] Navigation components (Menu, Breadcrumbs)
+- [x] Feedback components (Alert, Progress)
 - [ ] System dark mode detection (prefers-color-scheme)
-- [ ] More form components (Switch, Slider, File Input, Date Picker)
-- [ ] More navigation components (Menu, Breadcrumbs)
-- [ ] Feedback components (Alert, Notification, Progress)
+- [ ] Additional overlay components (Popover)
+- [ ] More form components (Slider, File Input, Date Picker)
+- [ ] Notification system
 - [ ] CSS-in-Rust styling with style generation
 - [ ] More comprehensive theming options
 - [ ] Accessibility improvements (ARIA labels, keyboard navigation)

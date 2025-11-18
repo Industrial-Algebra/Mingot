@@ -19,6 +19,8 @@ pub mod appshell;
 // Navigation components
 pub mod navbar;
 pub mod tabs;
+pub mod menu;
+pub mod breadcrumbs;
 
 // Form components
 pub mod input;
@@ -26,9 +28,16 @@ pub mod textarea;
 pub mod select;
 pub mod checkbox;
 pub mod radio;
+pub mod switch;
 
 // Overlay components
 pub mod modal;
+pub mod drawer;
+pub mod tooltip;
+
+// Feedback components
+pub mod alert;
+pub mod progress;
 
 // Data display components
 pub mod table;
@@ -58,12 +67,19 @@ pub use paper::*;
 pub use appshell::*;
 pub use navbar::*;
 pub use tabs::*;
+pub use menu::*;
+pub use breadcrumbs::*;
 pub use input::*;
 pub use textarea::*;
 pub use select::*;
 pub use checkbox::*;
 pub use radio::*;
+pub use switch::*;
 pub use modal::*;
+pub use drawer::*;
+pub use tooltip::*;
+pub use alert::*;
+pub use progress::*;
 pub use table::*;
 pub use avatar::*;
 pub use badge::*;
