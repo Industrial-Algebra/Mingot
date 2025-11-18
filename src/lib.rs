@@ -14,7 +14,7 @@
 //!     view! {
 //!         <MingotProvider>
 //!             <Container>
-//!                 <Stack spacing="md">
+//!                 <Stack spacing="md".to_string()>
 //!                     <Text size=TextSize::Xl weight=TextWeight::Bold>
 //!                         "Welcome to Mingot"
 //!                     </Text>
