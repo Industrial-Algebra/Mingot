@@ -840,6 +840,390 @@ view! {
 - Set `overlay=true` when using background images to improve text readability
 - Use custom `color` props on HeroTitle/HeroSubtitle when using dark backgrounds
 
+### Avatar
+
+A user profile picture component with image support, initials fallback, and grouping.
+
+```rust
+use mingot::{Avatar, AvatarGroup, AvatarSize, AvatarRadius};
+
+// Basic avatar with image
+view! {
+    <Avatar
+        src="/user-photo.jpg"
+        alt="John Doe"
+    />
+}
+
+// Avatar with initials fallback
+view! {
+    <Avatar
+        initials="JD"
+        color="blue"
+    />
+}
+
+// Different sizes
+view! {
+    <Stack spacing="sm">
+        <Avatar src="/user.jpg" size=AvatarSize::Xs />
+        <Avatar src="/user.jpg" size=AvatarSize::Sm />
+        <Avatar src="/user.jpg" size=AvatarSize::Md />
+        <Avatar src="/user.jpg" size=AvatarSize::Lg />
+        <Avatar src="/user.jpg" size=AvatarSize::Xl />
+    </Stack>
+}
+
+// Different radius
+view! {
+    <Group>
+        <Avatar initials="JD" radius=AvatarRadius::Xs />
+        <Avatar initials="JD" radius=AvatarRadius::Md />
+        <Avatar initials="JD" radius=AvatarRadius::Full />
+    </Group>
+}
+
+// Different colors
+view! {
+    <Group>
+        <Avatar initials="AB" color="blue" />
+        <Avatar initials="CD" color="red" />
+        <Avatar initials="EF" color="green" />
+    </Group>
+}
+
+// Avatar group (overlapping avatars)
+view! {
+    <AvatarGroup>
+        <Avatar src="/user1.jpg" />
+        <Avatar src="/user2.jpg" />
+        <Avatar src="/user3.jpg" />
+        <Avatar initials="+5" />
+    </AvatarGroup>
+}
+
+// Avatar group with spacing
+view! {
+    <AvatarGroup spacing="sm">
+        <Avatar initials="AB" color="blue" />
+        <Avatar initials="CD" color="red" />
+        <Avatar initials="EF" color="green" />
+    </AvatarGroup>
+}
+```
+
+**Avatar Props:**
+- `src`: `String` - Image source URL
+- `alt`: `String` - Alt text for image
+- `size`: `AvatarSize` - Xs (16px), Sm (26px), Md (38px, default), Lg (56px), Xl (84px)
+- `radius`: `AvatarRadius` - Xs, Sm, Md, Lg, Xl, or Full (default: Full)
+- `color`: `String` - Background color for initials (theme color name, default: "blue")
+- `initials`: `String` - Fallback text when no image (usually 1-2 characters)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**AvatarGroup Props:**
+- `spacing`: `String` - Gap between avatars (default: overlapping with negative margin)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+### Badge
+
+A small labeled status indicator component.
+
+```rust
+use mingot::{Badge, BadgeVariant, BadgeSize};
+
+// Basic badge
+view! {
+    <Badge>"New"</Badge>
+}
+
+// Different variants
+view! {
+    <Group>
+        <Badge variant=BadgeVariant::Filled>"Filled"</Badge>
+        <Badge variant=BadgeVariant::Light>"Light"</Badge>
+        <Badge variant=BadgeVariant::Outline>"Outline"</Badge>
+        <Badge variant=BadgeVariant::Dot>"Dot"</Badge>
+    </Group>
+}
+
+// Different colors
+view! {
+    <Group>
+        <Badge color="blue">"Blue"</Badge>
+        <Badge color="red">"Red"</Badge>
+        <Badge color="green">"Green"</Badge>
+        <Badge color="yellow">"Yellow"</Badge>
+    </Group>
+}
+
+// Different sizes
+view! {
+    <Group>
+        <Badge size=BadgeSize::Xs>"Extra Small"</Badge>
+        <Badge size=BadgeSize::Sm>"Small"</Badge>
+        <Badge size=BadgeSize::Md>"Medium"</Badge>
+        <Badge size=BadgeSize::Lg>"Large"</Badge>
+        <Badge size=BadgeSize::Xl>"Extra Large"</Badge>
+    </Group>
+}
+
+// With left/right sections
+view! {
+    <Badge
+        left_section={|| view! { <span>"✓"</span> }}
+    >
+        "Verified"
+    </Badge>
+}
+
+// Full width
+view! {
+    <Badge full_width=true>"Full Width Badge"</Badge>
+}
+
+// Dot variant for status indicators
+view! {
+    <Stack spacing="xs">
+        <Badge variant=BadgeVariant::Dot color="green">"Active"</Badge>
+        <Badge variant=BadgeVariant::Dot color="red">"Offline"</Badge>
+        <Badge variant=BadgeVariant::Dot color="yellow">"Away"</Badge>
+    </Stack>
+}
+```
+
+**Badge Props:**
+- `variant`: `BadgeVariant` - Filled (default), Light, Outline, or Dot
+- `size`: `BadgeSize` - Xs, Sm, Md (default), Lg, or Xl
+- `color`: `String` - Theme color name (default: "blue")
+- `radius`: `String` - Border radius (default: "9999px" for pill shape)
+- `full_width`: `bool` - Expand to full width (default: false)
+- `left_section`: `Children` - Content to display on the left
+- `right_section`: `Children` - Content to display on the right
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Variants:**
+- **Filled**: Solid background with white text
+- **Light**: Light background with colored text
+- **Outline**: Transparent with colored border
+- **Dot**: Small colored dot with text (no uppercase transform)
+
+### Card
+
+A container component for content with optional sections and borders.
+
+```rust
+use mingot::{Card, CardSection, CardPadding};
+
+// Basic card
+view! {
+    <Card>
+        <Text weight=TextWeight::Bold>"Card Title"</Text>
+        <Text size=TextSize::Sm>
+            "This is some card content that goes inside the card."
+        </Text>
+    </Card>
+}
+
+// Card with sections
+view! {
+    <Card padding=CardPadding::Lg>
+        <CardSection>
+            <img src="/image.jpg" alt="Card image" style="width: 100%; height: 200px; object-fit: cover;" />
+        </CardSection>
+
+        <Stack spacing="sm">
+            <Text weight=TextWeight::Bold size=TextSize::Lg>
+                "Card with Image"
+            </Text>
+            <Text size=TextSize::Sm>
+                "This card has an image section at the top."
+            </Text>
+        </Stack>
+
+        <CardSection with_border=true>
+            <Group justify=GroupJustify::End>
+                <Button variant=ButtonVariant::Outline>"Cancel"</Button>
+                <Button>"Save"</Button>
+            </Group>
+        </CardSection>
+    </Card>
+}
+
+// Card without border
+view! {
+    <Card with_border=false shadow="lg">
+        "Card with shadow instead of border"
+    </Card>
+}
+
+// Different padding sizes
+view! {
+    <Grid>
+        <GridCol span=6>
+            <Card padding=CardPadding::Xs>"Extra Small Padding"</Card>
+        </GridCol>
+        <GridCol span=6>
+            <Card padding=CardPadding::Xl>"Extra Large Padding"</Card>
+        </GridCol>
+    </Grid>
+}
+
+// User profile card example
+view! {
+    <Card>
+        <Stack spacing="md" align=StackAlign::Center>
+            <Avatar src="/user.jpg" size=AvatarSize::Xl />
+            <Stack spacing="xs" align=StackAlign::Center>
+                <Text weight=TextWeight::Bold size=TextSize::Lg>
+                    "John Doe"
+                </Text>
+                <Badge variant=BadgeVariant::Light color="blue">
+                    "Admin"
+                </Badge>
+            </Stack>
+            <Text size=TextSize::Sm align="center">
+                "Full-stack developer and open source contributor"
+            </Text>
+        </Stack>
+
+        <CardSection with_border=true>
+            <Group justify=GroupJustify::SpaceAround>
+                <Stack spacing="xs" align=StackAlign::Center>
+                    <Text weight=TextWeight::Bold>"1.2k"</Text>
+                    <Text size=TextSize::Sm>"Followers"</Text>
+                </Stack>
+                <Stack spacing="xs" align=StackAlign::Center>
+                    <Text weight=TextWeight::Bold>"847"</Text>
+                    <Text size=TextSize::Sm>"Following"</Text>
+                </Stack>
+            </Group>
+        </CardSection>
+    </Card>
+}
+```
+
+**Card Props:**
+- `padding`: `CardPadding` - Xs, Sm, Md (default), Lg, or Xl
+- `radius`: `String` - Border radius (default: theme.radius.md)
+- `with_border`: `bool` - Add border (default: true)
+- `shadow`: `String` - Box shadow (default: theme.shadows.sm)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**CardSection Props:**
+- `with_border`: `bool` - Add top and bottom borders (default: false)
+- `inherit_padding`: `bool` - Inherit padding from Card (default: false, removes padding)
+- `padding`: `String` - Custom padding
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Use `CardSection` without `inherit_padding` for full-width content like images
+- Use `with_border=true` on sections to visually separate content
+- Combine Card with Grid/Stack for layouts
+
+### Divider
+
+A horizontal or vertical line separator with optional labels.
+
+```rust
+use mingot::{Divider, DividerOrientation, DividerLabelPosition, DividerVariant};
+
+// Basic horizontal divider
+view! {
+    <Stack>
+        <Text>"Content above"</Text>
+        <Divider />
+        <Text>"Content below"</Text>
+    </Stack>
+}
+
+// Divider with label
+view! {
+    <Stack>
+        <Text>"Section 1"</Text>
+        <Divider label="Or" />
+        <Text>"Section 2"</Text>
+    </Stack>
+}
+
+// Label positions
+view! {
+    <Stack>
+        <Divider label="Left" label_position=DividerLabelPosition::Left />
+        <Divider label="Center" label_position=DividerLabelPosition::Center />
+        <Divider label="Right" label_position=DividerLabelPosition::Right />
+    </Stack>
+}
+
+// Different variants
+view! {
+    <Stack>
+        <Divider variant=DividerVariant::Solid label="Solid" />
+        <Divider variant=DividerVariant::Dashed label="Dashed" />
+        <Divider variant=DividerVariant::Dotted label="Dotted" />
+    </Stack>
+}
+
+// Vertical divider
+view! {
+    <Group style="height: 100px;">
+        <Text>"Left"</Text>
+        <Divider orientation=DividerOrientation::Vertical />
+        <Text>"Right"</Text>
+    </Group>
+}
+
+// Custom color and size
+view! {
+    <Divider
+        color="#ff6b6b"
+        size="2px"
+        label="Custom Divider"
+    />
+}
+
+// Login form separator example
+view! {
+    <Stack spacing="md">
+        <Input label="Email" />
+        <Input label="Password" input_type="password" />
+        <Button full_width=true>"Sign In"</Button>
+
+        <Divider label="Or continue with" />
+
+        <Group>
+            <Button variant=ButtonVariant::Outline full_width=true>
+                "Google"
+            </Button>
+            <Button variant=ButtonVariant::Outline full_width=true>
+                "GitHub"
+            </Button>
+        </Group>
+    </Stack>
+}
+```
+
+**Divider Props:**
+- `orientation`: `DividerOrientation` - Horizontal (default) or Vertical
+- `label`: `String` - Optional label text (only for horizontal)
+- `label_position`: `DividerLabelPosition` - Left, Center (default), or Right
+- `size`: `String` - Border thickness (default: "1px")
+- `color`: `String` - Border color (default: theme border color)
+- `variant`: `DividerVariant` - Solid (default), Dashed, or Dotted
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Use horizontal dividers to separate content sections
+- Use vertical dividers in Group or horizontal layouts
+- Add labels for "or" separators in forms
+- Vertical dividers require a parent with defined height
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -1605,10 +1989,10 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Responsive grid layout system (Grid, GridCol, SimpleGrid)
 - [x] Navigation components (Header, Footer, Navbar)
 - [x] Banner and Hero components
+- [x] User info components (Avatar, Badge, Card, Divider)
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
-- [ ] More data display components (Card, Badge, Avatar)
 - [ ] More navigation components (Tabs, Menu, Breadcrumbs)
 - [ ] Feedback components (Alert, Notification, Progress)
 - [ ] CSS-in-Rust styling with style generation
