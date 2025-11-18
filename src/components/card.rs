@@ -29,12 +29,15 @@ pub fn Card(
     #[prop(optional)] radius: Option<String>,
     #[prop(optional)] with_border: bool,
     #[prop(optional)] shadow: Option<String>,
+    #[prop(optional)] as_: Option<String>,
+    #[prop(optional)] href: Option<String>,
     #[prop(optional)] class: Option<String>,
     #[prop(optional)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
     let padding = padding.unwrap_or(CardPadding::Md);
+    let is_link = as_.as_ref().map(|s| s == "a").unwrap_or(false);
 
     let card_styles = move || {
         let theme_val = theme.get();
@@ -47,6 +50,14 @@ pub fn Card(
             .add("display", "flex")
             .add("flex-direction", "column")
             .add("transition", "box-shadow 0.15s ease");
+
+        // Add link-specific styles
+        if is_link {
+            builder
+                .add("text-decoration", "none")
+                .add("color", "inherit")
+                .add("cursor", "pointer");
+        }
 
         if let Some(r) = radius.as_ref() {
             builder.add("border-radius", r);
@@ -76,10 +87,20 @@ pub fn Card(
 
     let class_str = format!("mingot-card {}", class.unwrap_or_default());
 
-    view! {
-        <div class=class_str style=card_styles>
-            {children()}
-        </div>
+    if is_link {
+        view! {
+            <a href=href.unwrap_or_else(|| "#".to_string()) class=class_str style=card_styles>
+                {children()}
+            </a>
+        }
+        .into_any()
+    } else {
+        view! {
+            <div class=class_str style=card_styles>
+                {children()}
+            </div>
+        }
+        .into_any()
     }
 }
 

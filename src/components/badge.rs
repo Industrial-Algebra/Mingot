@@ -10,12 +10,18 @@ pub enum BadgeVariant {
     Dot,
 }
 
+/// Badge size variants
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum BadgeSize {
+    /// Extra small badge (font: 0.625rem/10px, padding: minimal)
     Xs,
+    /// Small badge (font: 0.6875rem/11px, padding: compact)
     Sm,
+    /// Medium badge - default (font: 0.75rem/12px, padding: comfortable)
     Md,
+    /// Large badge (font: 0.875rem/14px, padding: spacious)
     Lg,
+    /// Extra large badge (font: 1rem/16px, padding: generous)
     Xl,
 }
 

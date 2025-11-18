@@ -31,6 +31,7 @@
 pub mod components;
 pub mod theme;
 pub mod utils;
+pub mod validation;
 
 // Re-export commonly used components
 pub use components::*;
@@ -38,6 +39,7 @@ pub use theme::{
     use_color_scheme, use_color_scheme_toggle, use_set_color_scheme, use_theme, ActiveColorScheme,
     ColorSchemeMode, MingotProvider, Theme, ThemeContext,
 };
+pub use validation::{ValidationError, ValidationResult, Validator};
 
 // Re-export leptos for convenience
 pub use leptos;
@@ -49,4 +51,5 @@ pub mod prelude {
         use_color_scheme, use_color_scheme_toggle, use_set_color_scheme, ActiveColorScheme,
         ColorSchemeMode, MingotProvider, Theme,
     };
+    pub use crate::validation::{self, ValidationError, ValidationResult, Validator};
 }

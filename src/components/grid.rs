@@ -3,6 +3,17 @@ use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 
 /// Responsive column span configuration
+///
+/// Use this for programmatic span configuration, or use GridCol props directly.
+///
+/// # Examples
+/// ```ignore
+/// // Using ColSpan builder:
+/// let span = ColSpan::new(6).md(12).lg(4);
+///
+/// // Or use GridCol props directly (simpler):
+/// <GridCol span=6 md=12 lg=4>...</GridCol>
+/// ```
 #[derive(Clone, Debug)]
 pub struct ColSpan {
     pub xs: Option<u32>,
@@ -10,6 +21,12 @@ pub struct ColSpan {
     pub md: Option<u32>,
     pub lg: Option<u32>,
     pub xl: Option<u32>,
+}
+
+impl From<u32> for ColSpan {
+    fn from(span: u32) -> Self {
+        Self::new(span)
+    }
 }
 
 impl ColSpan {
