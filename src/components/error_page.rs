@@ -57,6 +57,99 @@ impl ErrorPageType {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_not_found_defaults() {
+        let error_type = ErrorPageType::NotFound;
+        assert_eq!(error_type.status_code(), "404");
+        assert_eq!(error_type.default_title(), "Page Not Found");
+        assert_eq!(
+            error_type.default_description(),
+            "The page you are looking for doesn't exist or has been moved."
+        );
+        assert_eq!(error_type.emoji(), "🔍");
+    }
+
+    #[test]
+    fn test_internal_error_defaults() {
+        let error_type = ErrorPageType::InternalError;
+        assert_eq!(error_type.status_code(), "500");
+        assert_eq!(error_type.default_title(), "Internal Server Error");
+        assert_eq!(
+            error_type.default_description(),
+            "Something went wrong on our end. Please try again later."
+        );
+        assert_eq!(error_type.emoji(), "⚠️");
+    }
+
+    #[test]
+    fn test_forbidden_defaults() {
+        let error_type = ErrorPageType::Forbidden;
+        assert_eq!(error_type.status_code(), "403");
+        assert_eq!(error_type.default_title(), "Access Forbidden");
+        assert_eq!(
+            error_type.default_description(),
+            "You don't have permission to access this resource."
+        );
+        assert_eq!(error_type.emoji(), "🚫");
+    }
+
+    #[test]
+    fn test_unauthorized_defaults() {
+        let error_type = ErrorPageType::Unauthorized;
+        assert_eq!(error_type.status_code(), "401");
+        assert_eq!(error_type.default_title(), "Unauthorized");
+        assert_eq!(
+            error_type.default_description(),
+            "Please log in to access this page."
+        );
+        assert_eq!(error_type.emoji(), "🔒");
+    }
+
+    #[test]
+    fn test_service_unavailable_defaults() {
+        let error_type = ErrorPageType::ServiceUnavailable;
+        assert_eq!(error_type.status_code(), "503");
+        assert_eq!(error_type.default_title(), "Service Unavailable");
+        assert_eq!(
+            error_type.default_description(),
+            "The service is temporarily unavailable. Please try again later."
+        );
+        assert_eq!(error_type.emoji(), "🔧");
+    }
+
+    #[test]
+    fn test_custom_error_defaults() {
+        let error_type = ErrorPageType::Custom;
+        assert_eq!(error_type.status_code(), "");
+        assert_eq!(error_type.default_title(), "Error");
+        assert_eq!(error_type.default_description(), "An error occurred.");
+        assert_eq!(error_type.emoji(), "❌");
+    }
+
+    #[test]
+    fn test_all_error_types_have_unique_codes() {
+        let codes = vec![
+            ErrorPageType::NotFound.status_code(),
+            ErrorPageType::InternalError.status_code(),
+            ErrorPageType::Forbidden.status_code(),
+            ErrorPageType::Unauthorized.status_code(),
+            ErrorPageType::ServiceUnavailable.status_code(),
+        ];
+
+        // Check that all non-empty codes are unique
+        let mut seen = std::collections::HashSet::new();
+        for code in codes {
+            if !code.is_empty() {
+                assert!(seen.insert(code), "Duplicate status code: {}", code);
+            }
+        }
+    }
+}
+
 #[component]
 pub fn ErrorPage(
     #[prop(optional)] error_type: Option<ErrorPageType>,

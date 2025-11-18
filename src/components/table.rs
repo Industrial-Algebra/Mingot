@@ -589,3 +589,79 @@ where
         </div>
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sort_direction_toggle() {
+        assert_eq!(SortDirection::None.toggle(), SortDirection::Ascending);
+        assert_eq!(SortDirection::Ascending.toggle(), SortDirection::Descending);
+        assert_eq!(SortDirection::Descending.toggle(), SortDirection::Ascending);
+    }
+
+    #[test]
+    fn test_sort_direction_icon() {
+        assert_eq!(SortDirection::None.icon(), "↕");
+        assert_eq!(SortDirection::Ascending.icon(), "↑");
+        assert_eq!(SortDirection::Descending.icon(), "↓");
+    }
+
+    #[test]
+    fn test_sort_direction_toggle_cycle() {
+        let mut dir = SortDirection::None;
+        dir = dir.toggle();
+        assert_eq!(dir, SortDirection::Ascending);
+        dir = dir.toggle();
+        assert_eq!(dir, SortDirection::Descending);
+        dir = dir.toggle();
+        assert_eq!(dir, SortDirection::Ascending);
+    }
+
+    #[derive(Clone)]
+    struct TestData {
+        id: i32,
+        name: String,
+    }
+
+    #[test]
+    fn test_table_column_builder() {
+        let column = TableColumn::new("id", "ID", |item: &TestData| {
+            view! { <span>{item.id}</span> }
+        })
+        .sortable(true)
+        .width("100px");
+
+        assert_eq!(column.key, "id");
+        assert_eq!(column.header, "ID");
+        assert!(column.sortable);
+        assert_eq!(column.width, Some("100px".to_string()));
+    }
+
+    #[test]
+    fn test_table_column_default_sortable() {
+        let column = TableColumn::new("name", "Name", |item: &TestData| {
+            view! { <span>{item.name.clone()}</span> }
+        });
+
+        assert!(!column.sortable);
+        assert_eq!(column.width, None);
+    }
+
+    #[test]
+    fn test_table_column_clone() {
+        let column1 = TableColumn::new("id", "ID", |item: &TestData| {
+            view! { <span>{item.id}</span> }
+        })
+        .sortable(true)
+        .width("50px");
+
+        let column2 = column1.clone();
+
+        assert_eq!(column1.key, column2.key);
+        assert_eq!(column1.header, column2.header);
+        assert_eq!(column1.sortable, column2.sortable);
+        assert_eq!(column1.width, column2.width);
+    }
+}

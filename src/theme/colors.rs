@@ -241,3 +241,120 @@ impl ColorPalette {
         scheme.get_color(&self.primary_color, shade)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_color_palette_default() {
+        let palette = ColorPalette::default();
+        assert_eq!(palette.primary_color, "blue");
+        assert!(!palette.light.colors.is_empty());
+        assert!(!palette.dark.colors.is_empty());
+    }
+
+    #[test]
+    fn test_light_scheme_colors() {
+        let scheme = ColorScheme::light_default();
+
+        // Test basic colors
+        assert_eq!(scheme.white, "#ffffff");
+        assert_eq!(scheme.black, "#000000");
+        assert_eq!(scheme.background, "#ffffff");
+        assert_eq!(scheme.text, "#000000");
+
+        // Test that color palettes exist
+        assert!(scheme.colors.contains_key("blue"));
+        assert!(scheme.colors.contains_key("gray"));
+        assert!(scheme.colors.contains_key("red"));
+        assert!(scheme.colors.contains_key("green"));
+        assert!(scheme.colors.contains_key("yellow"));
+    }
+
+    #[test]
+    fn test_dark_scheme_colors() {
+        let scheme = ColorScheme::dark_default();
+
+        // Test basic colors
+        assert_eq!(scheme.white, "#ffffff");
+        assert_eq!(scheme.black, "#000000");
+        assert_eq!(scheme.background, "#1a1b1e");
+        assert_eq!(scheme.text, "#c1c2c5");
+
+        // Test that color palettes exist
+        assert!(scheme.colors.contains_key("blue"));
+        assert!(scheme.colors.contains_key("gray"));
+        assert!(scheme.colors.contains_key("red"));
+        assert!(scheme.colors.contains_key("green"));
+        assert!(scheme.colors.contains_key("yellow"));
+    }
+
+    #[test]
+    fn test_get_color() {
+        let scheme = ColorScheme::light_default();
+
+        // Test getting blue shade 6 (primary)
+        let blue = scheme.get_color("blue", 6);
+        assert_eq!(blue, Some("#228be6".to_string()));
+
+        // Test getting gray shade 6
+        let gray = scheme.get_color("gray", 6);
+        assert_eq!(gray, Some("#868e96".to_string()));
+
+        // Test invalid shade
+        let invalid = scheme.get_color("blue", 100);
+        assert_eq!(invalid, None);
+
+        // Test invalid color
+        let invalid_color = scheme.get_color("purple", 6);
+        assert_eq!(invalid_color, None);
+    }
+
+    #[test]
+    fn test_color_shades_get() {
+        let shades = ColorShades {
+            shades: vec!["#aaa".to_string(), "#bbb".to_string(), "#ccc".to_string()],
+        };
+
+        assert_eq!(shades.get(0), Some(&"#aaa".to_string()));
+        assert_eq!(shades.get(1), Some(&"#bbb".to_string()));
+        assert_eq!(shades.get(2), Some(&"#ccc".to_string()));
+        assert_eq!(shades.get(3), None);
+    }
+
+    #[test]
+    fn test_palette_primary() {
+        let palette = ColorPalette::default();
+        let scheme = ColorScheme::light_default();
+
+        // Since primary_color is "blue" by default, should get blue shade
+        let primary = palette.primary(&scheme, 6);
+        assert_eq!(primary, Some("#228be6".to_string()));
+    }
+
+    #[test]
+    fn test_all_shades_have_10_colors() {
+        let scheme = ColorScheme::light_default();
+
+        for (name, shades) in &scheme.colors {
+            assert_eq!(
+                shades.shades.len(),
+                10,
+                "Color {} should have 10 shades",
+                name
+            );
+        }
+    }
+
+    #[test]
+    fn test_dark_scheme_different_from_light() {
+        let light = ColorScheme::light_default();
+        let dark = ColorScheme::dark_default();
+
+        // Background and text should be different
+        assert_ne!(light.background, dark.background);
+        assert_ne!(light.text, dark.text);
+        assert_ne!(light.border, dark.border);
+    }
+}

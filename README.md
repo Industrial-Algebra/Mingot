@@ -2717,6 +2717,7 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Application components (Paper, AppShell, Accordion, Tabs)
 - [x] Stats and metrics components (Stats, StatsGroup, RingProgress)
 - [x] Error page components (ErrorPage with multiple error types)
+- [x] Comprehensive test suite (44 tests covering core functionality)
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
@@ -2729,6 +2730,119 @@ fn ThemeToggle() -> impl IntoView {
 - [ ] Smooth transitions between themes
 - [ ] LocalStorage persistence for theme preference
 - [ ] Component testing utilities
+
+## Testing
+
+Mingot includes a comprehensive test suite covering core functionality:
+
+### Running Tests
+
+```bash
+# Run all tests
+cargo test
+
+# Run tests with output
+cargo test -- --nocapture
+
+# Run specific test
+cargo test test_name
+```
+
+### Test Coverage
+
+The test suite includes **44 tests** covering:
+
+#### Theme System (19 tests)
+- **Color Palette Tests** (9 tests)
+  - Default color palette configuration
+  - Light and dark scheme colors
+  - Color retrieval and validation
+  - Color shades (10 shades per color)
+  - Primary color functionality
+
+- **Color Scheme Mode Tests** (8 tests)
+  - Mode defaults and resolution
+  - Light/Dark/Auto mode behavior
+  - Active scheme state checks
+  - Clone and equality operations
+
+- **Color Scheme Tests** (2 tests)
+  - Light vs dark scheme differences
+  - All colors have 10 shades validation
+
+#### Utilities (9 tests)
+- **StyleBuilder Tests**
+  - Empty builder initialization
+  - Single and multiple style properties
+  - Conditional style addition (`add_if`)
+  - Method chaining
+  - Complex CSS values
+  - Default trait implementation
+
+#### Component Logic (16 tests)
+- **Table Component Tests** (6 tests)
+  - Sort direction toggling (None → Ascending → Descending)
+  - Sort direction icons
+  - TableColumn builder pattern
+  - Column configuration (sortable, width)
+  - Column cloning
+
+- **RingProgress Tests** (6 tests)
+  - Size variant pixel values (Xs to Xl)
+  - Section creation and configuration
+  - Tooltip builder pattern
+  - Multiple sections handling
+  - Size ordering validation
+
+- **ErrorPage Tests** (7 tests)
+  - Default values for all error types (404, 500, 403, 401, 503)
+  - Status codes, titles, descriptions, and icons
+  - Custom error type
+  - Unique status code validation
+
+### Test Organization
+
+Tests are organized as inline `#[cfg(test)]` modules within their respective source files:
+
+```
+src/
+├── theme/
+│   ├── colors.rs         # Color system tests
+│   ├── color_scheme.rs   # Color scheme mode tests
+├── utils/
+│   └── style_builder.rs  # StyleBuilder tests
+└── components/
+    ├── table.rs          # Table component tests
+    ├── ring_progress.rs  # RingProgress tests
+    └── error_page.rs     # ErrorPage tests
+```
+
+### What's Tested
+
+✅ **Core Systems**
+- Theme color palettes and schemes
+- Color resolution and retrieval
+- Style generation utilities
+
+✅ **Component Logic**
+- Stateful component behavior
+- Builder patterns and configuration
+- Type defaults and enumerations
+- Data transformations
+
+❌ **Not Tested (Yet)**
+- Component rendering (requires wasm-bindgen-test browser setup)
+- User interactions and event handlers
+- Theme provider integration
+- Visual regression testing
+
+### Future Testing Goals
+
+- [ ] Browser-based component rendering tests
+- [ ] Integration tests for complex component interactions
+- [ ] Visual regression testing
+- [ ] Accessibility testing (ARIA labels, keyboard navigation)
+- [ ] Performance benchmarks
 
 ## Contributing
 
