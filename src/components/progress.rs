@@ -11,7 +11,7 @@ pub enum ProgressSize {
 }
 
 impl ProgressSize {
-    fn to_height(&self) -> &str {
+    fn to_height(self) -> &'static str {
         match self {
             ProgressSize::Xs => "4px",
             ProgressSize::Sm => "6px",
@@ -35,8 +35,6 @@ pub fn Progress(
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(ProgressSize::Md);
-    let striped = striped;
-    let animate = animate;
 
     let container_styles = move || {
         let theme_val = theme.get();

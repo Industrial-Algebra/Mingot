@@ -1,14 +1,9 @@
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum ColorSchemeMode {
+    #[default]
     Light,
     Dark,
     Auto,
-}
-
-impl Default for ColorSchemeMode {
-    fn default() -> Self {
-        Self::Light
-    }
 }
 
 impl ColorSchemeMode {

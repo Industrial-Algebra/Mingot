@@ -52,7 +52,10 @@ pub fn Paper(
         }
 
         if with_border {
-            builder.add("border", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         if let Some(s) = shadow.as_ref() {

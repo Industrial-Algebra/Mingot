@@ -95,7 +95,10 @@ pub fn Banner(
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
         } else {
-            builder.add("padding", format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md));
+            builder.add(
+                "padding",
+                format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+            );
         }
 
         if with_border {
@@ -135,9 +138,7 @@ pub fn Banner(
         )
     };
 
-    let icon_styles = move || {
-        "font-size: 1.25rem; line-height: 1;".to_string()
-    };
+    let icon_styles = move || "font-size: 1.25rem; line-height: 1;".to_string();
 
     let handle_close = move || {
         is_opened.set(false);
@@ -170,7 +171,7 @@ pub fn Banner(
                     </button>
                 }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
         </div>
     }

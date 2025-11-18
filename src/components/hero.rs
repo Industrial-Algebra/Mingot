@@ -75,7 +75,10 @@ pub fn Hero(
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
         } else {
-            builder.add("padding", format!("{} {}", theme_val.spacing.xl, theme_val.spacing.md));
+            builder.add(
+                "padding",
+                format!("{} {}", theme_val.spacing.xl, theme_val.spacing.md),
+            );
         }
 
         if let Some(bg_img) = background_image.as_ref() {
@@ -116,9 +119,8 @@ pub fn Hero(
         )
     };
 
-    let content_styles = move || {
-        "position: relative; z-index: 2; max-width: 100%; text-align: inherit;".to_string()
-    };
+    let content_styles =
+        move || "position: relative; z-index: 2; max-width: 100%; text-align: inherit;".to_string();
 
     let class_str = format!("mingot-hero {}", class.unwrap_or_default());
 
@@ -148,7 +150,10 @@ pub fn HeroTitle(
 
         builder
             .add("font-size", "3rem")
-            .add("font-weight", theme_val.typography.font_weights.bold.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.bold.to_string(),
+            )
             .add("line-height", "1.2")
             .add("margin", "0")
             .add("margin-bottom", theme_val.spacing.md);
@@ -191,7 +196,10 @@ pub fn HeroSubtitle(
 
         builder
             .add("font-size", theme_val.typography.font_sizes.xl)
-            .add("font-weight", theme_val.typography.font_weights.normal.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.normal.to_string(),
+            )
             .add("line-height", "1.5")
             .add("margin", "0")
             .add("margin-bottom", theme_val.spacing.lg)

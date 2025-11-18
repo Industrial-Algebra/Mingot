@@ -17,7 +17,7 @@ pub enum AlertColor {
 }
 
 impl AlertColor {
-    fn to_color_name(&self) -> &str {
+    fn to_color_name(self) -> &'static str {
         match self {
             AlertColor::Info => "blue",
             AlertColor::Success => "green",
@@ -26,7 +26,7 @@ impl AlertColor {
         }
     }
 
-    fn default_icon(&self) -> &str {
+    fn default_icon(self) -> &'static str {
         match self {
             AlertColor::Info => "ℹ️",
             AlertColor::Success => "✓",
@@ -124,7 +124,8 @@ pub fn Alert(
         )
     };
 
-    let content_styles = "flex: 1; display: flex; flex-direction: column; gap: 0.25rem;".to_string();
+    let content_styles =
+        "flex: 1; display: flex; flex-direction: column; gap: 0.25rem;".to_string();
 
     let title_styles = move || {
         let theme_val = theme.get();
@@ -192,7 +193,7 @@ pub fn Alert(
                 }
                     .into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
 
         </div>

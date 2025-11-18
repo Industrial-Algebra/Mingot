@@ -3,10 +3,10 @@ use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ErrorPageType {
-    NotFound,          // 404
-    InternalError,     // 500
-    Forbidden,         // 403
-    Unauthorized,      // 401
+    NotFound,           // 404
+    InternalError,      // 500
+    Forbidden,          // 403
+    Unauthorized,       // 401
     ServiceUnavailable, // 503
     Custom,
 }
@@ -36,11 +36,17 @@ impl ErrorPageType {
 
     fn default_description(&self) -> &str {
         match self {
-            ErrorPageType::NotFound => "The page you are looking for doesn't exist or has been moved.",
-            ErrorPageType::InternalError => "Something went wrong on our end. Please try again later.",
+            ErrorPageType::NotFound => {
+                "The page you are looking for doesn't exist or has been moved."
+            }
+            ErrorPageType::InternalError => {
+                "Something went wrong on our end. Please try again later."
+            }
             ErrorPageType::Forbidden => "You don't have permission to access this resource.",
             ErrorPageType::Unauthorized => "Please log in to access this page.",
-            ErrorPageType::ServiceUnavailable => "The service is temporarily unavailable. Please try again later.",
+            ErrorPageType::ServiceUnavailable => {
+                "The service is temporarily unavailable. Please try again later."
+            }
             ErrorPageType::Custom => "An error occurred.",
         }
     }
@@ -164,7 +170,6 @@ pub fn ErrorPage(
 ) -> impl IntoView {
     let theme = use_theme();
     let error_type = error_type.unwrap_or(ErrorPageType::NotFound);
-    let show_status_code = show_status_code;
 
     let status_code = status_code.unwrap_or_else(|| error_type.status_code().to_string());
     let title = title.unwrap_or_else(|| error_type.default_title().to_string());
@@ -260,7 +265,7 @@ pub fn ErrorPage(
             {if show_status_code && !status_code.is_empty() {
                 view! { <div style=status_code_styles>{status_code.clone()}</div> }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
 
             <div style=icon_styles>{icon}</div>

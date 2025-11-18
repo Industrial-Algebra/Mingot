@@ -15,13 +15,10 @@ pub fn AppShell(
 ) -> impl IntoView {
     let theme = use_theme();
 
-    let shell_styles = move || {
-        "display: flex; flex-direction: column; min-height: 100vh;".to_string()
-    };
+    let shell_styles =
+        move || "display: flex; flex-direction: column; min-height: 100vh;".to_string();
 
-    let main_wrapper_styles = move || {
-        "display: flex; flex: 1; overflow: hidden;".to_string()
-    };
+    let main_wrapper_styles = move || "display: flex; flex: 1; overflow: hidden;".to_string();
 
     let navbar_styles = move || {
         let theme_val = theme.get();
@@ -53,9 +50,7 @@ pub fn AppShell(
         let theme_val = theme.get();
         let mut builder = StyleBuilder::new();
 
-        builder
-            .add("flex", "1")
-            .add("overflow-y", "auto");
+        builder.add("flex", "1").add("overflow-y", "auto");
 
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
@@ -79,7 +74,7 @@ pub fn AppShell(
             {if let Some(h) = header {
                 view! { <div class="mingot-appshell-header">{h()}</div> }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
 
             <div class="mingot-appshell-main-wrapper" style=main_wrapper_styles>
@@ -90,7 +85,7 @@ pub fn AppShell(
                         </nav>
                     }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
 
                 <main class="mingot-appshell-main" style=main_styles>
@@ -104,14 +99,14 @@ pub fn AppShell(
                         </aside>
                     }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
             </div>
 
             {if let Some(f) = footer {
                 view! { <div class="mingot-appshell-footer">{f()}</div> }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
         </div>
     }

@@ -35,7 +35,6 @@ pub fn Card(
 ) -> impl IntoView {
     let theme = use_theme();
     let padding = padding.unwrap_or(CardPadding::Md);
-    let with_border = with_border || true;
 
     let card_styles = move || {
         let theme_val = theme.get();
@@ -56,7 +55,10 @@ pub fn Card(
         }
 
         if with_border {
-            builder.add("border", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         if let Some(s) = shadow.as_ref() {
@@ -98,7 +100,10 @@ pub fn CardSection(
         let mut builder = StyleBuilder::new();
 
         if !inherit_padding {
-            builder.add("margin", format!("-{} -{}", theme_val.spacing.md, theme_val.spacing.md));
+            builder.add(
+                "margin",
+                format!("-{} -{}", theme_val.spacing.md, theme_val.spacing.md),
+            );
         }
 
         if let Some(p) = padding.as_ref() {
@@ -108,8 +113,14 @@ pub fn CardSection(
         }
 
         if with_border {
-            builder.add("border-top", format!("1px solid {}", scheme_colors.border.clone()));
-            builder.add("border-bottom", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border-top",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
+            builder.add(
+                "border-bottom",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         if let Some(s) = style.as_ref() {

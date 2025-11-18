@@ -29,15 +29,23 @@ pub fn Accordion(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
 
-        builder.add("display", "flex").add("flex-direction", "column");
+        builder
+            .add("display", "flex")
+            .add("flex-direction", "column");
 
         match variant {
             AccordionVariant::Default => {
-                builder.add("border-top", format!("1px solid {}", scheme_colors.border.clone()));
+                builder.add(
+                    "border-top",
+                    format!("1px solid {}", scheme_colors.border.clone()),
+                );
             }
             AccordionVariant::Contained => {
                 builder
-                    .add("border", format!("1px solid {}", scheme_colors.border.clone()))
+                    .add(
+                        "border",
+                        format!("1px solid {}", scheme_colors.border.clone()),
+                    )
                     .add("border-radius", theme_val.radius.sm);
             }
             AccordionVariant::Separated => {
@@ -83,12 +91,18 @@ pub fn AccordionItem(
 
         match variant.get() {
             AccordionVariant::Default => {
-                builder.add("border-bottom", format!("1px solid {}", scheme_colors.border.clone()));
+                builder.add(
+                    "border-bottom",
+                    format!("1px solid {}", scheme_colors.border.clone()),
+                );
             }
             AccordionVariant::Contained => {}
             AccordionVariant::Separated => {
                 builder
-                    .add("border", format!("1px solid {}", scheme_colors.border.clone()))
+                    .add(
+                        "border",
+                        format!("1px solid {}", scheme_colors.border.clone()),
+                    )
                     .add("border-radius", theme_val.radius.sm);
             }
         }

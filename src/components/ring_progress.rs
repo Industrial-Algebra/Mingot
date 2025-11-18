@@ -3,15 +3,15 @@ use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RingProgressSize {
-    Xs,  // 44px
-    Sm,  // 60px
-    Md,  // 80px
-    Lg,  // 120px
-    Xl,  // 160px
+    Xs, // 44px
+    Sm, // 60px
+    Md, // 80px
+    Lg, // 120px
+    Xl, // 160px
 }
 
 impl RingProgressSize {
-    fn to_px(&self) -> u32 {
+    fn to_px(self) -> u32 {
         match self {
             RingProgressSize::Xs => 44,
             RingProgressSize::Sm => 60,
@@ -75,8 +75,7 @@ mod tests {
 
     #[test]
     fn test_ring_progress_section_builder_pattern() {
-        let section = RingProgressSection::new(25.0, "red")
-            .tooltip("Quarter done");
+        let section = RingProgressSection::new(25.0, "red").tooltip("Quarter done");
         assert_eq!(section.value, 25.0);
         assert_eq!(section.color, "red");
         assert_eq!(section.tooltip, Some("Quarter done".to_string()));
@@ -84,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_multiple_sections() {
-        let sections = vec![
+        let sections = [
             RingProgressSection::new(40.0, "#228be6"),
             RingProgressSection::new(30.0, "#37b24d"),
             RingProgressSection::new(20.0, "#f03e3e"),
@@ -162,7 +161,11 @@ pub fn RingProgress(
     let ring_sections: Vec<_> = sections
         .iter()
         .map(|section| {
-            let stroke_dasharray = format!("{} {}", (circumference * section.value / 100.0), circumference);
+            let stroke_dasharray = format!(
+                "{} {}",
+                (circumference * section.value / 100.0),
+                circumference
+            );
             let stroke_dashoffset = -(current_offset * circumference / 100.0);
             current_offset += section.value;
 

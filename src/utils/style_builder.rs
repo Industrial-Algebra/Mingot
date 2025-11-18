@@ -15,7 +15,12 @@ impl StyleBuilder {
         self
     }
 
-    pub fn add_if(&mut self, condition: bool, property: impl Into<String>, value: impl Into<String>) -> &mut Self {
+    pub fn add_if(
+        &mut self,
+        condition: bool,
+        property: impl Into<String>,
+        value: impl Into<String>,
+    ) -> &mut Self {
         if condition {
             self.add(property, value);
         }
@@ -67,14 +72,18 @@ mod tests {
     #[test]
     fn test_add_if_true() {
         let mut builder = StyleBuilder::new();
-        builder.add("color", "red").add_if(true, "font-size", "16px");
+        builder
+            .add("color", "red")
+            .add_if(true, "font-size", "16px");
         assert_eq!(builder.build(), "color: red; font-size: 16px");
     }
 
     #[test]
     fn test_add_if_false() {
         let mut builder = StyleBuilder::new();
-        builder.add("color", "red").add_if(false, "font-size", "16px");
+        builder
+            .add("color", "red")
+            .add_if(false, "font-size", "16px");
         assert_eq!(builder.build(), "color: red");
     }
 
@@ -108,7 +117,9 @@ mod tests {
     #[test]
     fn test_numeric_values() {
         let mut builder = StyleBuilder::new();
-        builder.add("width", "100px").add("height", format!("{}px", 200));
+        builder
+            .add("width", "100px")
+            .add("height", format!("{}px", 200));
         assert_eq!(builder.build(), "width: 100px; height: 200px");
     }
 }

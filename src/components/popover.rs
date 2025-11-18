@@ -91,8 +91,8 @@ pub fn PopoverDropdown(
     let position = use_context::<Signal<PopoverPosition>>()
         .unwrap_or_else(|| Signal::derive(move || PopoverPosition::Bottom));
     let with_arrow = use_context::<Signal<bool>>().unwrap_or_else(|| Signal::derive(move || false));
-    let width = use_context::<Signal<Option<String>>>()
-        .unwrap_or_else(|| Signal::derive(move || None));
+    let width =
+        use_context::<Signal<Option<String>>>().unwrap_or_else(|| Signal::derive(move || None));
 
     let dropdown_styles = move || {
         let theme_val = theme.get();
@@ -100,10 +100,34 @@ pub fn PopoverDropdown(
         let is_open = is_opened.get();
 
         let (top, left, bottom, right, transform) = match position.get() {
-            PopoverPosition::Top => ("auto", "50%", "100%", "auto", "translateX(-50%) translateY(-8px)"),
-            PopoverPosition::Bottom => ("100%", "50%", "auto", "auto", "translateX(-50%) translateY(8px)"),
-            PopoverPosition::Left => ("50%", "auto", "auto", "100%", "translateX(-8px) translateY(-50%)"),
-            PopoverPosition::Right => ("50%", "100%", "auto", "auto", "translateX(8px) translateY(-50%)"),
+            PopoverPosition::Top => (
+                "auto",
+                "50%",
+                "100%",
+                "auto",
+                "translateX(-50%) translateY(-8px)",
+            ),
+            PopoverPosition::Bottom => (
+                "100%",
+                "50%",
+                "auto",
+                "auto",
+                "translateX(-50%) translateY(8px)",
+            ),
+            PopoverPosition::Left => (
+                "50%",
+                "auto",
+                "auto",
+                "100%",
+                "translateX(-8px) translateY(-50%)",
+            ),
+            PopoverPosition::Right => (
+                "50%",
+                "100%",
+                "auto",
+                "auto",
+                "translateX(8px) translateY(-50%)",
+            ),
         };
 
         let display = if is_open { "block" } else { "none" };
@@ -145,28 +169,40 @@ pub fn PopoverDropdown(
 
         let (border_style, top, left, bottom, right) = match position.get() {
             PopoverPosition::Top => (
-                format!("5px solid {}; 5px solid transparent", scheme_colors.background),
+                format!(
+                    "5px solid {}; 5px solid transparent",
+                    scheme_colors.background
+                ),
                 "auto",
                 "50%",
                 "-5px",
                 "auto",
             ),
             PopoverPosition::Bottom => (
-                format!("5px solid transparent; 5px solid {}", scheme_colors.background),
+                format!(
+                    "5px solid transparent; 5px solid {}",
+                    scheme_colors.background
+                ),
                 "-5px",
                 "50%",
                 "auto",
                 "auto",
             ),
             PopoverPosition::Left => (
-                format!("5px solid transparent; 5px solid {}", scheme_colors.background),
+                format!(
+                    "5px solid transparent; 5px solid {}",
+                    scheme_colors.background
+                ),
                 "50%",
                 "auto",
                 "auto",
                 "-5px",
             ),
             PopoverPosition::Right => (
-                format!("5px solid {}; 5px solid transparent", scheme_colors.background),
+                format!(
+                    "5px solid {}; 5px solid transparent",
+                    scheme_colors.background
+                ),
                 "50%",
                 "-5px",
                 "auto",
@@ -209,7 +245,7 @@ pub fn PopoverDropdown(
                     view! { <div class="mingot-popover-arrow" style=arrow_styles></div> }
                         .into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }
             }}
 

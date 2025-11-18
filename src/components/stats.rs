@@ -52,7 +52,9 @@ pub fn Stats(
              font-weight: {}; \
              text-transform: uppercase; \
              letter-spacing: 0.5px;",
-            theme_val.typography.font_sizes.xs, text_secondary, theme_val.typography.font_weights.medium
+            theme_val.typography.font_sizes.xs,
+            text_secondary,
+            theme_val.typography.font_weights.medium
         )
     };
 
@@ -184,7 +186,6 @@ pub fn StatsGroup(
             cols, theme_val.spacing.md
         )
     };
-
 
     let class_str = format!("mingot-stats-group {}", class.unwrap_or_default());
 

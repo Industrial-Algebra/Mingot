@@ -12,7 +12,7 @@ pub use typography::*;
 
 use leptos::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct Theme {
     pub colors: ColorPalette,
     pub spacing: Spacing,
@@ -21,20 +21,6 @@ pub struct Theme {
     pub shadows: ShadowScale,
     pub breakpoints: Breakpoints,
     pub color_scheme: ColorSchemeMode,
-}
-
-impl Default for Theme {
-    fn default() -> Self {
-        Self {
-            colors: ColorPalette::default(),
-            spacing: Spacing::default(),
-            typography: Typography::default(),
-            radius: RadiusScale::default(),
-            shadows: ShadowScale::default(),
-            breakpoints: Breakpoints::default(),
-            color_scheme: ColorSchemeMode::default(),
-        }
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

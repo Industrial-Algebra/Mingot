@@ -81,14 +81,18 @@ pub fn TabsList(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
 
-        builder.add("display", "flex").add("gap", theme_val.spacing.xs);
+        builder
+            .add("display", "flex")
+            .add("gap", theme_val.spacing.xs);
 
         match orientation.get() {
             TabsOrientation::Horizontal => {
                 builder.add("flex-direction", "row");
             }
             TabsOrientation::Vertical => {
-                builder.add("flex-direction", "column").add("min-width", "150px");
+                builder
+                    .add("flex-direction", "column")
+                    .add("min-width", "150px");
             }
         }
 
@@ -103,7 +107,10 @@ pub fn TabsList(
             }
             TabsVariant::Outline => {
                 builder
-                    .add("border", format!("1px solid {}", scheme_colors.border.clone()))
+                    .add(
+                        "border",
+                        format!("1px solid {}", scheme_colors.border.clone()),
+                    )
                     .add("border-radius", theme_val.radius.sm)
                     .add("padding", theme_val.spacing.xs);
             }
@@ -155,12 +162,18 @@ pub fn TabsTab(
             .add("align-items", "center")
             .add("justify-content", "center")
             .add("gap", "0.5rem")
-            .add("padding", format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md))
+            .add(
+                "padding",
+                format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+            )
             .add("background", "none")
             .add("border", "none")
             .add("cursor", "pointer")
             .add("font-size", theme_val.typography.font_sizes.sm)
-            .add("font-weight", theme_val.typography.font_weights.medium.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.medium.to_string(),
+            )
             .add("transition", "all 0.15s ease")
             .add("white-space", "nowrap")
             .add("user-select", "none");
@@ -209,7 +222,9 @@ pub fn TabsTab(
                     let active_color = scheme_colors
                         .get_color("blue", 6)
                         .unwrap_or_else(|| "#228be6".to_string());
-                    builder.add("background-color", light_color).add("color", active_color);
+                    builder
+                        .add("background-color", light_color)
+                        .add("color", active_color);
                 } else {
                     builder
                         .add("background-color", "transparent")

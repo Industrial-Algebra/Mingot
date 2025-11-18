@@ -1,6 +1,6 @@
 use crate::theme::use_theme;
-use leptos::prelude::*;
 use leptos::ev;
+use leptos::prelude::*;
 use wasm_bindgen::JsCast;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -34,16 +34,13 @@ pub fn Modal(
     #[prop(optional)] title: Option<String>,
     #[prop(optional)] centered: bool,
     #[prop(optional)] close_on_click_outside: bool,
-    #[prop(optional)] close_on_escape: bool,
+    #[prop(optional)] _close_on_escape: bool,
     #[prop(optional)] with_close_button: bool,
     #[prop(optional)] padding: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(ModalSize::Md);
-    let close_on_click_outside = if close_on_click_outside { true } else { true };
-    let _close_on_escape = if close_on_escape { true } else { true };
-    let with_close_button = if with_close_button { true } else { true };
 
     let overlay_styles = move || {
         let _theme_val = theme.get();
@@ -73,7 +70,7 @@ pub fn Modal(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
-        let padding_val = padding.as_ref().map(|s| s.as_str()).unwrap_or(theme_val.spacing.lg);
+        let padding_val = padding.as_deref().unwrap_or(theme_val.spacing.lg);
 
         format!(
             "position: relative; \
@@ -187,7 +184,7 @@ pub fn Modal(
                         </div>
                     }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
 
                 <div class="mingot-modal-body">

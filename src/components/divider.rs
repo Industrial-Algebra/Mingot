@@ -78,7 +78,10 @@ pub fn Divider(
                         .add("gap", theme_val.spacing.sm);
                 } else {
                     builder
-                        .add("border-top", format!("{} {} {}", border_width, border_style, border_color))
+                        .add(
+                            "border-top",
+                            format!("{} {} {}", border_width, border_style, border_color),
+                        )
                         .add("border-bottom", "none")
                         .add("border-left", "none")
                         .add("border-right", "none")
@@ -87,7 +90,10 @@ pub fn Divider(
             }
             DividerOrientation::Vertical => {
                 builder
-                    .add("border-left", format!("{} {} {}", border_width, border_style, border_color))
+                    .add(
+                        "border-left",
+                        format!("{} {} {}", border_width, border_style, border_color),
+                    )
                     .add("border-top", "none")
                     .add("border-bottom", "none")
                     .add("border-right", "none")
@@ -143,7 +149,9 @@ pub fn Divider(
              font-size: {}; \
              white-space: nowrap; \
              padding: 0 {};",
-            scheme_colors.get_color("gray", 6).unwrap_or_else(|| "#868e96".to_string()),
+            scheme_colors
+                .get_color("gray", 6)
+                .unwrap_or_else(|| "#868e96".to_string()),
             theme_val.typography.font_sizes.sm,
             theme_val.spacing.xs
         )
@@ -158,20 +166,21 @@ pub fn Divider(
                 {if label_position == DividerLabelPosition::Center || label_position == DividerLabelPosition::Right {
                     view! { <div style=line_styles()></div> }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
                 <span style=label_styles>{label_text}</span>
                 {if label_position == DividerLabelPosition::Center || label_position == DividerLabelPosition::Left {
                     view! { <div style=line_styles()></div> }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
             </div>
         }.into_any()
     } else {
         view! {
             <hr class=class_str style=divider_styles />
-        }.into_any()
+        }
+        .into_any()
     }
 }
 

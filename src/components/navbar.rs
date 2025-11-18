@@ -89,7 +89,10 @@ pub fn NavbarLink(
             .add("align-items", "center")
             .add("text-decoration", "none")
             .add("font-size", theme_val.typography.font_sizes.sm)
-            .add("font-weight", theme_val.typography.font_weights.medium.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.medium.to_string(),
+            )
             .add("cursor", if disabled { "not-allowed" } else { "pointer" })
             .add("transition", "all 0.15s ease")
             .add("user-select", "none")
@@ -101,10 +104,15 @@ pub fn NavbarLink(
 
         match variant {
             NavbarVariant::Default => {
-                builder.add("padding", format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm));
+                builder.add(
+                    "padding",
+                    format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                );
 
                 if active {
-                    let active_color = scheme_colors.get_color("blue", 6).unwrap_or_else(|| "#228be6".to_string());
+                    let active_color = scheme_colors
+                        .get_color("blue", 6)
+                        .unwrap_or_else(|| "#228be6".to_string());
                     builder.add("color", active_color.clone());
                     builder.add("border-bottom", format!("2px solid {}", active_color));
                 } else {
@@ -113,12 +121,19 @@ pub fn NavbarLink(
                 }
             }
             NavbarVariant::Subtle => {
-                builder.add("padding", format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm));
+                builder.add(
+                    "padding",
+                    format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                );
                 builder.add("border-radius", theme_val.radius.sm);
 
                 if active {
-                    let light_color = scheme_colors.get_color("blue", 0).unwrap_or_else(|| "#e7f5ff".to_string());
-                    let active_color = scheme_colors.get_color("blue", 6).unwrap_or_else(|| "#228be6".to_string());
+                    let light_color = scheme_colors
+                        .get_color("blue", 0)
+                        .unwrap_or_else(|| "#e7f5ff".to_string());
+                    let active_color = scheme_colors
+                        .get_color("blue", 6)
+                        .unwrap_or_else(|| "#228be6".to_string());
                     builder.add("background-color", light_color);
                     builder.add("color", active_color);
                 } else {
@@ -127,11 +142,16 @@ pub fn NavbarLink(
                 }
             }
             NavbarVariant::Pills => {
-                builder.add("padding", format!("{} {}", theme_val.spacing.xs, theme_val.spacing.md));
+                builder.add(
+                    "padding",
+                    format!("{} {}", theme_val.spacing.xs, theme_val.spacing.md),
+                );
                 builder.add("border-radius", "9999px");
 
                 if active {
-                    let active_color = scheme_colors.get_color("blue", 6).unwrap_or_else(|| "#228be6".to_string());
+                    let active_color = scheme_colors
+                        .get_color("blue", 6)
+                        .unwrap_or_else(|| "#228be6".to_string());
                     builder.add("background-color", active_color);
                     builder.add("color", scheme_colors.white.clone());
                 } else {
@@ -189,7 +209,10 @@ pub fn NavbarBrand(
             .add("align-items", "center")
             .add("text-decoration", "none")
             .add("font-size", theme_val.typography.font_sizes.lg)
-            .add("font-weight", theme_val.typography.font_weights.bold.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.bold.to_string(),
+            )
             .add("color", scheme_colors.text.clone())
             .add("margin-right", theme_val.spacing.lg);
 
@@ -207,12 +230,14 @@ pub fn NavbarBrand(
             <a href=h class=class_str style=brand_styles>
                 {children()}
             </a>
-        }.into_any()
+        }
+        .into_any()
     } else {
         view! {
             <div class=class_str style=brand_styles>
                 {children()}
             </div>
-        }.into_any()
+        }
+        .into_any()
     }
 }

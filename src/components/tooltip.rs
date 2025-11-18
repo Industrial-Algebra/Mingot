@@ -193,7 +193,7 @@ pub fn Tooltip(
                     view! { <div class="mingot-tooltip-arrow" style=arrow_styles></div> }
                         .into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
 
             </div>

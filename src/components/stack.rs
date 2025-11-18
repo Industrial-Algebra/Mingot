@@ -66,9 +66,7 @@ pub fn Stack(
             .add("justify-content", justify.as_str());
 
         // Spacing
-        let gap = spacing.as_ref()
-            .map(|s| s.as_str())
-            .unwrap_or(theme_val.spacing.md);
+        let gap = spacing.as_deref().unwrap_or(theme_val.spacing.md);
         builder.add("gap", gap);
 
         if let Some(s) = style.as_ref() {

@@ -1,7 +1,7 @@
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
-use leptos::prelude::*;
 use leptos::ev;
+use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ButtonVariant {
@@ -48,8 +48,12 @@ pub fn Button(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         // Get color from theme
-        let bg_color = scheme_colors.get_color(&color, 6).unwrap_or_else(|| "#228be6".to_string());
-        let light_color = scheme_colors.get_color(&color, 0).unwrap_or_else(|| "#e7f5ff".to_string());
+        let bg_color = scheme_colors
+            .get_color(&color, 6)
+            .unwrap_or_else(|| "#228be6".to_string());
+        let light_color = scheme_colors
+            .get_color(&color, 0)
+            .unwrap_or_else(|| "#e7f5ff".to_string());
 
         // Base styles
         builder
@@ -57,9 +61,19 @@ pub fn Button(
             .add("align-items", "center")
             .add("justify-content", "center")
             .add("border", "none")
-            .add("cursor", if disabled || loading { "not-allowed" } else { "pointer" })
+            .add(
+                "cursor",
+                if disabled || loading {
+                    "not-allowed"
+                } else {
+                    "pointer"
+                },
+            )
             .add("font-family", theme_val.typography.font_family)
-            .add("font-weight", theme_val.typography.font_weights.semibold.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.semibold.to_string(),
+            )
             .add("transition", "all 0.15s ease")
             .add("user-select", "none")
             .add("opacity", if disabled { "0.6" } else { "1" });
@@ -122,7 +136,9 @@ pub fn Button(
                     .add("color", bg_color.clone());
             }
             ButtonVariant::Default => {
-                let border_color = scheme_colors.get_color("gray", 4).unwrap_or_else(|| scheme_colors.border.clone());
+                let border_color = scheme_colors
+                    .get_color("gray", 4)
+                    .unwrap_or_else(|| scheme_colors.border.clone());
                 builder
                     .add("background-color", scheme_colors.background.clone())
                     .add("color", scheme_colors.text.clone())

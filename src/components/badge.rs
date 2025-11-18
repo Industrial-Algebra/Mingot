@@ -89,7 +89,10 @@ pub fn Badge(
             .add("gap", "0.25rem")
             .add("padding", size.padding())
             .add("font-size", size.font_size())
-            .add("font-weight", theme_val.typography.font_weights.semibold.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.semibold.to_string(),
+            )
             .add("text-transform", "uppercase")
             .add("line-height", "1")
             .add("white-space", "nowrap")
@@ -162,18 +165,18 @@ pub fn Badge(
             {if variant == BadgeVariant::Dot {
                 view! { <span style=dot_styles></span> }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
             {if let Some(left) = left_section {
                 view! { <span>{left()}</span> }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
             <span>{children()}</span>
             {if let Some(right) = right_section {
                 view! { <span>{right()}</span> }.into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
         </span>
     }

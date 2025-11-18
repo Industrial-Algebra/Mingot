@@ -21,7 +21,7 @@ pub enum NotificationColor {
 }
 
 impl NotificationColor {
-    fn to_color_name(&self) -> &str {
+    fn to_color_name(self) -> &'static str {
         match self {
             NotificationColor::Info => "blue",
             NotificationColor::Success => "green",
@@ -30,7 +30,7 @@ impl NotificationColor {
         }
     }
 
-    fn default_icon(&self) -> &str {
+    fn default_icon(self) -> &'static str {
         match self {
             NotificationColor::Info => "ℹ️",
             NotificationColor::Success => "✓",
@@ -66,9 +66,7 @@ pub fn NotificationProvider(
     provide_context::<NotificationMap>(notifications);
     provide_context::<NotificationIdCounter>(id_counter);
     provide_context::<Signal<NotificationPosition>>(Signal::derive(move || position));
-    provide_context::<Signal<usize>>(Signal::derive(move || {
-        max_notifications.unwrap_or(5)
-    }));
+    provide_context::<Signal<usize>>(Signal::derive(move || max_notifications.unwrap_or(5)));
 
     view! {
         <>
@@ -232,7 +230,8 @@ fn NotificationItem(notification: NotificationData) -> impl IntoView {
         )
     };
 
-    let content_styles = "flex: 1; display: flex; flex-direction: column; gap: 0.25rem;".to_string();
+    let content_styles =
+        "flex: 1; display: flex; flex-direction: column; gap: 0.25rem;".to_string();
 
     let title_styles = move || {
         let theme_val = theme.get();
@@ -246,7 +245,10 @@ fn NotificationItem(notification: NotificationData) -> impl IntoView {
 
     let message_styles = move || {
         let theme_val = theme.get();
-        format!("font-size: {}; margin: 0;", theme_val.typography.font_sizes.sm)
+        format!(
+            "font-size: {}; margin: 0;",
+            theme_val.typography.font_sizes.sm
+        )
     };
 
     let close_button_styles = move || {
@@ -306,8 +308,7 @@ fn NotificationItem(notification: NotificationData) -> impl IntoView {
 pub fn use_notifications() -> impl Fn(NotificationData) {
     let notifications =
         use_context::<NotificationMap>().unwrap_or_else(|| RwSignal::new(HashMap::new()));
-    let id_counter =
-        use_context::<NotificationIdCounter>().unwrap_or_else(|| RwSignal::new(0));
+    let id_counter = use_context::<NotificationIdCounter>().unwrap_or_else(|| RwSignal::new(0));
     let max_notifications =
         use_context::<Signal<usize>>().unwrap_or_else(|| Signal::derive(move || 5));
 

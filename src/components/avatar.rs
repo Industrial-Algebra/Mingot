@@ -4,11 +4,11 @@ use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AvatarSize {
-    Xs,  // 16px
-    Sm,  // 26px
-    Md,  // 38px
-    Lg,  // 56px
-    Xl,  // 84px
+    Xs, // 16px
+    Sm, // 26px
+    Md, // 38px
+    Lg, // 56px
+    Xl, // 84px
 }
 
 impl AvatarSize {
@@ -100,7 +100,10 @@ pub fn Avatar(
                 .add("background-color", bg_color)
                 .add("color", scheme_colors.white.clone())
                 .add("font-size", size.font_size())
-                .add("font-weight", theme_val.typography.font_weights.semibold.to_string());
+                .add(
+                    "font-weight",
+                    theme_val.typography.font_weights.semibold.to_string(),
+                );
         } else {
             let border_color = scheme_colors.border.clone();
             builder.add("border", format!("1px solid {}", border_color));
@@ -113,9 +116,7 @@ pub fn Avatar(
         builder.build()
     };
 
-    let image_styles = move || {
-        "width: 100%; height: 100%; object-fit: cover;".to_string()
-    };
+    let image_styles = move || "width: 100%; height: 100%; object-fit: cover;".to_string();
 
     let class_str = format!("mingot-avatar {}", class.unwrap_or_default());
 

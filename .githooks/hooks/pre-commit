@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Pre-commit hook for Mingot
+# Runs formatting check, linting, and tests before allowing commit
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Check formatting
+echo "📝 Checking code formatting..."
+if ! cargo fmt -- --check; then
+    echo "❌ Code formatting check failed!"
+    echo "💡 Run 'cargo fmt' to fix formatting issues"
+    exit 1
+fi
+echo "✅ Formatting check passed"
+
+# Run clippy
+echo "🔎 Running clippy..."
+if ! cargo clippy --all-targets --all-features -- -D warnings; then
+    echo "❌ Clippy found issues!"
+    echo "💡 Fix the issues above before committing"
+    exit 1
+fi
+echo "✅ Clippy check passed"
+
+# Run tests
+echo "🧪 Running tests..."
+if ! cargo test --lib; then
+    echo "❌ Tests failed!"
+    echo "💡 Fix failing tests before committing"
+    exit 1
+fi
+echo "✅ All tests passed"
+
+echo "✨ All pre-commit checks passed! Proceeding with commit..."

@@ -41,7 +41,8 @@ pub fn Switch(
 
     let (width, height, thumb_size) = size.dimensions();
 
-    let wrapper_styles = "display: inline-flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;".to_string();
+    let wrapper_styles =
+        "display: inline-flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;".to_string();
 
     let switch_track_styles = move || {
         let theme_val = theme.get();
@@ -77,7 +78,12 @@ pub fn Switch(
              flex-shrink: 0; \
              opacity: {}; \
              cursor: {};",
-            width, height, bg_color, height / 2, opacity, cursor
+            width,
+            height,
+            bg_color,
+            height / 2,
+            opacity,
+            cursor
         )
     };
 
@@ -180,7 +186,7 @@ pub fn Switch(
                 }
                     .into_any()
             } else {
-                view! {}.into_any()
+                ().into_any()
             }}
 
         </div>

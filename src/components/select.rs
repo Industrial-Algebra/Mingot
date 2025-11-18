@@ -1,7 +1,7 @@
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
-use leptos::prelude::*;
 use leptos::ev;
+use leptos::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SelectOption {
@@ -121,7 +121,9 @@ pub fn Select(
         match variant {
             SelectVariant::Default => {
                 let border_color = if error_clone.is_some() {
-                    scheme_colors.get_color("red", 6).unwrap_or_else(|| "#fa5252".to_string())
+                    scheme_colors
+                        .get_color("red", 6)
+                        .unwrap_or_else(|| "#fa5252".to_string())
                 } else {
                     scheme_colors.border.clone()
                 };
@@ -132,7 +134,9 @@ pub fn Select(
                     .add("border", format!("1px solid {}", border_color));
             }
             SelectVariant::Filled => {
-                let bg_color = scheme_colors.get_color("gray", 1).unwrap_or_else(|| "#f1f3f5".to_string());
+                let bg_color = scheme_colors
+                    .get_color("gray", 1)
+                    .unwrap_or_else(|| "#f1f3f5".to_string());
 
                 builder
                     .add("background-color", bg_color)
@@ -150,9 +154,7 @@ pub fn Select(
 
         // Disabled state
         if disabled {
-            builder
-                .add("opacity", "0.6")
-                .add("cursor", "not-allowed");
+            builder.add("opacity", "0.6").add("cursor", "not-allowed");
         } else {
             builder.add("cursor", "pointer");
         }
@@ -189,7 +191,9 @@ pub fn Select(
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
             theme_val.typography.font_sizes.xs,
-            scheme_colors.get_color("gray", 6).unwrap_or_else(|| "#868e96".to_string())
+            scheme_colors
+                .get_color("gray", 6)
+                .unwrap_or_else(|| "#868e96".to_string())
         )
     };
 
@@ -199,7 +203,9 @@ pub fn Select(
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
             theme_val.typography.font_sizes.xs,
-            scheme_colors.get_color("red", 6).unwrap_or_else(|| "#fa5252".to_string())
+            scheme_colors
+                .get_color("red", 6)
+                .unwrap_or_else(|| "#fa5252".to_string())
         )
     };
 

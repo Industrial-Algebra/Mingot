@@ -1,7 +1,7 @@
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
-use leptos::prelude::*;
 use leptos::ev;
+use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RadioSize {
@@ -49,9 +49,13 @@ pub fn Radio(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
 
-        let check_color = scheme_colors.get_color(&color_clone, 6).unwrap_or_else(|| "#228be6".to_string());
+        let check_color = scheme_colors
+            .get_color(&color_clone, 6)
+            .unwrap_or_else(|| "#228be6".to_string());
         let border_color = if error_clone.is_some() {
-            scheme_colors.get_color("red", 6).unwrap_or_else(|| "#fa5252".to_string())
+            scheme_colors
+                .get_color("red", 6)
+                .unwrap_or_else(|| "#fa5252".to_string())
         } else {
             scheme_colors.border.clone()
         };
@@ -62,7 +66,17 @@ pub fn Radio(
             .add("min-width", radio_size)
             .add("min-height", radio_size)
             .add("border-radius", "50%")
-            .add("border", format!("1px solid {}", if is_checked.get() { &check_color } else { &border_color }))
+            .add(
+                "border",
+                format!(
+                    "1px solid {}",
+                    if is_checked.get() {
+                        &check_color
+                    } else {
+                        &border_color
+                    }
+                ),
+            )
             .add("background-color", scheme_colors.background.clone())
             .add("cursor", if disabled { "not-allowed" } else { "pointer" })
             .add("transition", "all 0.15s ease")
@@ -86,7 +100,9 @@ pub fn Radio(
     let dot_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
-        let check_color = scheme_colors.get_color(&color, 6).unwrap_or_else(|| "#228be6".to_string());
+        let check_color = scheme_colors
+            .get_color(&color, 6)
+            .unwrap_or_else(|| "#228be6".to_string());
 
         let display = if is_checked.get() { "block" } else { "none" };
         format!(
@@ -99,9 +115,8 @@ pub fn Radio(
         )
     };
 
-    let wrapper_styles = move || {
-        "display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;".to_string()
-    };
+    let wrapper_styles =
+        move || "display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;".to_string();
 
     let label_styles = move || {
         let theme_val = theme.get();
@@ -127,7 +142,9 @@ pub fn Radio(
              color: {}; \
              margin-top: 0.125rem;",
             theme_val.typography.font_sizes.xs,
-            scheme_colors.get_color("gray", 6).unwrap_or_else(|| "#868e96".to_string())
+            scheme_colors
+                .get_color("gray", 6)
+                .unwrap_or_else(|| "#868e96".to_string())
         )
     };
 
@@ -139,7 +156,9 @@ pub fn Radio(
              font-size: {}; \
              color: {};",
             theme_val.typography.font_sizes.xs,
-            scheme_colors.get_color("red", 6).unwrap_or_else(|| "#fa5252".to_string())
+            scheme_colors
+                .get_color("red", 6)
+                .unwrap_or_else(|| "#fa5252".to_string())
         )
     };
 
@@ -182,7 +201,7 @@ pub fn Radio(
                         </div>
                     }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
             </label>
 
@@ -230,7 +249,9 @@ pub fn RadioGroup(
              color: {};",
             theme_val.spacing.sm,
             theme_val.typography.font_sizes.xs,
-            scheme_colors.get_color("gray", 6).unwrap_or_else(|| "#868e96".to_string())
+            scheme_colors
+                .get_color("gray", 6)
+                .unwrap_or_else(|| "#868e96".to_string())
         )
     };
 
@@ -243,7 +264,9 @@ pub fn RadioGroup(
              color: {};",
             theme_val.spacing.xs,
             theme_val.typography.font_sizes.xs,
-            scheme_colors.get_color("red", 6).unwrap_or_else(|| "#fa5252".to_string())
+            scheme_colors
+                .get_color("red", 6)
+                .unwrap_or_else(|| "#fa5252".to_string())
         )
     };
 

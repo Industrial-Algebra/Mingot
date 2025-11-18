@@ -11,16 +11,16 @@ pub enum DrawerPosition {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum DrawerSize {
-    Xs,  // 240px
-    Sm,  // 320px
-    Md,  // 440px
-    Lg,  // 620px
-    Xl,  // 780px
+    Xs,   // 240px
+    Sm,   // 320px
+    Md,   // 440px
+    Lg,   // 620px
+    Xl,   // 780px
     Full, // 100%
 }
 
 impl DrawerSize {
-    fn to_size(&self) -> &str {
+    fn to_size(self) -> &'static str {
         match self {
             DrawerSize::Xs => "240px",
             DrawerSize::Sm => "320px",
@@ -49,8 +49,6 @@ pub fn Drawer(
     let theme = use_theme();
     let position = position.unwrap_or(DrawerPosition::Right);
     let size = size.unwrap_or(DrawerSize::Md);
-    let with_overlay = with_overlay;
-    let with_close_button = with_close_button;
 
     let overlay_styles = move || {
         let visible = opened.get();
@@ -77,42 +75,10 @@ pub fn Drawer(
         let size_val = size.to_size();
 
         let (width, height, transform_closed, top, left, right, bottom) = match position {
-            DrawerPosition::Left => (
-                size_val,
-                "100%",
-                "translateX(-100%)",
-                "0",
-                "0",
-                "auto",
-                "0",
-            ),
-            DrawerPosition::Right => (
-                size_val,
-                "100%",
-                "translateX(100%)",
-                "0",
-                "auto",
-                "0",
-                "0",
-            ),
-            DrawerPosition::Top => (
-                "100%",
-                size_val,
-                "translateY(-100%)",
-                "0",
-                "0",
-                "0",
-                "auto",
-            ),
-            DrawerPosition::Bottom => (
-                "100%",
-                size_val,
-                "translateY(100%)",
-                "auto",
-                "0",
-                "0",
-                "0",
-            ),
+            DrawerPosition::Left => (size_val, "100%", "translateX(-100%)", "0", "0", "auto", "0"),
+            DrawerPosition::Right => (size_val, "100%", "translateX(100%)", "0", "auto", "0", "0"),
+            DrawerPosition::Top => ("100%", size_val, "translateY(-100%)", "0", "0", "0", "auto"),
+            DrawerPosition::Bottom => ("100%", size_val, "translateY(100%)", "auto", "0", "0", "0"),
         };
 
         let transform = if visible {
@@ -121,10 +87,7 @@ pub fn Drawer(
             transform_closed
         };
 
-        let padding_val = padding
-            .as_ref()
-            .map(|p| p.as_str())
-            .unwrap_or(theme_val.spacing.lg);
+        let padding_val = padding.as_deref().unwrap_or(theme_val.spacing.lg);
 
         format!(
             "position: fixed; \
@@ -229,7 +192,7 @@ pub fn Drawer(
                     }
                         .into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }
             }}
 
@@ -264,14 +227,14 @@ pub fn Drawer(
                                 }
                                     .into_any()
                             } else {
-                                view! {}.into_any()
+                                ().into_any()
                             }}
 
                         </div>
                     }
                         .into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }}
 
                 <div class="mingot-drawer-body" style="flex: 1;">

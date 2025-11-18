@@ -31,7 +31,8 @@ pub fn Breadcrumbs(
     let theme = use_theme();
     let separator = separator.unwrap_or_else(|| "/".to_string());
 
-    let breadcrumbs_styles = "display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;".to_string();
+    let breadcrumbs_styles =
+        "display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;".to_string();
 
     let item_styles = move || {
         let theme_val = theme.get();
@@ -118,7 +119,7 @@ pub fn Breadcrumbs(
                                 }
                                     .into_any()
                             } else {
-                                view! {}.into_any()
+                                ().into_any()
                             }}
 
                         </>

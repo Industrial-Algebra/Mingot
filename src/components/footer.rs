@@ -4,11 +4,11 @@ use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum FooterHeight {
-    Xs,  // 48px
-    Sm,  // 60px
-    Md,  // 72px
-    Lg,  // 84px
-    Xl,  // 96px
+    Xs, // 48px
+    Sm, // 60px
+    Md, // 72px
+    Lg, // 84px
+    Xl, // 96px
 }
 
 impl FooterHeight {
@@ -76,7 +76,10 @@ pub fn Footer(
         }
 
         if with_border {
-            builder.add("border-top", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border-top",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         if let Some(s) = style.as_ref() {

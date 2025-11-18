@@ -10,11 +10,11 @@ pub struct Spacing {
 impl Default for Spacing {
     fn default() -> Self {
         Self {
-            xs: "0.625rem",   // 10px
-            sm: "0.75rem",    // 12px
-            md: "1rem",       // 16px
-            lg: "1.25rem",    // 20px
-            xl: "2rem",       // 32px
+            xs: "0.625rem", // 10px
+            sm: "0.75rem",  // 12px
+            md: "1rem",     // 16px
+            lg: "1.25rem",  // 20px
+            xl: "2rem",     // 32px
         }
     }
 }

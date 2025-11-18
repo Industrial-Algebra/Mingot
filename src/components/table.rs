@@ -1,6 +1,6 @@
+use crate::components::{Button, ButtonVariant};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
-use crate::components::{Button, ButtonVariant};
 use leptos::prelude::*;
 use std::sync::Arc;
 
@@ -100,10 +100,10 @@ where
     T: Clone + Send + Sync + 'static,
 {
     let theme = use_theme();
-    let highlight_on_hover = highlight_on_hover || true;
 
     let current_sort_column = sort_column.unwrap_or_else(|| RwSignal::new(None));
-    let current_sort_direction = sort_direction.unwrap_or_else(|| RwSignal::new(SortDirection::None));
+    let current_sort_direction =
+        sort_direction.unwrap_or_else(|| RwSignal::new(SortDirection::None));
 
     let handle_header_click = move |column_key: String, sortable: bool| {
         if !sortable {
@@ -137,7 +137,10 @@ where
             .add("color", scheme_colors.text.clone());
 
         if with_border {
-            builder.add("border", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         builder.build()
@@ -148,19 +151,33 @@ where
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
 
-        let bg_color = scheme_colors.get_color("gray", 1).unwrap_or_else(|| "#f1f3f5".to_string());
+        let bg_color = scheme_colors
+            .get_color("gray", 1)
+            .unwrap_or_else(|| "#f1f3f5".to_string());
 
         builder
-            .add("padding", format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md))
+            .add(
+                "padding",
+                format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+            )
             .add("text-align", "left")
-            .add("font-weight", theme_val.typography.font_weights.semibold.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.semibold.to_string(),
+            )
             .add("background-color", bg_color)
             .add("user-select", "none");
 
         if with_column_borders {
-            builder.add("border", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         } else {
-            builder.add("border-bottom", format!("2px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border-bottom",
+                format!("2px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         if sortable {
@@ -177,17 +194,28 @@ where
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
 
-        builder.add("padding", format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md));
+        builder.add(
+            "padding",
+            format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+        );
 
         if striped && row_index % 2 == 1 {
-            let stripe_color = scheme_colors.get_color("gray", 0).unwrap_or_else(|| "#f8f9fa".to_string());
+            let stripe_color = scheme_colors
+                .get_color("gray", 0)
+                .unwrap_or_else(|| "#f8f9fa".to_string());
             builder.add("background-color", stripe_color);
         }
 
         if with_column_borders {
-            builder.add("border", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         } else {
-            builder.add("border-bottom", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border-bottom",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         builder.build()
@@ -200,7 +228,9 @@ where
 
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
-        let hover_color = scheme_colors.get_color("gray", 1).unwrap_or_else(|| "#f1f3f5".to_string());
+        let hover_color = scheme_colors
+            .get_color("gray", 1)
+            .unwrap_or_else(|| "#f1f3f5".to_string());
 
         format!("tr:hover td {{ background-color: {}; }}", hover_color)
     };
@@ -208,7 +238,9 @@ where
     let th_hover_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
-        let hover_color = scheme_colors.get_color("gray", 2).unwrap_or_else(|| "#e9ecef".to_string());
+        let hover_color = scheme_colors
+            .get_color("gray", 2)
+            .unwrap_or_else(|| "#e9ecef".to_string());
 
         format!("th.sortable:hover {{ background-color: {}; }}", hover_color)
     };
@@ -308,7 +340,7 @@ where
                                     </tr>
                                 }.into_any()
                             } else {
-                                view! {}.into_any()
+                                ().into_any()
                             }
                         }
                     }
@@ -328,7 +360,6 @@ pub fn Pagination(
 ) -> impl IntoView {
     let theme = use_theme();
     let siblings = siblings.unwrap_or(1);
-    let show_edges = show_edges || true;
 
     let handle_page_change = move |page: usize| {
         on_page_change.run(page);
@@ -353,14 +384,19 @@ pub fn Pagination(
             .add("justify-content", "center")
             .add("border-radius", theme_val.radius.sm)
             .add("font-size", theme_val.typography.font_sizes.sm)
-            .add("font-weight", theme_val.typography.font_weights.medium.to_string())
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.medium.to_string(),
+            )
             .add("cursor", "pointer")
             .add("transition", "all 0.15s ease")
             .add("border", "1px solid transparent")
             .add("user-select", "none");
 
         if is_active {
-            let active_color = scheme_colors.get_color("blue", 6).unwrap_or_else(|| "#228be6".to_string());
+            let active_color = scheme_colors
+                .get_color("blue", 6)
+                .unwrap_or_else(|| "#228be6".to_string());
             builder
                 .add("background-color", active_color)
                 .add("color", scheme_colors.white.clone());
@@ -493,7 +529,7 @@ where
         if size == 0 {
             1
         } else {
-            (total + size - 1) / size
+            total.div_ceil(size)
         }
     });
 
@@ -530,7 +566,8 @@ where
                 on_sort=os
                 empty_message=em
             />
-        }.into_any(),
+        }
+        .into_any(),
         (Some(sc), Some(sd), Some(os), None) => view! {
             <Table
                 columns=columns.clone()
@@ -543,7 +580,8 @@ where
                 sort_direction=sd
                 on_sort=os
             />
-        }.into_any(),
+        }
+        .into_any(),
         (_, _, _, Some(em)) => view! {
             <Table
                 columns=columns.clone()
@@ -554,7 +592,8 @@ where
                 with_column_borders=with_column_borders
                 empty_message=em
             />
-        }.into_any(),
+        }
+        .into_any(),
         _ => view! {
             <Table
                 columns=columns.clone()
@@ -564,7 +603,8 @@ where
                 with_border=with_border
                 with_column_borders=with_column_borders
             />
-        }.into_any(),
+        }
+        .into_any(),
     };
 
     view! {
@@ -583,7 +623,7 @@ where
                         />
                     }.into_any()
                 } else {
-                    view! {}.into_any()
+                    ().into_any()
                 }
             }}
         </div>

@@ -4,11 +4,11 @@ use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum HeaderHeight {
-    Xs,  // 48px
-    Sm,  // 60px
-    Md,  // 72px
-    Lg,  // 84px
-    Xl,  // 96px
+    Xs, // 48px
+    Sm, // 60px
+    Md, // 72px
+    Lg, // 84px
+    Xl, // 96px
 }
 
 impl HeaderHeight {
@@ -78,7 +78,10 @@ pub fn Header(
         }
 
         if with_border {
-            builder.add("border-bottom", format!("1px solid {}", scheme_colors.border.clone()));
+            builder.add(
+                "border-bottom",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            );
         }
 
         if let Some(s) = style.as_ref() {
