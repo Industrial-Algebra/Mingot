@@ -35,6 +35,11 @@ pub mod table;
 pub mod avatar;
 pub mod badge;
 pub mod accordion;
+pub mod stats;
+pub mod ring_progress;
+
+// Miscellaneous components
+pub mod error_page;
 
 // Re-exports for convenience
 pub use button::*;
@@ -63,3 +68,6 @@ pub use table::*;
 pub use avatar::*;
 pub use badge::*;
 pub use accordion::*;
+pub use stats::*;
+pub use ring_progress::*;
+pub use error_page::*;

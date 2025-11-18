@@ -1621,6 +1621,333 @@ view! {
 - **Outline**: Active tab has filled background
 - **Pills**: Active tab has rounded light background
 
+### Stats
+
+Display statistics and key metrics with optional icons, descriptions, and percentage changes.
+
+```rust
+use mingot::{Stats, StatsGroup};
+
+// Basic stat
+view! {
+    <Stats
+        value="1,234"
+        label="Total Users"
+    />
+}
+
+// Stat with icon and description
+view! {
+    <Stats
+        value="$45,231"
+        label="Revenue"
+        icon="💰"
+        description="Monthly recurring revenue"
+    />
+}
+
+// Stat with positive diff
+view! {
+    <Stats
+        value="145"
+        label="New Users"
+        icon="👥"
+        diff=12.5
+    />
+}
+
+// Stat with negative diff
+view! {
+    <Stats
+        value="2.4s"
+        label="Avg. Response Time"
+        icon="⚡"
+        diff=-8.2
+    />
+}
+
+// Multiple stats in a group
+view! {
+    <StatsGroup cols=3>
+        <Stats
+            value="1,234"
+            label="Total Users"
+            icon="👥"
+            diff=15.3
+        />
+        <Stats
+            value="$45,231"
+            label="Revenue"
+            icon="💰"
+            diff=8.7
+        />
+        <Stats
+            value="98.5%"
+            label="Success Rate"
+            icon="✓"
+            diff=2.1
+        />
+    </StatsGroup>
+}
+
+// Stats group with 4 columns
+view! {
+    <StatsGroup cols=4>
+        <Stats value="432" label="Orders" icon="📦" diff=5.2 />
+        <Stats value="89" label="Products" icon="📱" />
+        <Stats value="1.2k" label="Visitors" icon="👀" diff=-3.1 />
+        <Stats value="4.8" label="Rating" icon="⭐" diff=0.3 />
+    </StatsGroup>
+}
+```
+
+**Stats Props:**
+- `value`: `String` - The main statistic value to display
+- `label`: `String` - Label/description of the statistic
+- `icon`: `String` - Optional icon/emoji to display in header
+- `description`: `String` - Optional helper text below value
+- `diff`: `f32` - Optional percentage change (positive shows green with ↑, negative shows red with ↓)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**StatsGroup Props:**
+- `cols`: `u32` - Number of columns in grid (default: 3)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Use `diff` to show month-over-month or week-over-week changes
+- Positive diffs are displayed in green, negative in red
+- StatsGroup automatically becomes responsive (2 cols on tablets, 1 col on mobile)
+- Icons can be emojis or icon font characters
+
+### RingProgress
+
+A circular progress indicator that can display multiple segments.
+
+```rust
+use mingot::{RingProgress, RingProgressSection, RingProgressSize};
+
+// Simple single-section progress
+view! {
+    <RingProgress
+        sections=vec![
+            RingProgressSection::new(75.0, "#228be6"),
+        ]
+        label={|| view! { <div>"75%"</div> }}
+    />
+}
+
+// Multiple sections
+view! {
+    <RingProgress
+        sections=vec![
+            RingProgressSection::new(40.0, "#228be6"),
+            RingProgressSection::new(25.0, "#37b24d"),
+            RingProgressSection::new(15.0, "#f03e3e"),
+        ]
+        label={|| view! {
+            <Stack spacing="xs" align=StackAlign::Center>
+                <Text weight=TextWeight::Bold>"80%"</Text>
+                <Text size=TextSize::Xs>"Complete"</Text>
+            </Stack>
+        }}
+    />
+}
+
+// Different sizes
+view! {
+    <Group>
+        <RingProgress
+            sections=vec![RingProgressSection::new(65.0, "#228be6")]
+            size=RingProgressSize::Xs
+            label={|| view! { <div>"Xs"</div> }}
+        />
+        <RingProgress
+            sections=vec![RingProgressSection::new(65.0, "#228be6")]
+            size=RingProgressSize::Sm
+            label={|| view! { <div>"Sm"</div> }}
+        />
+        <RingProgress
+            sections=vec![RingProgressSection::new(65.0, "#228be6")]
+            size=RingProgressSize::Md
+            label={|| view! { <div>"Md"</div> }}
+        />
+        <RingProgress
+            sections=vec![RingProgressSection::new(65.0, "#228be6")]
+            size=RingProgressSize::Lg
+            label={|| view! { <div>"Lg"</div> }}
+        />
+    </Group>
+}
+
+// Custom thickness
+view! {
+    <RingProgress
+        sections=vec![RingProgressSection::new(80.0, "#37b24d")]
+        thickness=12
+        label={|| view! { <div>"80%"</div> }}
+    />
+}
+
+// Multiple sections with tooltips
+view! {
+    <RingProgress
+        sections=vec![
+            RingProgressSection::new(35.0, "#228be6").tooltip("Documents: 35%"),
+            RingProgressSection::new(28.0, "#37b24d").tooltip("Photos: 28%"),
+            RingProgressSection::new(20.0, "#f59f00").tooltip("Videos: 20%"),
+            RingProgressSection::new(10.0, "#f03e3e").tooltip("Other: 10%"),
+        ]
+        size=RingProgressSize::Lg
+        label={|| view! {
+            <Text weight=TextWeight::Bold>"93%"</Text>
+        }}
+    />
+}
+```
+
+**RingProgress Props:**
+- `sections`: `Vec<RingProgressSection>` - Progress sections to display
+- `size`: `RingProgressSize` - Xs (44px), Sm (60px), Md (80px, default), Lg (120px), Xl (160px)
+- `thickness`: `u32` - Ring thickness in pixels (default: 8)
+- `label`: `Children` - Content to display in the center of the ring
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**RingProgressSection:**
+- `new(value, color)` - Create a new section with value (0-100) and color
+- `.tooltip(text)` - Add tooltip text (currently stored but not displayed)
+
+**Usage Tips:**
+- Section values should add up to 100 or less
+- Sections are rendered in order, creating a stacked ring
+- Use the label prop to display percentage or other content in the center
+- Colors can be hex values or theme color names
+
+### ErrorPage
+
+Full-page error component for 404, 500, and other error states.
+
+```rust
+use mingot::{ErrorPage, ErrorPageType, Button, ButtonVariant};
+
+// 404 Not Found page
+view! {
+    <ErrorPage
+        error_type=ErrorPageType::NotFound
+        show_status_code=true
+        actions={|| view! {
+            <Button href="/">"Go to Homepage"</Button>
+        }}
+    />
+}
+
+// 500 Internal Server Error
+view! {
+    <ErrorPage
+        error_type=ErrorPageType::InternalError
+        show_status_code=true
+        actions={|| view! {
+            <Group>
+                <Button href="/">"Go to Homepage"</Button>
+                <Button variant=ButtonVariant::Outline on_click=move |_| {
+                    // Retry logic
+                }>
+                    "Try Again"
+                </Button>
+            </Group>
+        }}
+    />
+}
+
+// 403 Forbidden
+view! {
+    <ErrorPage
+        error_type=ErrorPageType::Forbidden
+        show_status_code=true
+        actions={|| view! {
+            <Button href="/login">"Sign In"</Button>
+        }}
+    />
+}
+
+// Custom error page
+view! {
+    <ErrorPage
+        error_type=ErrorPageType::Custom
+        status_code="418"
+        title="I'm a teapot"
+        description="The server refuses to brew coffee because it is, permanently, a teapot."
+        icon="🫖"
+        show_status_code=true
+        actions={|| view! {
+            <Button href="/">"Return Home"</Button>
+        }}
+    />
+}
+
+// Minimal error (no status code display)
+view! {
+    <ErrorPage
+        error_type=ErrorPageType::NotFound
+        title="Oops!"
+        description="We couldn't find what you're looking for."
+        show_status_code=false
+        actions={|| view! {
+            <Stack spacing="sm" style="align-items: center;">
+                <Button>"Go Back"</Button>
+                <Button variant=ButtonVariant::Subtle href="/help">
+                    "Get Help"
+                </Button>
+            </Stack>
+        }}
+    />
+}
+
+// Service Unavailable
+view! {
+    <ErrorPage
+        error_type=ErrorPageType::ServiceUnavailable
+        show_status_code=true
+        description="We're performing scheduled maintenance. We'll be back soon!"
+        actions={|| view! {
+            <Button variant=ButtonVariant::Outline on_click=move |_| {
+                // Refresh page
+                web_sys::window().unwrap().location().reload().ok();
+            }>
+                "Refresh Page"
+            </Button>
+        }}
+    />
+}
+```
+
+**ErrorPage Props:**
+- `error_type`: `ErrorPageType` - NotFound (404), InternalError (500), Forbidden (403), Unauthorized (401), ServiceUnavailable (503), or Custom
+- `status_code`: `String` - Custom status code (defaults based on error_type)
+- `title`: `String` - Error title (defaults based on error_type)
+- `description`: `String` - Error description (defaults based on error_type)
+- `icon`: `String` - Icon/emoji to display (defaults based on error_type)
+- `actions`: `Children` - Action buttons to display (optional)
+- `show_status_code`: `bool` - Display large status code in background (default: false)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**ErrorPageType Defaults:**
+- **NotFound (404)**: "Page Not Found" with 🔍
+- **InternalError (500)**: "Internal Server Error" with ⚠️
+- **Forbidden (403)**: "Access Forbidden" with 🚫
+- **Unauthorized (401)**: "Unauthorized" with 🔒
+- **ServiceUnavailable (503)**: "Service Unavailable" with 🔧
+- **Custom**: Customizable with all props
+
+**Usage Tips:**
+- Use `show_status_code=true` for a large, faded status code background
+- The actions prop accepts any content - commonly used for navigation buttons
+- All text and icons can be overridden for full customization
+- Error pages use full viewport height for centered content
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -2388,6 +2715,8 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Banner and Hero components
 - [x] User info components (Avatar, Badge, Card, Divider)
 - [x] Application components (Paper, AppShell, Accordion, Tabs)
+- [x] Stats and metrics components (Stats, StatsGroup, RingProgress)
+- [x] Error page components (ErrorPage with multiple error types)
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
