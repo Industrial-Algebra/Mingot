@@ -34,7 +34,10 @@ pub mod utils;
 
 // Re-export commonly used components
 pub use components::*;
-pub use theme::{MingotProvider, Theme, ThemeContext};
+pub use theme::{
+    use_color_scheme, use_color_scheme_toggle, use_set_color_scheme, use_theme, ActiveColorScheme,
+    ColorSchemeMode, MingotProvider, Theme, ThemeContext,
+};
 
 // Re-export leptos for convenience
 pub use leptos;
@@ -42,5 +45,8 @@ pub use leptos;
 /// Prelude module with commonly used imports
 pub mod prelude {
     pub use crate::components::*;
-    pub use crate::theme::{MingotProvider, Theme};
+    pub use crate::theme::{
+        use_color_scheme, use_color_scheme_toggle, use_set_color_scheme, ActiveColorScheme,
+        ColorSchemeMode, MingotProvider, Theme,
+    };
 }

@@ -39,6 +39,9 @@ pub fn Text(
         let theme_val = theme.get();
         let mut builder = StyleBuilder::new();
 
+        // Get the active color scheme colors
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+
         // Font size
         let font_size = match size {
             TextSize::Xs => theme_val.typography.font_sizes.xs,
@@ -61,11 +64,14 @@ pub fn Text(
         // Color
         if let Some(c) = color.as_ref() {
             // Try to get from theme colors first
-            if let Some(theme_color) = theme_val.colors.get_color(c, 6) {
+            if let Some(theme_color) = scheme_colors.get_color(c, 6) {
                 builder.add("color", theme_color);
             } else {
                 builder.add("color", c);
             }
+        } else {
+            // Use default text color from scheme
+            builder.add("color", scheme_colors.text.clone());
         }
 
         // Font style

@@ -1,8 +1,10 @@
+mod color_scheme;
 mod colors;
 mod provider;
 mod spacing;
 mod typography;
 
+pub use color_scheme::*;
 pub use colors::*;
 pub use provider::*;
 pub use spacing::*;
@@ -12,23 +14,25 @@ use leptos::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Theme {
-    pub colors: ColorScheme,
+    pub colors: ColorPalette,
     pub spacing: Spacing,
     pub typography: Typography,
     pub radius: RadiusScale,
     pub shadows: ShadowScale,
     pub breakpoints: Breakpoints,
+    pub color_scheme: ColorSchemeMode,
 }
 
 impl Default for Theme {
     fn default() -> Self {
         Self {
-            colors: ColorScheme::default(),
+            colors: ColorPalette::default(),
             spacing: Spacing::default(),
             typography: Typography::default(),
             radius: RadiusScale::default(),
             shadows: ShadowScale::default(),
             breakpoints: Breakpoints::default(),
+            color_scheme: ColorSchemeMode::default(),
         }
     }
 }
@@ -97,3 +101,11 @@ impl Default for Breakpoints {
 }
 
 pub type ThemeContext = RwSignal<Theme>;
+
+/// Helper to get the active color scheme colors based on current theme
+pub fn get_scheme_colors(theme: &Theme) -> &ColorScheme {
+    match theme.color_scheme.resolve() {
+        ActiveColorScheme::Light => &theme.colors.light,
+        ActiveColorScheme::Dark => &theme.colors.dark,
+    }
+}

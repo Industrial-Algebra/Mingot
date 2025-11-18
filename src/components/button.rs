@@ -44,9 +44,12 @@ pub fn Button(
         let theme_val = theme.get();
         let mut builder = StyleBuilder::new();
 
+        // Get the active color scheme colors
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+
         // Get color from theme
-        let bg_color = theme_val.colors.get_color(&color, 6).unwrap_or_else(|| "#228be6".to_string());
-        let light_color = theme_val.colors.get_color(&color, 0).unwrap_or_else(|| "#e7f5ff".to_string());
+        let bg_color = scheme_colors.get_color(&color, 6).unwrap_or_else(|| "#228be6".to_string());
+        let light_color = scheme_colors.get_color(&color, 0).unwrap_or_else(|| "#e7f5ff".to_string());
 
         // Base styles
         builder
@@ -100,7 +103,7 @@ pub fn Button(
             ButtonVariant::Filled => {
                 builder
                     .add("background-color", bg_color.clone())
-                    .add("color", theme_val.colors.white.clone());
+                    .add("color", scheme_colors.white.clone());
             }
             ButtonVariant::Outline => {
                 builder
@@ -119,10 +122,11 @@ pub fn Button(
                     .add("color", bg_color.clone());
             }
             ButtonVariant::Default => {
+                let border_color = scheme_colors.get_color("gray", 4).unwrap_or_else(|| scheme_colors.border.clone());
                 builder
-                    .add("background-color", theme_val.colors.white.clone())
-                    .add("color", theme_val.colors.black.clone())
-                    .add("border", format!("1px solid {}", theme_val.colors.get_color("gray", 4).unwrap_or_else(|| "#ced4da".to_string())));
+                    .add("background-color", scheme_colors.background.clone())
+                    .add("color", scheme_colors.text.clone())
+                    .add("border", format!("1px solid {}", border_color));
             }
         }
 
