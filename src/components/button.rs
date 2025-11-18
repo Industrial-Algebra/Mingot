@@ -1,0 +1,171 @@
+use crate::theme::use_theme;
+use crate::utils::StyleBuilder;
+use leptos::prelude::*;
+use leptos::ev;
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum ButtonVariant {
+    Filled,
+    Outline,
+    Light,
+    Subtle,
+    Default,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum ButtonSize {
+    Xs,
+    Sm,
+    Md,
+    Lg,
+    Xl,
+}
+
+#[component]
+pub fn Button(
+    #[prop(optional)] variant: Option<ButtonVariant>,
+    #[prop(optional)] size: Option<ButtonSize>,
+    #[prop(optional)] color: Option<String>,
+    #[prop(optional)] radius: Option<String>,
+    #[prop(optional)] full_width: bool,
+    #[prop(optional)] disabled: bool,
+    #[prop(optional)] loading: bool,
+    #[prop(optional)] on_click: Option<Callback<ev::MouseEvent>>,
+    #[prop(optional)] class: Option<String>,
+    #[prop(optional)] style: Option<String>,
+    children: Children,
+) -> impl IntoView {
+    let theme = use_theme();
+    let variant = variant.unwrap_or(ButtonVariant::Filled);
+    let size = size.unwrap_or(ButtonSize::Md);
+    let color = color.unwrap_or_else(|| "blue".to_string());
+
+    let button_styles = move || {
+        let theme_val = theme.get();
+        let mut builder = StyleBuilder::new();
+
+        // Get color from theme
+        let bg_color = theme_val.colors.get_color(&color, 6).unwrap_or_else(|| "#228be6".to_string());
+        let light_color = theme_val.colors.get_color(&color, 0).unwrap_or_else(|| "#e7f5ff".to_string());
+
+        // Base styles
+        builder
+            .add("display", "inline-flex")
+            .add("align-items", "center")
+            .add("justify-content", "center")
+            .add("border", "none")
+            .add("cursor", if disabled || loading { "not-allowed" } else { "pointer" })
+            .add("font-family", theme_val.typography.font_family)
+            .add("font-weight", theme_val.typography.font_weights.semibold.to_string())
+            .add("transition", "all 0.15s ease")
+            .add("user-select", "none")
+            .add("opacity", if disabled { "0.6" } else { "1" });
+
+        // Size-based styles
+        match size {
+            ButtonSize::Xs => {
+                builder
+                    .add("height", "1.875rem")
+                    .add("padding", "0 0.875rem")
+                    .add("font-size", theme_val.typography.font_sizes.xs);
+            }
+            ButtonSize::Sm => {
+                builder
+                    .add("height", "2.25rem")
+                    .add("padding", "0 1.125rem")
+                    .add("font-size", theme_val.typography.font_sizes.sm);
+            }
+            ButtonSize::Md => {
+                builder
+                    .add("height", "2.625rem")
+                    .add("padding", "0 1.375rem")
+                    .add("font-size", theme_val.typography.font_sizes.sm);
+            }
+            ButtonSize::Lg => {
+                builder
+                    .add("height", "3.125rem")
+                    .add("padding", "0 1.625rem")
+                    .add("font-size", theme_val.typography.font_sizes.md);
+            }
+            ButtonSize::Xl => {
+                builder
+                    .add("height", "3.75rem")
+                    .add("padding", "0 2rem")
+                    .add("font-size", theme_val.typography.font_sizes.lg);
+            }
+        }
+
+        // Variant-based styles
+        match variant {
+            ButtonVariant::Filled => {
+                builder
+                    .add("background-color", bg_color.clone())
+                    .add("color", theme_val.colors.white.clone());
+            }
+            ButtonVariant::Outline => {
+                builder
+                    .add("background-color", "transparent")
+                    .add("color", bg_color.clone())
+                    .add("border", format!("1px solid {}", bg_color));
+            }
+            ButtonVariant::Light => {
+                builder
+                    .add("background-color", light_color)
+                    .add("color", bg_color.clone());
+            }
+            ButtonVariant::Subtle => {
+                builder
+                    .add("background-color", "transparent")
+                    .add("color", bg_color.clone());
+            }
+            ButtonVariant::Default => {
+                builder
+                    .add("background-color", theme_val.colors.white.clone())
+                    .add("color", theme_val.colors.black.clone())
+                    .add("border", format!("1px solid {}", theme_val.colors.get_color("gray", 4).unwrap_or_else(|| "#ced4da".to_string())));
+            }
+        }
+
+        // Border radius
+        if let Some(r) = radius.as_ref() {
+            builder.add("border-radius", r);
+        } else {
+            builder.add("border-radius", theme_val.radius.sm);
+        }
+
+        // Full width
+        builder.add_if(full_width, "width", "100%");
+
+        // Custom styles
+        if let Some(s) = style.as_ref() {
+            return format!("{}; {}", builder.build(), s);
+        }
+
+        builder.build()
+    };
+
+    let handle_click = move |ev: ev::MouseEvent| {
+        if !disabled && !loading {
+            if let Some(callback) = on_click {
+                callback.run(ev);
+            }
+        }
+    };
+
+    let class_str = format!("mingot-button {}", class.unwrap_or_default());
+
+    view! {
+        <button
+            class=class_str
+            style=button_styles
+            disabled=disabled || loading
+            on:click=handle_click
+        >
+            {if loading {
+                "Loading...".into_any()
+            } else {
+                children().into_any()
+            }}
+        </button>
+    }
+}

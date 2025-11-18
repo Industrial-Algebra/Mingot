@@ -1,6 +1,35 @@
 [package]
-name = "Mingot"
+name = "mingot"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "A Leptos component library inspired by Mantine UI"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/mingot"
+keywords = ["leptos", "ui", "components", "mantine"]
+categories = ["gui", "web-programming"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+leptos = { version = "0.7", features = ["csr"] }
+leptos_meta = "0.7"
+leptos_router = "0.7"
+web-sys = { version = "0.3", features = ["HtmlElement", "Window", "Document", "CssStyleDeclaration"] }
+wasm-bindgen = "0.2"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[features]
+default = ["csr"]
+csr = ["leptos/csr"]
+ssr = ["leptos/ssr"]
+hydrate = ["leptos/hydrate"]
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
