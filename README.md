@@ -227,6 +227,344 @@ view! {
 - `justify`: `GroupJustify` - Horizontal distribution (Start, Center, End, SpaceBetween, SpaceAround)
 - `wrap`: `bool` - Allow wrapping to multiple lines
 
+### Input
+
+A text input component with multiple variants and validation support.
+
+```rust
+use mingot::{Input, InputVariant, InputSize};
+
+// Basic input
+let value = RwSignal::new(String::new());
+view! {
+    <Input
+        placeholder="Enter your name"
+        value=Some(value)
+    />
+}
+
+// With label and description
+view! {
+    <Input
+        label="Email"
+        placeholder="you@example.com"
+        description="We'll never share your email"
+        input_type="email"
+        required=true
+    />
+}
+
+// With error state
+view! {
+    <Input
+        label="Username"
+        error="Username is already taken"
+    />
+}
+
+// Different variants
+view! {
+    <Stack>
+        <Input variant=InputVariant::Default placeholder="Default" />
+        <Input variant=InputVariant::Filled placeholder="Filled" />
+        <Input variant=InputVariant::Unstyled placeholder="Unstyled" />
+    </Stack>
+}
+
+// Different sizes
+view! {
+    <Input size=InputSize::Xs placeholder="Extra small" />
+}
+
+// With input handler
+view! {
+    <Input
+        placeholder="Type something..."
+        on_input=Some(Callback::new(move |val: String| {
+            logging::log!("Input: {}", val);
+        }))
+    />
+}
+```
+
+**Props:**
+- `variant`: `InputVariant` - Default, Filled, or Unstyled
+- `size`: `InputSize` - Xs, Sm, Md (default), Lg, or Xl
+- `placeholder`: `String` - Placeholder text
+- `value`: `RwSignal<String>` - Controlled value
+- `disabled`: `bool` - Disabled state
+- `error`: `String` - Error message (also styles input red)
+- `required`: `bool` - Mark as required
+- `input_type`: `String` - HTML input type (text, email, password, etc.)
+- `on_input`: `Callback<String>` - Called on every keystroke
+- `on_change`: `Callback<String>` - Called when input loses focus
+- `label`: `String` - Label text
+- `description`: `String` - Helper text below input
+
+### Textarea
+
+Multi-line text input component.
+
+```rust
+use mingot::{Textarea, TextareaVariant, TextareaSize};
+
+let value = RwSignal::new(String::new());
+view! {
+    <Textarea
+        label="Bio"
+        placeholder="Tell us about yourself..."
+        value=Some(value)
+        rows=5
+    />
+}
+
+// With validation
+view! {
+    <Textarea
+        label="Message"
+        error="Message must be at least 10 characters"
+        required=true
+    />
+}
+```
+
+**Props:**
+- Similar to Input, plus:
+- `rows`: `u32` - Number of visible rows (default: 3)
+- `auto_size`: `bool` - Auto-grow with content (disables resize)
+
+### Select
+
+Dropdown select component.
+
+```rust
+use mingot::{Select, SelectOption, SelectVariant, SelectSize};
+
+let value = RwSignal::new(String::new());
+view! {
+    <Select
+        label="Country"
+        placeholder="Select a country"
+        value=Some(value)
+        options=vec![
+            SelectOption::new("us", "United States"),
+            SelectOption::new("ca", "Canada"),
+            SelectOption::new("mx", "Mexico"),
+        ]
+    />
+}
+
+// With disabled options
+view! {
+    <Select
+        options=vec![
+            SelectOption::new("opt1", "Option 1"),
+            SelectOption::new("opt2", "Option 2").disabled(true),
+            SelectOption::new("opt3", "Option 3"),
+        ]
+    />
+}
+
+// With change handler
+view! {
+    <Select
+        options=vec![/* ... */]
+        on_change=Some(Callback::new(move |val: String| {
+            logging::log!("Selected: {}", val);
+        }))
+    />
+}
+```
+
+**Props:**
+- Similar to Input, plus:
+- `options`: `Vec<SelectOption>` - List of options
+- `on_change`: `Callback<String>` - Called when selection changes
+
+### Checkbox
+
+Checkbox input with label support.
+
+```rust
+use mingot::{Checkbox, CheckboxSize};
+
+let checked = RwSignal::new(false);
+view! {
+    <Checkbox
+        label="I agree to terms and conditions"
+        checked=Some(checked)
+    />
+}
+
+// With description
+view! {
+    <Checkbox
+        label="Subscribe to newsletter"
+        description="Get weekly updates about new features"
+        checked=Some(checked)
+    />
+}
+
+// Different sizes and colors
+view! {
+    <Stack>
+        <Checkbox size=CheckboxSize::Sm label="Small" />
+        <Checkbox size=CheckboxSize::Md label="Medium" />
+        <Checkbox size=CheckboxSize::Lg label="Large" />
+        <Checkbox color="green" label="Green checkbox" />
+    </Stack>
+}
+
+// With change handler
+view! {
+    <Checkbox
+        label="Enable notifications"
+        on_change=Some(Callback::new(move |checked: bool| {
+            logging::log!("Checked: {}", checked);
+        }))
+    />
+}
+```
+
+**Props:**
+- `checked`: `RwSignal<bool>` - Controlled checked state
+- `size`: `CheckboxSize` - Xs, Sm, Md (default), Lg, or Xl
+- `color`: `String` - Theme color (default: blue)
+- `label`: `String` - Label text
+- `description`: `String` - Helper text
+- `disabled`: `bool` - Disabled state
+- `error`: `String` - Error message
+- `on_change`: `Callback<bool>` - Called when checkbox is toggled
+
+### Radio
+
+Radio button input with label support.
+
+```rust
+use mingot::{Radio, RadioGroup, RadioSize};
+
+let selected = RwSignal::new("option1".to_string());
+
+view! {
+    <RadioGroup label="Choose an option">
+        <Radio
+            value="option1"
+            label="Option 1"
+            name="my-radio"
+        />
+        <Radio
+            value="option2"
+            label="Option 2"
+            name="my-radio"
+        />
+        <Radio
+            value="option3"
+            label="Option 3"
+            description="This is the recommended option"
+            name="my-radio"
+        />
+    </RadioGroup>
+}
+
+// With change handler
+view! {
+    <Radio
+        value="yes"
+        label="Yes, I agree"
+        on_change=Some(Callback::new(move |val: String| {
+            logging::log!("Selected: {}", val);
+        }))
+    />
+}
+```
+
+**Props:**
+- `value`: `String` - The value of this radio button
+- `checked`: `RwSignal<bool>` - Controlled checked state
+- `name`: `String` - Radio group name (for native grouping)
+- `size`: `RadioSize` - Xs, Sm, Md (default), Lg, or Xl
+- `color`: `String` - Theme color (default: blue)
+- `label`: `String` - Label text
+- `description`: `String` - Helper text
+- `disabled`: `bool` - Disabled state
+- `error`: `String` - Error message
+- `on_change`: `Callback<String>` - Called when radio is selected
+
+### Modal
+
+Overlay modal dialog component.
+
+```rust
+use mingot::{Modal, ModalSize, Button};
+
+let opened = RwSignal::new(false);
+
+view! {
+    <>
+        <Button on_click=move |_| opened.set(true)>
+            "Open Modal"
+        </Button>
+
+        <Modal
+            opened=opened.into()
+            on_close=Some(Callback::new(move |_| opened.set(false)))
+            title="Modal Title"
+        >
+            <Stack spacing="md">
+                <Text>"This is the modal content"</Text>
+                <Group justify=GroupJustify::End>
+                    <Button
+                        variant=ButtonVariant::Outline
+                        on_click=move |_| opened.set(false)
+                    >
+                        "Cancel"
+                    </Button>
+                    <Button on_click=move |_| {
+                        // Handle save
+                        opened.set(false);
+                    }>
+                        "Save"
+                    </Button>
+                </Group>
+            </Stack>
+        </Modal>
+    </>
+}
+
+// Centered modal
+view! {
+    <Modal
+        opened=opened.into()
+        centered=true
+        size=ModalSize::Lg
+    >
+        "Large centered modal"
+    </Modal>
+}
+
+// Without close button
+view! {
+    <Modal
+        opened=opened.into()
+        with_close_button=false
+        close_on_click_outside=false
+    >
+        "Must use a button to close"
+    </Modal>
+}
+```
+
+**Props:**
+- `opened`: `Signal<bool>` - Controls modal visibility
+- `on_close`: `Callback<()>` - Called when modal should close
+- `size`: `ModalSize` - Xs, Sm, Md (default), Lg, Xl, or Full
+- `title`: `String` - Modal title
+- `centered`: `bool` - Center modal vertically (default: false)
+- `close_on_click_outside`: `bool` - Close when clicking overlay (default: true)
+- `close_on_escape`: `bool` - Close on Escape key (default: true)
+- `with_close_button`: `bool` - Show X button (default: true)
+- `padding`: `String` - Custom padding (default: theme.spacing.lg)
+
 ## Theming
 
 ### Default Theme
@@ -473,17 +811,22 @@ fn ThemeToggle() -> impl IntoView {
 
 ## Roadmap
 
-- [ ] More components (Input, Select, Modal, Drawer, etc.)
+- [x] Basic form components (Input, Textarea, Select, Checkbox, Radio)
+- [x] Modal/Dialog component
 - [x] Dark mode support
+- [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
+- [ ] More form components (Switch, Slider, File Input, Date Picker)
+- [ ] Data display components (Table, Card, Badge, Avatar)
+- [ ] Navigation components (Tabs, Menu, Breadcrumbs)
+- [ ] Feedback components (Alert, Notification, Progress)
 - [ ] CSS-in-Rust styling with style generation
 - [ ] More comprehensive theming options
-- [ ] Accessibility improvements
-- [ ] Component composition utilities
-- [ ] Form components and validation
-- [ ] Data display components (Table, Card, etc.)
+- [ ] Accessibility improvements (ARIA labels, keyboard navigation)
+- [ ] Form validation utilities
 - [ ] Smooth transitions between themes
 - [ ] LocalStorage persistence for theme preference
+- [ ] Component testing utilities
 
 ## Contributing
 
