@@ -27,10 +27,13 @@ pub fn Button(
     #[prop(optional)] size: Option<ButtonSize>,
     #[prop(optional)] color: Option<String>,
     #[prop(optional)] radius: Option<String>,
-    #[prop(optional)] full_width: bool,
-    #[prop(optional)] disabled: bool,
-    #[prop(optional)] loading: bool,
+    #[prop(optional, into)] full_width: Signal<bool>,
+    #[prop(optional, into)] disabled: Signal<bool>,
+    #[prop(optional, into)] loading: Signal<bool>,
     #[prop(optional)] on_click: Option<Callback<ev::MouseEvent>>,
+    #[prop(optional)] button_type: Option<String>,
+    #[prop(optional)] as_: Option<String>,
+    #[prop(optional)] href: Option<String>,
     #[prop(optional)] class: Option<String>,
     #[prop(optional)] style: Option<String>,
     children: Children,
@@ -39,6 +42,8 @@ pub fn Button(
     let variant = variant.unwrap_or(ButtonVariant::Filled);
     let size = size.unwrap_or(ButtonSize::Md);
     let color = color.unwrap_or_else(|| "blue".to_string());
+    let button_type = button_type.unwrap_or_else(|| "button".to_string());
+    let is_link = as_.as_ref().map(|s| s == "a").unwrap_or(false);
 
     let button_styles = move || {
         let theme_val = theme.get();
@@ -55,6 +60,10 @@ pub fn Button(
             .get_color(&color, 0)
             .unwrap_or_else(|| "#e7f5ff".to_string());
 
+        let is_disabled = disabled.get();
+        let is_loading = loading.get();
+        let is_full_width = full_width.get();
+
         // Base styles
         builder
             .add("display", "inline-flex")
@@ -63,7 +72,7 @@ pub fn Button(
             .add("border", "none")
             .add(
                 "cursor",
-                if disabled || loading {
+                if is_disabled || is_loading {
                     "not-allowed"
                 } else {
                     "pointer"
@@ -76,7 +85,8 @@ pub fn Button(
             )
             .add("transition", "all 0.15s ease")
             .add("user-select", "none")
-            .add("opacity", if disabled { "0.6" } else { "1" });
+            .add("text-decoration", "none")
+            .add("opacity", if is_disabled { "0.6" } else { "1" });
 
         // Size-based styles
         match size {
@@ -154,7 +164,7 @@ pub fn Button(
         }
 
         // Full width
-        builder.add_if(full_width, "width", "100%");
+        builder.add_if(is_full_width, "width", "100%");
 
         // Custom styles
         if let Some(s) = style.as_ref() {
@@ -165,7 +175,7 @@ pub fn Button(
     };
 
     let handle_click = move |ev: ev::MouseEvent| {
-        if !disabled && !loading {
+        if !disabled.get() && !loading.get() {
             if let Some(callback) = on_click {
                 callback.run(ev);
             }
@@ -174,18 +184,30 @@ pub fn Button(
 
     let class_str = format!("mingot-button {}", class.unwrap_or_default());
 
-    view! {
-        <button
-            class=class_str
-            style=button_styles
-            disabled=disabled || loading
-            on:click=handle_click
-        >
-            {if loading {
-                "Loading...".into_any()
-            } else {
-                children().into_any()
-            }}
-        </button>
+    if is_link {
+        view! {
+            <a
+                href=href.unwrap_or_else(|| "#".to_string())
+                class=class_str
+                style=button_styles
+                on:click=handle_click
+            >
+                {children()}
+            </a>
+        }
+        .into_any()
+    } else {
+        view! {
+            <button
+                type=button_type
+                class=class_str
+                style=button_styles
+                disabled=move || disabled.get() || loading.get()
+                on:click=handle_click
+            >
+                {children()}
+            </button>
+        }
+        .into_any()
     }
 }

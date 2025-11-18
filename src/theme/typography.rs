@@ -26,6 +26,7 @@ pub struct FontSizes {
     pub md: &'static str,
     pub lg: &'static str,
     pub xl: &'static str,
+    pub xxl: &'static str,
 }
 
 impl Default for FontSizes {
@@ -36,6 +37,7 @@ impl Default for FontSizes {
             md: "1rem",     // 16px
             lg: "1.125rem", // 18px
             xl: "1.25rem",  // 20px
+            xxl: "2rem",    // 32px
         }
     }
 }

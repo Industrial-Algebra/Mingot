@@ -24,8 +24,8 @@ pub fn Input(
     #[prop(optional)] variant: Option<InputVariant>,
     #[prop(optional)] size: Option<InputSize>,
     #[prop(optional)] placeholder: Option<String>,
-    #[prop(optional)] value: Option<RwSignal<String>>,
-    #[prop(optional)] disabled: bool,
+    #[prop(optional, into)] value: Signal<String>,
+    #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional)] error: Option<String>,
     #[prop(optional)] required: bool,
     #[prop(optional)] input_type: Option<String>,
@@ -41,13 +41,12 @@ pub fn Input(
     let size = size.unwrap_or(InputSize::Md);
     let input_type = input_type.unwrap_or_else(|| "text".to_string());
 
-    let input_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
-
     let error_clone = error.clone();
     let input_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
+        let is_disabled = disabled.get();
 
         // Base styles
         builder
@@ -128,7 +127,7 @@ pub fn Input(
         }
 
         // Disabled state
-        if disabled {
+        if is_disabled {
             builder.add("opacity", "0.6").add("cursor", "not-allowed");
         } else {
             builder.add("cursor", "text");
@@ -142,17 +141,16 @@ pub fn Input(
     };
 
     let handle_input = move |ev: ev::Event| {
-        let value = event_target_value(&ev);
-        input_value.set(value.clone());
+        let input_value = event_target_value(&ev);
         if let Some(callback) = on_input {
-            callback.run(value);
+            callback.run(input_value);
         }
     };
 
     let handle_change = move |ev: ev::Event| {
-        let value = event_target_value(&ev);
+        let change_value = event_target_value(&ev);
         if let Some(callback) = on_change {
-            callback.run(value);
+            callback.run(change_value);
         }
     };
 
@@ -207,9 +205,9 @@ pub fn Input(
                 class=class_str
                 style=input_styles
                 placeholder=placeholder.unwrap_or_default()
-                disabled=disabled
+                disabled=move || disabled.get()
                 required=required
-                prop:value=move || input_value.get()
+                prop:value=move || value.get()
                 on:input=handle_input
                 on:change=handle_change
             />

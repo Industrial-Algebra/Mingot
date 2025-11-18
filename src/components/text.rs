@@ -9,6 +9,7 @@ pub enum TextSize {
     Md,
     Lg,
     Xl,
+    Xxl,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -19,6 +20,25 @@ pub enum TextWeight {
     Bold,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum TextAlign {
+    Left,
+    Center,
+    Right,
+    Justify,
+}
+
+impl TextAlign {
+    fn to_css(self) -> &'static str {
+        match self {
+            TextAlign::Left => "left",
+            TextAlign::Center => "center",
+            TextAlign::Right => "right",
+            TextAlign::Justify => "justify",
+        }
+    }
+}
+
 #[component]
 pub fn Text(
     #[prop(optional)] size: Option<TextSize>,
@@ -26,7 +46,8 @@ pub fn Text(
     #[prop(optional)] color: Option<String>,
     #[prop(optional)] italic: bool,
     #[prop(optional)] underline: bool,
-    #[prop(optional)] align: Option<String>,
+    #[prop(optional)] align: Option<TextAlign>,
+    #[prop(optional)] align_custom: Option<String>,
     #[prop(optional)] class: Option<String>,
     #[prop(optional)] style: Option<String>,
     children: Children,
@@ -49,6 +70,7 @@ pub fn Text(
             TextSize::Md => theme_val.typography.font_sizes.md,
             TextSize::Lg => theme_val.typography.font_sizes.lg,
             TextSize::Xl => theme_val.typography.font_sizes.xl,
+            TextSize::Xxl => theme_val.typography.font_sizes.xxl,
         };
         builder.add("font-size", font_size);
 
@@ -80,9 +102,11 @@ pub fn Text(
         // Text decoration
         builder.add_if(underline, "text-decoration", "underline");
 
-        // Text align
-        if let Some(a) = align.as_ref() {
-            builder.add("text-align", a);
+        // Text align (prefer type-safe enum, fallback to custom string)
+        if let Some(a) = align {
+            builder.add("text-align", a.to_css());
+        } else if let Some(custom_align) = align_custom.as_ref() {
+            builder.add("text-align", custom_align);
         }
 
         builder.add("font-family", theme_val.typography.font_family);
