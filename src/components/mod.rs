@@ -5,6 +5,9 @@ pub mod text;
 pub mod stack;
 pub mod group;
 
+// Layout components
+pub mod grid;
+
 // Form components
 pub mod input;
 pub mod textarea;
@@ -24,6 +27,7 @@ pub use container::*;
 pub use text::*;
 pub use stack::*;
 pub use group::*;
+pub use grid::*;
 pub use input::*;
 pub use textarea::*;
 pub use select::*;

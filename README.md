@@ -227,6 +227,142 @@ view! {
 - `justify`: `GroupJustify` - Horizontal distribution (Start, Center, End, SpaceBetween, SpaceAround)
 - `wrap`: `bool` - Allow wrapping to multiple lines
 
+### Grid
+
+A powerful responsive grid layout system based on CSS Grid with 12-column default.
+
+```rust
+use mingot::{Grid, GridCol};
+
+// Basic grid with equal columns
+view! {
+    <Grid>
+        <GridCol span=6>
+            <div>"Half width column"</div>
+        </GridCol>
+        <GridCol span=6>
+            <div>"Half width column"</div>
+        </GridCol>
+    </Grid>
+}
+
+// Responsive grid - different spans at different breakpoints
+view! {
+    <Grid>
+        <GridCol span=12 md=6 lg=4>
+            <div>"Full width on mobile, half on tablet, third on desktop"</div>
+        </GridCol>
+        <GridCol span=12 md=6 lg=4>
+            <div>"Full width on mobile, half on tablet, third on desktop"</div>
+        </GridCol>
+        <GridCol span=12 md=12 lg=4>
+            <div>"Full width on mobile and tablet, third on desktop"</div>
+        </GridCol>
+    </Grid>
+}
+
+// Grid with custom columns and gutter
+view! {
+    <Grid columns=24 gutter="xl">
+        <GridCol span=8>
+            <div>"8 of 24 columns"</div>
+        </GridCol>
+        <GridCol span=16>
+            <div>"16 of 24 columns"</div>
+        </GridCol>
+    </Grid>
+}
+
+// Grid with offset
+view! {
+    <Grid>
+        <GridCol span=4 offset=4>
+            <div>"4 columns wide, offset by 4"</div>
+        </GridCol>
+    </Grid>
+}
+
+// Aligned grid
+view! {
+    <Grid align=GridAlign::Center justify=GridJustify::SpaceBetween>
+        <GridCol span=3>
+            <div style="height: 100px;">"Tall content"</div>
+        </GridCol>
+        <GridCol span=3>
+            <div>"Short"</div>
+        </GridCol>
+        <GridCol span=3>
+            <div>"Centered vertically"</div>
+        </GridCol>
+    </Grid>
+}
+```
+
+**Grid Props:**
+- `columns`: `u32` - Number of grid columns (default: 12)
+- `gutter`: `String` - Gap between grid items (default: theme.spacing.md)
+- `align`: `GridAlign` - Vertical alignment (Start, Center, End, Stretch)
+- `justify`: `GridJustify` - Horizontal distribution (Start, Center, End, SpaceBetween, SpaceAround)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**GridCol Props:**
+- `span`: `u32` - Number of columns to span (default: 12)
+- `offset`: `u32` - Number of columns to skip before this column
+- `xs`: `u32` - Span at xs breakpoint (≥36em)
+- `sm`: `u32` - Span at sm breakpoint (≥48em)
+- `md`: `u32` - Span at md breakpoint (≥62em)
+- `lg`: `u32` - Span at lg breakpoint (≥75em)
+- `xl`: `u32` - Span at xl breakpoint (≥88em)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Responsive Behavior:**
+
+The responsive props (`xs`, `sm`, `md`, `lg`, `xl`) define the column span at different screen sizes:
+- Mobile-first approach: spans cascade upward
+- If only `span` is set, it applies to all breakpoints
+- Each breakpoint prop overrides the previous one at that screen size
+
+### SimpleGrid
+
+A simpler grid component for auto-fit layouts without manual column spans.
+
+```rust
+use mingot::SimpleGrid;
+
+// Fixed number of columns
+view! {
+    <SimpleGrid cols=3 spacing="lg">
+        <div>"Column 1"</div>
+        <div>"Column 2"</div>
+        <div>"Column 3"</div>
+        <div>"Column 4"</div>
+        <div>"Column 5"</div>
+        <div>"Column 6"</div>
+    </SimpleGrid>
+}
+
+// Auto-fit based on minimum child width
+view! {
+    <SimpleGrid min_child_width="250px" spacing="md">
+        <div>"Item 1"</div>
+        <div>"Item 2"</div>
+        <div>"Item 3"</div>
+        <div>"Item 4"</div>
+    </SimpleGrid>
+}
+```
+
+**SimpleGrid Props:**
+- `cols`: `u32` - Fixed number of columns (default: 1)
+- `spacing`: `String` - Gap between items (default: theme.spacing.md)
+- `min_child_width`: `String` - Minimum width for auto-fit layout (e.g., "200px")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Note:** Use `cols` for a fixed grid or `min_child_width` for a responsive auto-fit grid. `min_child_width` takes precedence if both are provided.
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -989,6 +1125,7 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Modal/Dialog component
 - [x] Dark mode support
 - [x] Table component with sortable columns and pagination
+- [x] Responsive grid layout system (Grid, GridCol, SimpleGrid)
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
