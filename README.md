@@ -600,6 +600,246 @@ view! {
 - `class`: `String` - Additional CSS class
 - `style`: `String` - Additional inline styles
 
+### Banner
+
+An announcement banner component for important messages at the top or bottom of the page.
+
+```rust
+use mingot::{Banner, BannerVariant, BannerPosition};
+
+// Basic info banner
+view! {
+    <Banner variant=BannerVariant::Info>
+        "Welcome to our new website! Check out our latest features."
+    </Banner>
+}
+
+// Success banner with icon
+view! {
+    <Banner variant=BannerVariant::Success icon="✓">
+        "Your changes have been saved successfully!"
+    </Banner>
+}
+
+// Warning banner
+view! {
+    <Banner variant=BannerVariant::Warning icon="⚠">
+        "This feature will be deprecated in the next release."
+    </Banner>
+}
+
+// Error banner
+view! {
+    <Banner variant=BannerVariant::Error icon="✕">
+        "An error occurred while processing your request."
+    </Banner>
+}
+
+// Dismissible banner with controlled state
+let banner_open = RwSignal::new(true);
+view! {
+    <Banner
+        variant=BannerVariant::Info
+        dismissible=true
+        opened=banner_open
+        on_close=Callback::new(move |_| {
+            logging::log!("Banner closed");
+        })
+    >
+        "This banner can be dismissed!"
+    </Banner>
+}
+
+// Sticky banner
+view! {
+    <Banner
+        variant=BannerVariant::Success
+        position=BannerPosition::Sticky
+        with_border=true
+    >
+        "Limited time offer! Get 50% off on all products."
+    </Banner>
+}
+
+// Fixed banner
+view! {
+    <Banner
+        variant=BannerVariant::Info
+        position=BannerPosition::Fixed
+    >
+        "🎉 New version 2.0 is now available!"
+    </Banner>
+}
+```
+
+**Banner Props:**
+- `variant`: `BannerVariant` - Info (default), Success, Warning, Error, or Default
+- `position`: `BannerPosition` - Static (default), Fixed, or Sticky
+- `with_border`: `bool` - Add bottom border (default: false)
+- `dismissible`: `bool` - Show close button (default: false)
+- `opened`: `RwSignal<bool>` - Control visibility (default: internal signal set to true)
+- `on_close`: `Callback<()>` - Called when banner is closed
+- `icon`: `String` - Optional icon to display before content
+- `padding`: `String` - Custom padding (default: "{theme.spacing.sm} {theme.spacing.md}")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Variants:**
+- **Info**: Blue color scheme for informational messages
+- **Success**: Green color scheme for success messages
+- **Warning**: Yellow color scheme for warnings
+- **Error**: Red color scheme for errors
+- **Default**: Gray color scheme for neutral messages
+
+### Hero
+
+A large hero section component for landing pages with title, subtitle, and call-to-action buttons.
+
+```rust
+use mingot::{Hero, HeroTitle, HeroSubtitle, HeroActions, HeroHeight, HeroAlign};
+
+// Basic hero
+view! {
+    <Hero>
+        <HeroTitle>"Welcome to Mingot"</HeroTitle>
+        <HeroSubtitle>
+            "A beautiful component library for Leptos applications"
+        </HeroSubtitle>
+        <HeroActions>
+            <Button size=ButtonSize::Lg>"Get Started"</Button>
+            <Button variant=ButtonVariant::Outline size=ButtonSize::Lg>
+                "Learn More"
+            </Button>
+        </HeroActions>
+    </Hero>
+}
+
+// Hero with custom height
+view! {
+    <Hero height=HeroHeight::Lg>
+        <HeroTitle>"Build Amazing Apps"</HeroTitle>
+        <HeroSubtitle>
+            "Fast, type-safe, and beautiful components for your next project"
+        </HeroSubtitle>
+    </Hero>
+}
+
+// Left-aligned hero
+view! {
+    <Hero align=HeroAlign::Left>
+        <Container>
+            <HeroTitle>"Start Building Today"</HeroTitle>
+            <HeroSubtitle>
+                "Create stunning user interfaces with our component library"
+            </HeroSubtitle>
+            <HeroActions>
+                <Button>"Try it now"</Button>
+            </HeroActions>
+        </Container>
+    </Hero>
+}
+
+// Hero with background color
+view! {
+    <Hero
+        height=HeroHeight::Full
+        background_color="#1c7ed6"
+        align=HeroAlign::Center
+    >
+        <HeroTitle color="#ffffff">
+            "Transform Your Ideas"
+        </HeroTitle>
+        <HeroSubtitle color="#ffffff">
+            "Into beautiful web applications"
+        </HeroSubtitle>
+        <HeroActions>
+            <Button size=ButtonSize::Xl>"Get Started Free"</Button>
+        </HeroActions>
+    </Hero>
+}
+
+// Hero with background image and overlay
+view! {
+    <Hero
+        height=HeroHeight::Xl
+        background_image="/hero-bg.jpg"
+        overlay=true
+        overlay_opacity=0.5
+    >
+        <HeroTitle color="#ffffff">
+            "Beautiful Backgrounds"
+        </HeroTitle>
+        <HeroSubtitle color="#ffffff">
+            "Create stunning hero sections with custom backgrounds"
+        </HeroSubtitle>
+        <HeroActions>
+            <Button variant=ButtonVariant::Light size=ButtonSize::Lg>
+                "Explore"
+            </Button>
+        </HeroActions>
+    </Hero>
+}
+
+// Complex hero with custom layout
+view! {
+    <Hero height=HeroHeight::Lg background_color="#f8f9fa">
+        <Container size=ContainerSize::Md>
+            <Stack spacing="xl" align=StackAlign::Center>
+                <HeroTitle>"Supercharge Your Development"</HeroTitle>
+                <HeroSubtitle>
+                    "Join thousands of developers building with Mingot. \
+                     Fast, reliable, and easy to use."
+                </HeroSubtitle>
+                <HeroActions>
+                    <Button size=ButtonSize::Lg color="blue">
+                        "Start Free Trial"
+                    </Button>
+                    <Button variant=ButtonVariant::Subtle size=ButtonSize::Lg>
+                        "View Demo"
+                    </Button>
+                </HeroActions>
+                <Text size=TextSize::Sm color="gray">
+                    "No credit card required • 14-day free trial"
+                </Text>
+            </Stack>
+        </Container>
+    </Hero>
+}
+```
+
+**Hero Props:**
+- `height`: `HeroHeight` - Sm (300px), Md (400px, default), Lg (500px), Xl (600px), or Full (100vh)
+- `align`: `HeroAlign` - Left, Center (default), or Right
+- `background_color`: `String` - Background color (CSS color value)
+- `background_image`: `String` - Background image URL
+- `overlay`: `bool` - Add dark overlay on top of background (default: false)
+- `overlay_opacity`: `f32` - Overlay opacity 0.0-1.0 (default: 0.6)
+- `padding`: `String` - Custom padding (default: "{theme.spacing.xl} {theme.spacing.md}")
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**HeroTitle Props:**
+- `color`: `String` - Text color (CSS color value)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**HeroSubtitle Props:**
+- `color`: `String` - Text color (CSS color value)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**HeroActions Props:**
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Usage Tips:**
+- Use `HeroTitle` for the main heading (renders as `<h1>`)
+- Use `HeroSubtitle` for supporting text (renders as `<p>`)
+- Use `HeroActions` to group call-to-action buttons
+- Combine with `Container` for constrained content width
+- Set `overlay=true` when using background images to improve text readability
+- Use custom `color` props on HeroTitle/HeroSubtitle when using dark backgrounds
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -1364,6 +1604,7 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Table component with sortable columns and pagination
 - [x] Responsive grid layout system (Grid, GridCol, SimpleGrid)
 - [x] Navigation components (Header, Footer, Navbar)
+- [x] Banner and Hero components
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)

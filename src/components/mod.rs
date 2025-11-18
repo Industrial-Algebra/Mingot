@@ -9,6 +9,8 @@ pub mod group;
 pub mod grid;
 pub mod header;
 pub mod footer;
+pub mod banner;
+pub mod hero;
 
 // Navigation components
 pub mod navbar;
@@ -35,6 +37,8 @@ pub use group::*;
 pub use grid::*;
 pub use header::*;
 pub use footer::*;
+pub use banner::*;
+pub use hero::*;
 pub use navbar::*;
 pub use input::*;
 pub use textarea::*;
