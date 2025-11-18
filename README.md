@@ -565,6 +565,180 @@ view! {
 - `with_close_button`: `bool` - Show X button (default: true)
 - `padding`: `String` - Custom padding (default: theme.spacing.lg)
 
+### Table
+
+A comprehensive data table component with sortable columns, pagination, and customizable styling.
+
+```rust
+use mingot::{Table, TableColumn, SortDirection};
+use leptos::prelude::*;
+
+#[derive(Clone)]
+struct User {
+    id: u32,
+    name: String,
+    email: String,
+    role: String,
+}
+
+#[component]
+fn UserTable() -> impl IntoView {
+    let users = Signal::derive(move || vec![
+        User { id: 1, name: "Alice".to_string(), email: "alice@example.com".to_string(), role: "Admin".to_string() },
+        User { id: 2, name: "Bob".to_string(), email: "bob@example.com".to_string(), role: "User".to_string() },
+        User { id: 3, name: "Charlie".to_string(), email: "charlie@example.com".to_string(), role: "User".to_string() },
+    ]);
+
+    let columns = vec![
+        TableColumn::new("id", "ID", |user: &User| view! { {user.id.to_string()} })
+            .sortable(true)
+            .width("80px"),
+        TableColumn::new("name", "Name", |user: &User| view! { {user.name.clone()} })
+            .sortable(true),
+        TableColumn::new("email", "Email", |user: &User| view! { {user.email.clone()} })
+            .sortable(true),
+        TableColumn::new("role", "Role", |user: &User| view! { {user.role.clone()} }),
+    ];
+
+    view! {
+        <Table
+            columns=columns
+            data=users
+            striped=true
+            highlight_on_hover=true
+            with_border=true
+        />
+    }
+}
+```
+
+**Sortable Table:**
+
+```rust
+let sort_column = RwSignal::new(None);
+let sort_direction = RwSignal::new(SortDirection::None);
+
+view! {
+    <Table
+        columns=columns
+        data=users
+        sort_column=sort_column
+        sort_direction=sort_direction
+        on_sort=Callback::new(move |(col, dir): (String, SortDirection)| {
+            // Handle sorting logic here
+            logging::log!("Sort by {} in {:?} order", col, dir);
+        })
+    />
+}
+```
+
+**Table Props:**
+- `columns`: `Vec<TableColumn<T>>` - Column definitions
+- `data`: `Signal<Vec<T>>` - Table data
+- `striped`: `bool` - Alternate row colors (default: false)
+- `highlight_on_hover`: `bool` - Highlight rows on hover (default: true)
+- `with_border`: `bool` - Add border around table (default: false)
+- `with_column_borders`: `bool` - Add borders between columns (default: false)
+- `sort_column`: `RwSignal<Option<String>>` - Currently sorted column
+- `sort_direction`: `RwSignal<SortDirection>` - Current sort direction
+- `on_sort`: `Callback<(String, SortDirection)>` - Called when column header is clicked
+- `empty_message`: `String` - Message to show when table is empty (default: "No data available")
+
+**TableColumn Methods:**
+- `new(key, header, render)` - Create a new column
+  - `key`: Unique identifier for the column
+  - `header`: Display name
+  - `render`: Function to render cell content from data item
+- `.sortable(bool)` - Make column sortable (default: false)
+- `.width(String)` - Set column width (e.g., "100px", "20%")
+
+### Pagination
+
+A pagination control component for navigating through pages.
+
+```rust
+use mingot::{Pagination, Button};
+
+let current_page = RwSignal::new(1);
+let total_pages = Signal::derive(move || 10);
+
+view! {
+    <Pagination
+        current_page=Signal::from(current_page)
+        total_pages=total_pages
+        on_page_change=Callback::new(move |page: usize| {
+            current_page.set(page);
+        })
+    />
+}
+```
+
+**Props:**
+- `current_page`: `Signal<usize>` - Current page number (1-indexed)
+- `total_pages`: `Signal<usize>` - Total number of pages
+- `on_page_change`: `Callback<usize>` - Called when page changes
+- `show_edges`: `bool` - Show first and last page (default: true)
+- `siblings`: `usize` - Number of pages to show on each side of current (default: 1)
+
+### TableWithPagination
+
+A helper component that combines Table with Pagination for easy data pagination.
+
+```rust
+use mingot::{TableWithPagination, TableColumn};
+
+#[component]
+fn PaginatedUserTable() -> impl IntoView {
+    let users = Signal::derive(move || vec![
+        // ... lots of users
+    ]);
+
+    let columns = vec![
+        TableColumn::new("id", "ID", |user: &User| view! { {user.id.to_string()} }),
+        TableColumn::new("name", "Name", |user: &User| view! { {user.name.clone()} }),
+        // ... more columns
+    ];
+
+    let current_page = RwSignal::new(1);
+    let page_size = Signal::derive(move || 10);
+
+    view! {
+        <TableWithPagination
+            columns=columns
+            data=users
+            current_page=current_page
+            page_size=page_size
+            striped=true
+            highlight_on_hover=true
+            with_border=true
+        />
+    }
+}
+```
+
+**Props:**
+- All props from `Table` component, plus:
+- `current_page`: `RwSignal<usize>` - Current page (1-indexed)
+- `page_size`: `Signal<usize>` - Number of items per page
+
+**Features:**
+- Automatically paginates data
+- Shows pagination controls only when there's data
+- Calculates total pages based on data length and page size
+- Handles empty states gracefully
+
+**Custom Empty State:**
+
+```rust
+view! {
+    <Table
+        columns=columns
+        data=empty_data
+        empty_message="No users found. Try adjusting your filters."
+    />
+}
+```
+
 ## Theming
 
 ### Default Theme
@@ -814,10 +988,11 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Basic form components (Input, Textarea, Select, Checkbox, Radio)
 - [x] Modal/Dialog component
 - [x] Dark mode support
+- [x] Table component with sortable columns and pagination
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
-- [ ] Data display components (Table, Card, Badge, Avatar)
+- [ ] More data display components (Card, Badge, Avatar)
 - [ ] Navigation components (Tabs, Menu, Breadcrumbs)
 - [ ] Feedback components (Alert, Notification, Progress)
 - [ ] CSS-in-Rust styling with style generation

@@ -15,6 +15,9 @@ pub mod radio;
 // Overlay components
 pub mod modal;
 
+// Data display components
+pub mod table;
+
 // Re-exports for convenience
 pub use button::*;
 pub use container::*;
@@ -27,3 +30,4 @@ pub use select::*;
 pub use checkbox::*;
 pub use radio::*;
 pub use modal::*;
+pub use table::*;
