@@ -13,9 +13,12 @@ pub mod footer;
 pub mod banner;
 pub mod hero;
 pub mod card;
+pub mod paper;
+pub mod appshell;
 
 // Navigation components
 pub mod navbar;
+pub mod tabs;
 
 // Form components
 pub mod input;
@@ -31,6 +34,7 @@ pub mod modal;
 pub mod table;
 pub mod avatar;
 pub mod badge;
+pub mod accordion;
 
 // Re-exports for convenience
 pub use button::*;
@@ -45,7 +49,10 @@ pub use footer::*;
 pub use banner::*;
 pub use hero::*;
 pub use card::*;
+pub use paper::*;
+pub use appshell::*;
 pub use navbar::*;
+pub use tabs::*;
 pub use input::*;
 pub use textarea::*;
 pub use select::*;
@@ -55,3 +62,4 @@ pub use modal::*;
 pub use table::*;
 pub use avatar::*;
 pub use badge::*;
+pub use accordion::*;

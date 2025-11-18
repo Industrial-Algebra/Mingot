@@ -1224,6 +1224,403 @@ view! {
 - Add labels for "or" separators in forms
 - Vertical dividers require a parent with defined height
 
+### Paper
+
+A lightweight container component with background, border, and shadow - similar to Card but simpler.
+
+```rust
+use mingot::{Paper, PaperPadding};
+
+// Basic paper
+view! {
+    <Paper>
+        <Text>"Content in a paper container"</Text>
+    </Paper>
+}
+
+// Paper with border and shadow
+view! {
+    <Paper with_border=true shadow="md">
+        <Text>"Paper with border and shadow"</Text>
+    </Paper>
+}
+
+// Different padding sizes
+view! {
+    <Stack>
+        <Paper padding=PaperPadding::Xs>"Extra small padding"</Paper>
+        <Paper padding=PaperPadding::Md>"Medium padding"</Paper>
+        <Paper padding=PaperPadding::Xl>"Extra large padding"</Paper>
+    </Stack>
+}
+
+// Custom radius
+view! {
+    <Paper radius="xl" with_border=true>
+        "Paper with large border radius"
+    </Paper>
+}
+```
+
+**Paper Props:**
+- `padding`: `PaperPadding` - Xs, Sm, Md (default), Lg, or Xl
+- `radius`: `String` - Border radius (default: theme.radius.sm)
+- `with_border`: `bool` - Add border (default: false)
+- `shadow`: `String` - Box shadow (optional)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Paper vs Card:**
+- Use `Paper` for simple containers without sections
+- Use `Card` for complex content with multiple sections and borders
+
+### AppShell
+
+A complete application layout structure with header, navbar, aside, footer, and main content areas.
+
+```rust
+use mingot::AppShell;
+
+// Basic app layout with header and navbar
+view! {
+    <AppShell
+        header={|| view! {
+            <Header with_border=true>
+                <Container>
+                    <Text weight=TextWeight::Bold>"My Application"</Text>
+                </Container>
+            </Header>
+        }}
+        navbar={|| view! {
+            <Stack spacing="xs" style="padding: 1rem;">
+                <NavbarLink href="/" active=true>"Dashboard"</NavbarLink>
+                <NavbarLink href="/users">"Users"</NavbarLink>
+                <NavbarLink href="/settings">"Settings"</NavbarLink>
+            </Stack>
+        }}
+    >
+        <Text>"Main content area"</Text>
+    </AppShell>
+}
+
+// Full layout with all sections
+view! {
+    <AppShell
+        header={|| view! {
+            <Header height=HeaderHeight::Md with_border=true>
+                <Container>
+                    <Group justify=GroupJustify::SpaceBetween>
+                        <Text weight=TextWeight::Bold>"MyApp"</Text>
+                        <Avatar initials="JD" />
+                    </Group>
+                </Container>
+            </Header>
+        }}
+        navbar={|| view! {
+            <Stack spacing="xs" style="padding: 1rem;">
+                <Text weight=TextWeight::Bold>"Navigation"</Text>
+                <Divider />
+                <NavbarLink href="/" active=true>"Home"</NavbarLink>
+                <NavbarLink href="/about">"About"</NavbarLink>
+            </Stack>
+        }}
+        aside={|| view! {
+            <Stack spacing="sm" style="padding: 1rem;">
+                <Text weight=TextWeight::Bold>"Sidebar"</Text>
+                <Divider />
+                <Text size=TextSize::Sm>"Additional content"</Text>
+            </Stack>
+        }}
+        footer={|| view! {
+            <Footer with_border=true>
+                <Container>
+                    <Text size=TextSize::Sm>"© 2024 MyApp"</Text>
+                </Container>
+            </Footer>
+        }}
+    >
+        <Container>
+            <Stack spacing="lg">
+                <Text size=TextSize::Xl weight=TextWeight::Bold>
+                    "Dashboard"
+                </Text>
+                <Text>"Your main application content goes here"</Text>
+            </Stack>
+        </Container>
+    </AppShell>
+}
+
+// Custom padding for main area
+view! {
+    <AppShell
+        navbar={|| view! { <div>"Navbar"</div> }}
+        padding="2rem"
+    >
+        "Main content with custom padding"
+    </AppShell>
+}
+```
+
+**AppShell Props:**
+- `header`: `Children` - Header content (optional)
+- `navbar`: `Children` - Left sidebar navigation (optional, 260px wide)
+- `aside`: `Children` - Right sidebar content (optional, 260px wide)
+- `footer`: `Children` - Footer content (optional)
+- `padding`: `String` - Main content padding (default: theme.spacing.md)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Layout Structure:**
+- AppShell creates a full-height flexbox layout
+- Header appears at the top
+- Navbar and Aside are fixed-width sidebars with scrolling
+- Main content area fills remaining space
+- Footer appears at the bottom
+
+### Accordion
+
+Collapsible content sections with support for multiple open items.
+
+```rust
+use mingot::{Accordion, AccordionItem, AccordionVariant};
+
+// Basic accordion
+view! {
+    <Accordion>
+        <AccordionItem label="Section 1">
+            <Text>"Content for section 1"</Text>
+        </AccordionItem>
+        <AccordionItem label="Section 2">
+            <Text>"Content for section 2"</Text>
+        </AccordionItem>
+        <AccordionItem label="Section 3">
+            <Text>"Content for section 3"</Text>
+        </AccordionItem>
+    </Accordion>
+}
+
+// Controlled accordion item
+let is_open = RwSignal::new(true);
+view! {
+    <Accordion>
+        <AccordionItem label="Controlled Item" opened=is_open>
+            <Text>"This item's state is controlled"</Text>
+        </AccordionItem>
+    </Accordion>
+}
+
+// Different variants
+view! {
+    <Stack spacing="lg">
+        // Default variant (connected with borders)
+        <Accordion variant=AccordionVariant::Default>
+            <AccordionItem label="Item 1">
+                <Text>"Default variant"</Text>
+            </AccordionItem>
+            <AccordionItem label="Item 2">
+                <Text>"Connected items"</Text>
+            </AccordionItem>
+        </Accordion>
+
+        // Contained variant (single border around all)
+        <Accordion variant=AccordionVariant::Contained>
+            <AccordionItem label="Item 1">
+                <Text>"Contained variant"</Text>
+            </AccordionItem>
+            <AccordionItem label="Item 2">
+                <Text>"All items in one container"</Text>
+            </AccordionItem>
+        </Accordion>
+
+        // Separated variant (individual borders with gaps)
+        <Accordion variant=AccordionVariant::Separated>
+            <AccordionItem label="Item 1">
+                <Text>"Separated variant"</Text>
+            </AccordionItem>
+            <AccordionItem label="Item 2">
+                <Text>"Each item is separate"</Text>
+            </AccordionItem>
+        </Accordion>
+    </Stack>
+}
+
+// FAQ example
+view! {
+    <Accordion variant=AccordionVariant::Separated>
+        <AccordionItem label="What is Mingot?">
+            <Text>
+                "Mingot is a component library for Leptos inspired by Mantine UI."
+            </Text>
+        </AccordionItem>
+        <AccordionItem label="How do I install it?">
+            <Text>
+                "Add mingot to your Cargo.toml dependencies."
+            </Text>
+        </AccordionItem>
+        <AccordionItem label="Is it free?">
+            <Text>
+                "Yes, Mingot is open source and free to use."
+            </Text>
+        </AccordionItem>
+    </Accordion>
+}
+```
+
+**Accordion Props:**
+- `variant`: `AccordionVariant` - Default, Contained, or Separated
+- `multiple`: `bool` - Allow multiple items open simultaneously (default: false)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**AccordionItem Props:**
+- `value`: `String` - Unique identifier for the item
+- `label`: `String` - Header text
+- `opened`: `RwSignal<bool>` - Control open state (optional)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Variants:**
+- **Default**: Items connected with horizontal borders
+- **Contained**: All items inside a single bordered container
+- **Separated**: Individual bordered items with gaps
+
+### Tabs
+
+Tabbed navigation with multiple variants and orientations.
+
+```rust
+use mingot::{Tabs, TabsList, TabsTab, TabsPanel, TabsVariant, TabsOrientation};
+
+// Basic tabs
+let active_tab = RwSignal::new("tab1".to_string());
+
+view! {
+    <Tabs active=active_tab>
+        <TabsList>
+            <TabsTab value="tab1">"First Tab"</TabsTab>
+            <TabsTab value="tab2">"Second Tab"</TabsTab>
+            <TabsTab value="tab3">"Third Tab"</TabsTab>
+        </TabsList>
+
+        <TabsPanel value="tab1">
+            <Text>"Content for first tab"</Text>
+        </TabsPanel>
+        <TabsPanel value="tab2">
+            <Text>"Content for second tab"</Text>
+        </TabsPanel>
+        <TabsPanel value="tab3">
+            <Text>"Content for third tab"</Text>
+        </TabsPanel>
+    </Tabs>
+}
+
+// Different variants
+view! {
+    <Stack spacing="xl">
+        // Default variant (underline)
+        <Tabs active=active_tab variant=TabsVariant::Default>
+            <TabsList>
+                <TabsTab value="a">"Tab A"</TabsTab>
+                <TabsTab value="b">"Tab B"</TabsTab>
+            </TabsList>
+            <TabsPanel value="a">"Content A"</TabsPanel>
+            <TabsPanel value="b">"Content B"</TabsPanel>
+        </Tabs>
+
+        // Outline variant (filled background)
+        <Tabs active=active_tab variant=TabsVariant::Outline>
+            <TabsList>
+                <TabsTab value="a">"Tab A"</TabsTab>
+                <TabsTab value="b">"Tab B"</TabsTab>
+            </TabsList>
+            <TabsPanel value="a">"Content A"</TabsPanel>
+            <TabsPanel value="b">"Content B"</TabsPanel>
+        </Tabs>
+
+        // Pills variant (rounded)
+        <Tabs active=active_tab variant=TabsVariant::Pills>
+            <TabsList>
+                <TabsTab value="a">"Tab A"</TabsTab>
+                <TabsTab value="b">"Tab B"</TabsTab>
+            </TabsList>
+            <TabsPanel value="a">"Content A"</TabsPanel>
+            <TabsPanel value="b">"Content B"</TabsPanel>
+        </Tabs>
+    </Stack>
+}
+
+// Tabs with icons
+view! {
+    <Tabs active=active_tab>
+        <TabsList>
+            <TabsTab value="home" icon="🏠">"Home"</TabsTab>
+            <TabsTab value="settings" icon="⚙️">"Settings"</TabsTab>
+            <TabsTab value="profile" icon="👤">"Profile"</TabsTab>
+        </TabsList>
+        <TabsPanel value="home">"Home content"</TabsPanel>
+        <TabsPanel value="settings">"Settings content"</TabsPanel>
+        <TabsPanel value="profile">"Profile content"</TabsPanel>
+    </Tabs>
+}
+
+// Vertical tabs
+view! {
+    <Tabs active=active_tab orientation=TabsOrientation::Vertical>
+        <TabsList>
+            <TabsTab value="general">"General"</TabsTab>
+            <TabsTab value="security">"Security"</TabsTab>
+            <TabsTab value="billing">"Billing"</TabsTab>
+        </TabsList>
+        <TabsPanel value="general">"General settings"</TabsPanel>
+        <TabsPanel value="security">"Security settings"</TabsPanel>
+        <TabsPanel value="billing">"Billing settings"</TabsPanel>
+    </Tabs>
+}
+
+// Grow tabs to fill width
+view! {
+    <Tabs active=active_tab grow=true>
+        <TabsList>
+            <TabsTab value="one">"One"</TabsTab>
+            <TabsTab value="two">"Two"</TabsTab>
+            <TabsTab value="three">"Three"</TabsTab>
+        </TabsList>
+        <TabsPanel value="one">"Panel 1"</TabsPanel>
+        <TabsPanel value="two">"Panel 2"</TabsPanel>
+        <TabsPanel value="three">"Panel 3"</TabsPanel>
+    </Tabs>
+}
+```
+
+**Tabs Props:**
+- `active`: `RwSignal<String>` - Currently active tab value
+- `variant`: `TabsVariant` - Default (underline), Outline (filled), or Pills (rounded)
+- `orientation`: `TabsOrientation` - Horizontal (default) or Vertical
+- `grow`: `bool` - Tabs expand to fill available width (default: false)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**TabsList Props:**
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**TabsTab Props:**
+- `value`: `String` - Unique identifier matching TabsPanel value
+- `icon`: `String` - Optional icon/emoji before label
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**TabsPanel Props:**
+- `value`: `String` - Unique identifier matching TabsTab value
+- `padding`: `String` - Custom padding (default: theme.spacing.md)
+- `class`: `String` - Additional CSS class
+- `style`: `String` - Additional inline styles
+
+**Variants:**
+- **Default**: Active tab has colored underline
+- **Outline**: Active tab has filled background
+- **Pills**: Active tab has rounded light background
+
 ### Input
 
 A text input component with multiple variants and validation support.
@@ -1990,10 +2387,11 @@ fn ThemeToggle() -> impl IntoView {
 - [x] Navigation components (Header, Footer, Navbar)
 - [x] Banner and Hero components
 - [x] User info components (Avatar, Badge, Card, Divider)
+- [x] Application components (Paper, AppShell, Accordion, Tabs)
 - [ ] Additional overlay components (Drawer, Popover, Tooltip)
 - [ ] System dark mode detection (prefers-color-scheme)
 - [ ] More form components (Switch, Slider, File Input, Date Picker)
-- [ ] More navigation components (Tabs, Menu, Breadcrumbs)
+- [ ] More navigation components (Menu, Breadcrumbs)
 - [ ] Feedback components (Alert, Notification, Progress)
 - [ ] CSS-in-Rust styling with style generation
 - [ ] More comprehensive theming options
