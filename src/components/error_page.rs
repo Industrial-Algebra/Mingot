@@ -159,14 +159,14 @@ mod tests {
 #[component]
 pub fn ErrorPage(
     #[prop(optional)] error_type: Option<ErrorPageType>,
-    #[prop(optional)] status_code: Option<String>,
-    #[prop(optional)] title: Option<String>,
-    #[prop(optional)] description: Option<String>,
-    #[prop(optional)] icon: Option<String>,
+    #[prop(optional, into)] status_code: Option<String>,
+    #[prop(optional, into)] title: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
+    #[prop(optional, into)] icon: Option<String>,
     #[prop(optional)] actions: Option<Children>,
     #[prop(optional)] show_status_code: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let error_type = error_type.unwrap_or(ErrorPageType::NotFound);

@@ -18,9 +18,9 @@ pub enum NavbarVariant {
 #[component]
 pub fn Navbar(
     #[prop(optional)] orientation: Option<NavbarOrientation>,
-    #[prop(optional)] spacing: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] spacing: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -71,9 +71,9 @@ pub fn NavbarLink(
     #[prop(optional)] active: bool,
     #[prop(optional)] variant: Option<NavbarVariant>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] on_click: Option<Callback<leptos::ev::MouseEvent>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] on_click: Option<Callback<leptos::ev::MouseEvent>>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -192,9 +192,9 @@ pub fn NavbarLink(
 
 #[component]
 pub fn NavbarBrand(
-    #[prop(optional)] href: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] href: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

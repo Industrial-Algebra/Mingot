@@ -14,9 +14,9 @@ pub fn Popover(
     #[prop(optional)] opened: Option<RwSignal<bool>>,
     #[prop(optional)] position: Option<PopoverPosition>,
     #[prop(optional)] with_arrow: bool,
-    #[prop(optional)] width: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] width: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let is_opened = opened.unwrap_or_else(|| RwSignal::new(false));
@@ -49,8 +49,8 @@ pub fn Popover(
 
 #[component]
 pub fn PopoverTarget(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let is_opened = use_context::<RwSignal<bool>>().unwrap_or_else(|| RwSignal::new(false));
@@ -82,8 +82,8 @@ pub fn PopoverTarget(
 
 #[component]
 pub fn PopoverDropdown(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

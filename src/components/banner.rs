@@ -47,11 +47,11 @@ pub fn Banner(
     #[prop(optional)] with_border: bool,
     #[prop(optional)] dismissible: bool,
     #[prop(optional)] opened: Option<RwSignal<bool>>,
-    #[prop(optional)] on_close: Option<Callback<()>>,
-    #[prop(optional)] icon: Option<String>,
-    #[prop(optional)] padding: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] on_close: Option<Callback<()>>,
+    #[prop(optional, into)] icon: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

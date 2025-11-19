@@ -5,11 +5,11 @@ use leptos::prelude::*;
 pub fn Stats(
     #[prop(into)] value: String,
     #[prop(into)] label: String,
-    #[prop(optional)] icon: Option<String>,
-    #[prop(optional)] description: Option<String>,
+    #[prop(optional, into)] icon: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] diff: Option<f32>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
 
@@ -169,8 +169,8 @@ pub fn Stats(
 #[component]
 pub fn StatsGroup(
     #[prop(optional)] cols: Option<u32>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

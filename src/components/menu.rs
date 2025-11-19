@@ -3,8 +3,8 @@ use leptos::prelude::*;
 
 #[component]
 pub fn Menu(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -45,8 +45,8 @@ pub fn Menu(
 
 #[component]
 pub fn MenuTarget(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let opened = use_context::<RwSignal<bool>>().unwrap_or_else(|| RwSignal::new(false));
@@ -78,8 +78,8 @@ pub fn MenuTarget(
 
 #[component]
 pub fn MenuDropdown(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -135,11 +135,11 @@ pub fn MenuDropdown(
 
 #[component]
 pub fn MenuItem(
-    #[prop(optional)] icon: Option<String>,
-    #[prop(optional)] on_click: Option<Callback<()>>,
+    #[prop(optional, into)] icon: Option<String>,
+    #[prop(optional, into)] on_click: Option<Callback<()>>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -208,8 +208,8 @@ pub fn MenuItem(
 
 #[component]
 pub fn MenuDivider(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
 
@@ -242,8 +242,8 @@ pub fn MenuDivider(
 
 #[component]
 pub fn MenuLabel(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

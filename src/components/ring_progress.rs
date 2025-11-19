@@ -110,8 +110,8 @@ pub fn RingProgress(
     #[prop(optional)] size: Option<RingProgressSize>,
     #[prop(optional)] thickness: Option<u32>,
     #[prop(optional)] label: Option<Children>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(RingProgressSize::Md);

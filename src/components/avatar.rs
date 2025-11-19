@@ -58,14 +58,14 @@ impl AvatarRadius {
 
 #[component]
 pub fn Avatar(
-    #[prop(optional)] src: Option<String>,
-    #[prop(optional)] alt: Option<String>,
+    #[prop(optional, into)] src: Option<String>,
+    #[prop(optional, into)] alt: Option<String>,
     #[prop(optional)] size: Option<AvatarSize>,
     #[prop(optional)] radius: Option<AvatarRadius>,
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] initials: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] initials: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(AvatarSize::Md);
@@ -145,9 +145,9 @@ pub fn Avatar(
 
 #[component]
 pub fn AvatarGroup(
-    #[prop(optional)] spacing: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] spacing: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

@@ -21,8 +21,8 @@ pub fn Tabs(
     #[prop(optional)] variant: Option<TabsVariant>,
     #[prop(optional)] orientation: Option<TabsOrientation>,
     #[prop(optional)] grow: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let variant = variant.unwrap_or(TabsVariant::Default);
@@ -66,8 +66,8 @@ pub fn Tabs(
 
 #[component]
 pub fn TabsList(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -138,9 +138,9 @@ pub fn TabsList(
 #[component]
 pub fn TabsTab(
     #[prop(into)] value: String,
-    #[prop(optional)] icon: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] icon: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -257,9 +257,9 @@ pub fn TabsTab(
 #[component]
 pub fn TabsPanel(
     #[prop(into)] value: String,
-    #[prop(optional)] padding: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

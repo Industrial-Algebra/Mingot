@@ -45,9 +45,9 @@ pub fn Header(
     #[prop(optional)] height: Option<HeaderHeight>,
     #[prop(optional)] position: Option<HeaderPosition>,
     #[prop(optional)] with_border: bool,
-    #[prop(optional)] padding: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

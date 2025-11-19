@@ -93,8 +93,8 @@ pub fn Table<T>(
     #[prop(optional)] with_column_borders: bool,
     #[prop(optional)] sort_column: Option<RwSignal<Option<String>>>,
     #[prop(optional)] sort_direction: Option<RwSignal<SortDirection>>,
-    #[prop(optional)] on_sort: Option<Callback<(String, SortDirection)>>,
-    #[prop(optional)] empty_message: Option<String>,
+    #[prop(optional, into)] on_sort: Option<Callback<(String, SortDirection)>>,
+    #[prop(optional, into)] empty_message: Option<String>,
 ) -> impl IntoView
 where
     T: Clone + Send + Sync + 'static,
@@ -516,8 +516,8 @@ pub fn TableWithPagination<T>(
     #[prop(optional)] with_column_borders: bool,
     #[prop(optional)] sort_column: Option<RwSignal<Option<String>>>,
     #[prop(optional)] sort_direction: Option<RwSignal<SortDirection>>,
-    #[prop(optional)] on_sort: Option<Callback<(String, SortDirection)>>,
-    #[prop(optional)] empty_message: Option<String>,
+    #[prop(optional, into)] on_sort: Option<Callback<(String, SortDirection)>>,
+    #[prop(optional, into)] empty_message: Option<String>,
 ) -> impl IntoView
 where
     T: Clone + Send + Sync + 'static,

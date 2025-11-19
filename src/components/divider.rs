@@ -28,13 +28,13 @@ impl DividerLabelPosition {
 #[component]
 pub fn Divider(
     #[prop(optional)] orientation: Option<DividerOrientation>,
-    #[prop(optional)] label: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
     #[prop(optional)] label_position: Option<DividerLabelPosition>,
-    #[prop(optional)] size: Option<String>,
-    #[prop(optional)] color: Option<String>,
+    #[prop(optional, into)] size: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
     #[prop(optional)] variant: Option<DividerVariant>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let orientation = orientation.unwrap_or(DividerOrientation::Horizontal);

@@ -26,12 +26,12 @@ impl ProgressSize {
 pub fn Progress(
     #[prop(into)] value: Signal<f32>,
     #[prop(optional)] size: Option<ProgressSize>,
-    #[prop(optional)] color: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
     #[prop(optional)] striped: bool,
     #[prop(optional)] animate: bool,
-    #[prop(optional)] label: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(ProgressSize::Md);

@@ -13,8 +13,8 @@ pub enum AccordionVariant {
 pub fn Accordion(
     #[prop(optional)] variant: Option<AccordionVariant>,
     #[prop(optional)] multiple: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -74,8 +74,8 @@ pub fn AccordionItem(
     #[prop(into)] _value: String,
     #[prop(into)] label: String,
     #[prop(optional)] opened: Option<RwSignal<bool>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

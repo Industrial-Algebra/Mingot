@@ -24,9 +24,9 @@ impl BreadcrumbItem {
 #[component]
 pub fn Breadcrumbs(
     #[prop(into)] items: Vec<BreadcrumbItem>,
-    #[prop(optional)] separator: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] separator: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let separator = separator.unwrap_or_else(|| "/".to_string());

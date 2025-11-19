@@ -44,13 +44,13 @@ impl HeroAlign {
 pub fn Hero(
     #[prop(optional)] height: Option<HeroHeight>,
     #[prop(optional)] align: Option<HeroAlign>,
-    #[prop(optional)] background_color: Option<String>,
-    #[prop(optional)] background_image: Option<String>,
+    #[prop(optional, into)] background_color: Option<String>,
+    #[prop(optional, into)] background_image: Option<String>,
     #[prop(optional)] overlay: bool,
     #[prop(optional)] overlay_opacity: Option<f32>,
-    #[prop(optional)] padding: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -136,9 +136,9 @@ pub fn Hero(
 
 #[component]
 pub fn HeroTitle(
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -182,9 +182,9 @@ pub fn HeroTitle(
 
 #[component]
 pub fn HeroSubtitle(
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -229,8 +229,8 @@ pub fn HeroSubtitle(
 
 #[component]
 pub fn HeroActions(
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

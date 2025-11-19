@@ -14,9 +14,9 @@ pub fn Tooltip(
     #[prop(into)] label: String,
     #[prop(optional)] position: Option<TooltipPosition>,
     #[prop(optional)] with_arrow: bool,
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
