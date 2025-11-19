@@ -136,7 +136,7 @@ pub fn MenuDropdown(
 #[component]
 pub fn MenuItem(
     #[prop(optional, into)] icon: Option<String>,
-    #[prop(optional, into)] on_click: Option<Callback<()>>,
+    #[prop(optional)] on_click: Option<Callback<()>>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,

@@ -23,7 +23,7 @@ pub fn Radio(
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] error: Option<String>,
-    #[prop(optional, into)] on_change: Option<Callback<String>>,
+    #[prop(optional)] on_change: Option<Callback<String>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
@@ -219,7 +219,7 @@ pub fn RadioGroup(
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional, into)] error: Option<String>,
-    #[prop(optional, into)] _on_change: Option<Callback<String>>,
+    #[prop(optional)] _on_change: Option<Callback<String>>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

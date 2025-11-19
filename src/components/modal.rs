@@ -29,7 +29,7 @@ impl ModalSize {
 #[component]
 pub fn Modal(
     #[prop(into)] opened: Signal<bool>,
-    #[prop(optional, into)] on_close: Option<Callback<()>>,
+    #[prop(optional)] on_close: Option<Callback<()>>,
     #[prop(optional)] size: Option<ModalSize>,
     #[prop(optional, into)] title: Option<String>,
     #[prop(optional)] centered: bool,

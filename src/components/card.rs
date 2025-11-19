@@ -23,9 +23,21 @@ impl CardPadding {
     }
 }
 
+impl From<&str> for CardPadding {
+    fn from(s: &str) -> Self {
+        match s {
+            "xs" => CardPadding::Xs,
+            "sm" => CardPadding::Sm,
+            "lg" => CardPadding::Lg,
+            "xl" => CardPadding::Xl,
+            _ => CardPadding::Md,
+        }
+    }
+}
+
 #[component]
 pub fn Card(
-    #[prop(optional)] padding: Option<CardPadding>,
+    #[prop(optional, into)] padding: Option<CardPadding>,
     #[prop(optional, into)] radius: Option<String>,
     #[prop(optional)] with_border: bool,
     #[prop(optional, into)] shadow: Option<String>,

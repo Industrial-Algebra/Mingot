@@ -51,7 +51,7 @@ pub fn Select(
     #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
     #[prop(into)] options: Vec<SelectOption>,
-    #[prop(optional, into)] on_change: Option<Callback<String>>,
+    #[prop(optional)] on_change: Option<Callback<String>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into)] label: Option<String>,

@@ -71,7 +71,7 @@ pub fn NavbarLink(
     #[prop(optional)] active: bool,
     #[prop(optional)] variant: Option<NavbarVariant>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional, into)] on_click: Option<Callback<leptos::ev::MouseEvent>>,
+    #[prop(optional)] on_click: Option<Callback<leptos::ev::MouseEvent>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,

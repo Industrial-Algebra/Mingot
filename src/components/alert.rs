@@ -36,14 +36,26 @@ impl AlertColor {
     }
 }
 
+impl From<&str> for AlertColor {
+    fn from(s: &str) -> Self {
+        match s {
+            "red" | "error" => AlertColor::Error,
+            "green" | "success" => AlertColor::Success,
+            "yellow" | "warning" => AlertColor::Warning,
+            "blue" | "info" => AlertColor::Info,
+            _ => AlertColor::Info, // Default to Info
+        }
+    }
+}
+
 #[component]
 pub fn Alert(
     #[prop(optional)] variant: Option<AlertVariant>,
-    #[prop(optional)] color: Option<AlertColor>,
+    #[prop(optional, into)] color: Option<AlertColor>,
     #[prop(optional, into)] title: Option<String>,
     #[prop(optional, into)] icon: Option<String>,
     #[prop(optional)] with_close_button: bool,
-    #[prop(optional, into)] on_close: Option<Callback<()>>,
+    #[prop(optional)] on_close: Option<Callback<()>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,

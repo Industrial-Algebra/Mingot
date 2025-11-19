@@ -2,9 +2,168 @@
 
 This document outlines API improvements discovered during integration with Ultramarine-Red project.
 
+## Latest Integration Attempt - Iteration 3
+
+**Date:** 2025-11-18
+**Status:** 20 compilation errors remaining (down from 151!)
+**Progress:** String props fixed ✅, but Callback and enum props still need work
+
+### Remaining Errors Summary:
+- **15 errors**: Callback conversion issues (`Callback<T>: From<{closure}>` not satisfied)
+  - 14× `Callback<String>` (Input `on_input`, Select `on_change`)
+  - 1× `Callback<MouseEvent>` (Button `on_click`)
+- **5 errors**: Enum props missing `#[prop(into)]`
+  - 4× Alert `color` prop (expects `AlertColor` enum, got `&str`)
+  - 1× Card `padding` prop (expects `CardPadding` enum, got `&str`)
+
+---
+
+## CRITICAL: Callback Props Still Not Converting from Closures
+
+**Status:** BLOCKING - 15 compilation errors
+**Error:** `the trait bound 'Callback<T>: From<{closure}>` is not satisfied`
+
+Even with `#[prop(optional, into)]` on Callback props, Leptos closures are not automatically converting to `Callback<T>`. This is because Leptos's `Callback<T>` type doesn't implement `From<F>` for arbitrary closures.
+
+**Affected Props & Error Locations:**
+- **Input `on_input`** (14 errors):
+  - `greeks.rs:143, 153, 160, 168, 176, 183, 191, 199` (8 instances)
+  - `login.rs:82, 91` (2 instances)
+  - `register.rs:97, 106, 115, 127` (4 instances)
+- **Button `on_click`** (1 error):
+  - `dashboard.rs:26`
+
+**Current Usage Pattern (Failing):**
+```rust
+// This doesn't work even with #[prop(optional, into)]:
+<Input on_input=move |val| email.set(val) />
+<Button on_click=move |_| handle_click() />
+```
+
+**Root Cause:**
+The `#[prop(into)]` attribute works great for types that implement `From<T>`, but `Callback<T>` in Leptos has a more complex conversion requirement. The correct pattern is to NOT use `into` on Callback props and let Leptos's component macro handle the conversion automatically.
+
+**Fix Required:**
+```rust
+// Remove 'into' from Callback props:
+#[component]
+pub fn Input(
+    #[prop(optional)] on_input: Option<Callback<String>>,  // Remove 'into'!
+    // ...
+)
+
+#[component]
+pub fn Button(
+    #[prop(optional)] on_click: Option<Callback<ev::MouseEvent>>,  // Remove 'into'!
+    // ...
+)
+
+#[component]
+pub fn Select(
+    #[prop(optional)] on_change: Option<Callback<String>>,  // Remove 'into'!
+    // ...
+)
+```
+
+**Why This Works:**
+Leptos's `#[component]` macro has special handling for `Callback<T>` types that automatically converts closures. Adding `into` interferes with this magic and causes the conversion to fail.
+
+---
+
+## CRITICAL: Alert and Card Color/Padding Props Need `#[prop(into)]`
+
+**Status:** BLOCKING - 5 compilation errors
+**Error:** `mismatched types: expected AlertColor/CardPadding, found &str`
+
+Alert's `color` prop and Card's `padding` prop expect enum types but users want to pass theme value strings like "red", "lg", etc.
+
+**Affected Components & Locations:**
+- **Alert `color`** (4 errors):
+  - `dashboard.rs:125`
+  - `greeks.rs:219`
+  - `login.rs:69`
+  - `register.rs:84`
+- **Card `padding`** (1 error):
+  - `dashboard.rs:104`
+
+**Current Usage Pattern (Failing):**
+```rust
+// These fail to compile:
+<Alert color="red" title="Error">
+    {error_message}
+</Alert>
+
+<Card padding="lg" radius="md">
+    {content}
+</Card>
+```
+
+**Fix Required:**
+Implement `From<&str>` for the enum types and add `#[prop(into)]`:
+
+```rust
+// For Alert:
+impl From<&str> for AlertColor {
+    fn from(s: &str) -> Self {
+        match s {
+            "red" => AlertColor::Red,
+            "blue" => AlertColor::Blue,
+            "green" => AlertColor::Green,
+            "yellow" => AlertColor::Yellow,
+            _ => AlertColor::Blue,  // Default
+        }
+    }
+}
+
+#[component]
+pub fn Alert(
+    #[prop(optional, into)] color: Option<AlertColor>,  // Add 'into'
+    #[prop(optional, into)] title: Option<String>,
+    children: Children,
+) -> impl IntoView {
+    // ...
+}
+
+// For Card:
+impl From<&str> for CardPadding {
+    fn from(s: &str) -> Self {
+        match s {
+            "xs" => CardPadding::Xs,
+            "sm" => CardPadding::Sm,
+            "lg" => CardPadding::Lg,
+            "xl" => CardPadding::Xl,
+            _ => CardPadding::Md,  // Default
+        }
+    }
+}
+
+#[component]
+pub fn Card(
+    #[prop(optional, into)] padding: Option<CardPadding>,  // Add 'into'
+    // ...
+)
+```
+
+**Alternative (More Flexible):**
+Accept `String` directly and parse it internally:
+```rust
+#[component]
+pub fn Alert(
+    #[prop(optional, into)] color: Option<String>,  // Accept string
+    #[prop(optional, into)] title: Option<String>,
+    children: Children,
+) -> impl IntoView {
+    let alert_color = color.unwrap_or_else(|| "blue".to_string());
+    // Map string to enum internally or use directly in styles
+    // ...
+}
+```
+
+---
+
 ## CRITICAL: String Props Missing `#[prop(into)]`
 
-**Status:** BLOCKING - Prevents integration from compiling
+**Status:** RESOLVED ✅ (Iteration 2)
 
 Many components accept `String` props but don't have `#[prop(into)]`, which means users must call `.to_string()` on every string literal. This creates significant friction.
 
@@ -38,60 +197,13 @@ pub fn Stack(
 )
 ```
 
-## CRITICAL: Callback Props Missing Conversion
+## Paper Padding Enum Support
 
-**Status:** BLOCKING
+**Status:** RESOLVED ✅ (Iteration 2) - Same pattern should apply to all enum props
 
-Props that accept `Callback<T>` don't have `#[prop(into)]`, forcing users to wrap closures with `Callback::new()`.
+Paper component's `padding` prop now accepts strings. The same pattern should be applied to Card, Alert, and other components with enum props like color, padding, size, etc.
 
-**Affected Props:**
-- `on_click: Option<Callback<ev::MouseEvent>>`
-- `on_change: Option<Callback<String>>`
-- `on_input: Option<Callback<String>>`
-
-**Impact:**
-```rust
-// CURRENT (verbose):
-<Button on_click=Callback::new(move |_| { /* ... */ })>
-
-// DESIRED (ergonomic):
-<Button on_click=move |_| { /* ... */ }>
-```
-
-**Fix Required:**
-```rust
-#[component]
-pub fn Button(
-    #[prop(optional, into)] on_click: Option<Callback<ev::MouseEvent>>,  // Add 'into'
-    // ...
-)
-```
-
-## CRITICAL: Paper Padding Should Accept String
-
-**Status:** BLOCKING
-
-Paper component's `padding` prop expects `PaperPadding` enum, but users want to pass theme values like "lg", "md".
-
-**Current API:**
-```rust
-pub enum PaperPadding {
-    Xs, Sm, Md, Lg, Xl,
-}
-
-#[component]
-pub fn Paper(
-    #[prop(optional)] padding: Option<PaperPadding>,
-    // ...
-)
-```
-
-**Desired Usage:**
-```rust
-<Paper padding="lg">  // Simple string from theme
-```
-
-**Suggested Fix:** Accept string and convert internally, or add `#[prop(into)]` with `From<&str>` impl:
+**Pattern Applied:**
 ```rust
 impl From<&str> for PaperPadding {
     fn from(s: &str) -> Self {
@@ -111,6 +223,8 @@ pub fn Paper(
     // ...
 )
 ```
+
+**Note:** Alert and Card still need this same pattern applied (see critical issues above).
 
 ---
 

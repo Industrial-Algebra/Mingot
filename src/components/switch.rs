@@ -31,7 +31,7 @@ pub fn Switch(
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional, into)] on_change: Option<Callback<bool>>,
+    #[prop(optional)] on_change: Option<Callback<bool>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {

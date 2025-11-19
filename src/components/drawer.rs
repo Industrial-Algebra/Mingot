@@ -35,7 +35,7 @@ impl DrawerSize {
 #[component]
 pub fn Drawer(
     #[prop(into)] opened: Signal<bool>,
-    #[prop(optional, into)] on_close: Option<Callback<()>>,
+    #[prop(optional)] on_close: Option<Callback<()>>,
     #[prop(optional)] position: Option<DrawerPosition>,
     #[prop(optional)] size: Option<DrawerSize>,
     #[prop(optional, into)] title: Option<String>,

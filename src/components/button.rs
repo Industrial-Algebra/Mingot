@@ -30,7 +30,7 @@ pub fn Button(
     #[prop(optional, into)] full_width: Signal<bool>,
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional, into)] loading: Signal<bool>,
-    #[prop(optional, into)] on_click: Option<Callback<ev::MouseEvent>>,
+    #[prop(optional)] on_click: Option<Callback<ev::MouseEvent>>,
     #[prop(optional, into)] button_type: Option<String>,
     #[prop(optional, into)] as_: Option<String>,
     #[prop(optional, into)] href: Option<String>,
