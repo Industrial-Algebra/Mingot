@@ -61,13 +61,13 @@ impl BadgeSize {
 pub fn Badge(
     #[prop(optional)] variant: Option<BadgeVariant>,
     #[prop(optional)] size: Option<BadgeSize>,
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] radius: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] radius: Option<String>,
     #[prop(optional)] full_width: bool,
     #[prop(optional)] left_section: Option<Children>,
     #[prop(optional)] right_section: Option<Children>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

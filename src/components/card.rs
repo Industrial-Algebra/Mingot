@@ -26,13 +26,13 @@ impl CardPadding {
 #[component]
 pub fn Card(
     #[prop(optional)] padding: Option<CardPadding>,
-    #[prop(optional)] radius: Option<String>,
+    #[prop(optional, into)] radius: Option<String>,
     #[prop(optional)] with_border: bool,
-    #[prop(optional)] shadow: Option<String>,
-    #[prop(optional)] as_: Option<String>,
-    #[prop(optional)] href: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] shadow: Option<String>,
+    #[prop(optional, into)] as_: Option<String>,
+    #[prop(optional, into)] href: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -108,9 +108,9 @@ pub fn Card(
 pub fn CardSection(
     #[prop(optional)] with_border: bool,
     #[prop(optional)] inherit_padding: bool,
-    #[prop(optional)] padding: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

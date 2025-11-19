@@ -26,8 +26,8 @@ impl ContainerSize {
 pub fn Container(
     #[prop(optional)] size: Option<ContainerSize>,
     #[prop(optional)] fluid: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let size = size.unwrap_or(ContainerSize::Md);

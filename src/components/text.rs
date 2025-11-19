@@ -43,13 +43,13 @@ impl TextAlign {
 pub fn Text(
     #[prop(optional)] size: Option<TextSize>,
     #[prop(optional)] weight: Option<TextWeight>,
-    #[prop(optional)] color: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
     #[prop(optional)] italic: bool,
     #[prop(optional)] underline: bool,
     #[prop(optional)] align: Option<TextAlign>,
-    #[prop(optional)] align_custom: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] align_custom: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

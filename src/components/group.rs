@@ -44,12 +44,12 @@ impl GroupJustify {
 
 #[component]
 pub fn Group(
-    #[prop(optional)] spacing: Option<String>,
+    #[prop(optional, into)] spacing: Option<String>,
     #[prop(optional)] align: Option<GroupAlign>,
     #[prop(optional)] justify: Option<GroupJustify>,
     #[prop(optional)] wrap: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

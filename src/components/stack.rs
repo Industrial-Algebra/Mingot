@@ -44,11 +44,11 @@ impl StackJustify {
 
 #[component]
 pub fn Stack(
-    #[prop(optional)] spacing: Option<String>,
+    #[prop(optional, into)] spacing: Option<String>,
     #[prop(optional)] align: Option<StackAlign>,
     #[prop(optional)] justify: Option<StackJustify>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

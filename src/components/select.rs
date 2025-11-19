@@ -45,17 +45,17 @@ pub enum SelectSize {
 pub fn Select(
     #[prop(optional)] variant: Option<SelectVariant>,
     #[prop(optional)] size: Option<SelectSize>,
-    #[prop(optional)] placeholder: Option<String>,
+    #[prop(optional, into)] placeholder: Option<String>,
     #[prop(optional)] value: Option<RwSignal<String>>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] error: Option<String>,
+    #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
     #[prop(into)] options: Vec<SelectOption>,
-    #[prop(optional)] on_change: Option<Callback<String>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
-    #[prop(optional)] label: Option<String>,
-    #[prop(optional)] description: Option<String>,
+    #[prop(optional, into)] on_change: Option<Callback<String>>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(SelectVariant::Default);

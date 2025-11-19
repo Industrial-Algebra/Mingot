@@ -2,6 +2,118 @@
 
 This document outlines API improvements discovered during integration with Ultramarine-Red project.
 
+## CRITICAL: String Props Missing `#[prop(into)]`
+
+**Status:** BLOCKING - Prevents integration from compiling
+
+Many components accept `String` props but don't have `#[prop(into)]`, which means users must call `.to_string()` on every string literal. This creates significant friction.
+
+**Affected Components:**
+- **Stack**: `spacing` expects `String` (should accept `&str`)
+- **Paper**: `radius` expects `String`, `padding` expects `PaperPadding` enum
+- **Button**: `button_type` expects `String` (should accept `&str`)
+- **Input**: `label` expects `String` (should accept `&str`)
+- **Select**: `label` expects `String` (should accept `&str`)
+- **All components**: `style` and `class` expect `String`
+
+**Impact:**
+```rust
+// CURRENT (frustrating):
+<Stack spacing="md".to_string()>
+<Input label="Email".to_string() />
+
+// DESIRED (ergonomic):
+<Stack spacing="md">
+<Input label="Email" />
+```
+
+**Fix Required:** Add `#[prop(into)]` to all `String` parameters:
+```rust
+#[component]
+pub fn Stack(
+    #[prop(optional, into)] spacing: String,  // Add 'into'
+    #[prop(optional, into)] class: String,     // Add 'into'
+    #[prop(optional, into)] style: String,     // Add 'into'
+    // ...
+)
+```
+
+## CRITICAL: Callback Props Missing Conversion
+
+**Status:** BLOCKING
+
+Props that accept `Callback<T>` don't have `#[prop(into)]`, forcing users to wrap closures with `Callback::new()`.
+
+**Affected Props:**
+- `on_click: Option<Callback<ev::MouseEvent>>`
+- `on_change: Option<Callback<String>>`
+- `on_input: Option<Callback<String>>`
+
+**Impact:**
+```rust
+// CURRENT (verbose):
+<Button on_click=Callback::new(move |_| { /* ... */ })>
+
+// DESIRED (ergonomic):
+<Button on_click=move |_| { /* ... */ }>
+```
+
+**Fix Required:**
+```rust
+#[component]
+pub fn Button(
+    #[prop(optional, into)] on_click: Option<Callback<ev::MouseEvent>>,  // Add 'into'
+    // ...
+)
+```
+
+## CRITICAL: Paper Padding Should Accept String
+
+**Status:** BLOCKING
+
+Paper component's `padding` prop expects `PaperPadding` enum, but users want to pass theme values like "lg", "md".
+
+**Current API:**
+```rust
+pub enum PaperPadding {
+    Xs, Sm, Md, Lg, Xl,
+}
+
+#[component]
+pub fn Paper(
+    #[prop(optional)] padding: Option<PaperPadding>,
+    // ...
+)
+```
+
+**Desired Usage:**
+```rust
+<Paper padding="lg">  // Simple string from theme
+```
+
+**Suggested Fix:** Accept string and convert internally, or add `#[prop(into)]` with `From<&str>` impl:
+```rust
+impl From<&str> for PaperPadding {
+    fn from(s: &str) -> Self {
+        match s {
+            "xs" => PaperPadding::Xs,
+            "sm" => PaperPadding::Sm,
+            "lg" => PaperPadding::Lg,
+            "xl" => PaperPadding::Xl,
+            _ => PaperPadding::Md,
+        }
+    }
+}
+
+#[component]
+pub fn Paper(
+    #[prop(optional, into)] padding: Option<PaperPadding>,
+    // ...
+)
+```
+
+---
+
 ## Critical Issues (Blocking Integration)
 
 ### 1. Button: Missing `type` Attribute Support

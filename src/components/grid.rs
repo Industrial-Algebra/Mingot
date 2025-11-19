@@ -109,12 +109,12 @@ impl GridJustify {
 #[component]
 pub fn Grid(
     #[prop(optional)] columns: Option<u32>,
-    #[prop(optional)] gutter: Option<String>,
+    #[prop(optional, into)] gutter: Option<String>,
     #[prop(optional)] align: Option<GridAlign>,
     #[prop(optional)] justify: Option<GridJustify>,
     #[prop(optional)] _grow: bool,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -171,8 +171,8 @@ pub fn GridCol(
     #[prop(optional)] md: Option<u32>,
     #[prop(optional)] lg: Option<u32>,
     #[prop(optional)] xl: Option<u32>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
@@ -263,10 +263,10 @@ pub fn GridCol(
 #[component]
 pub fn SimpleGrid(
     #[prop(optional)] cols: Option<u32>,
-    #[prop(optional)] spacing: Option<String>,
-    #[prop(optional)] min_child_width: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] spacing: Option<String>,
+    #[prop(optional, into)] min_child_width: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

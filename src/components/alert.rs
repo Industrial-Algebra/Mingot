@@ -40,12 +40,12 @@ impl AlertColor {
 pub fn Alert(
     #[prop(optional)] variant: Option<AlertVariant>,
     #[prop(optional)] color: Option<AlertColor>,
-    #[prop(optional)] title: Option<String>,
-    #[prop(optional)] icon: Option<String>,
+    #[prop(optional, into)] title: Option<String>,
+    #[prop(optional, into)] icon: Option<String>,
     #[prop(optional)] with_close_button: bool,
-    #[prop(optional)] on_close: Option<Callback<()>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] on_close: Option<Callback<()>>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

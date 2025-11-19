@@ -23,18 +23,18 @@ pub enum InputSize {
 pub fn Input(
     #[prop(optional)] variant: Option<InputVariant>,
     #[prop(optional)] size: Option<InputSize>,
-    #[prop(optional)] placeholder: Option<String>,
+    #[prop(optional, into)] placeholder: Option<String>,
     #[prop(optional, into)] value: Signal<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
-    #[prop(optional)] error: Option<String>,
+    #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
-    #[prop(optional)] input_type: Option<String>,
-    #[prop(optional)] on_input: Option<Callback<String>>,
-    #[prop(optional)] on_change: Option<Callback<String>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
-    #[prop(optional)] label: Option<String>,
-    #[prop(optional)] description: Option<String>,
+    #[prop(optional, into)] input_type: Option<String>,
+    #[prop(optional, into)] on_input: Option<Callback<String>>,
+    #[prop(optional, into)] on_change: Option<Callback<String>>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(InputVariant::Default);

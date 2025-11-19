@@ -23,14 +23,26 @@ impl PaperPadding {
     }
 }
 
+impl From<&str> for PaperPadding {
+    fn from(s: &str) -> Self {
+        match s {
+            "xs" => PaperPadding::Xs,
+            "sm" => PaperPadding::Sm,
+            "lg" => PaperPadding::Lg,
+            "xl" => PaperPadding::Xl,
+            _ => PaperPadding::Md,
+        }
+    }
+}
+
 #[component]
 pub fn Paper(
-    #[prop(optional)] padding: Option<PaperPadding>,
-    #[prop(optional)] radius: Option<String>,
+    #[prop(optional, into)] padding: Option<PaperPadding>,
+    #[prop(optional, into)] radius: Option<String>,
     #[prop(optional)] with_border: bool,
-    #[prop(optional)] shadow: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] shadow: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
