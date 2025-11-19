@@ -27,13 +27,13 @@ impl SwitchSize {
 pub fn Switch(
     #[prop(optional)] checked: Option<RwSignal<bool>>,
     #[prop(optional)] size: Option<SwitchSize>,
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] label: Option<String>,
-    #[prop(optional)] description: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] on_change: Option<Callback<bool>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] on_change: Option<Callback<bool>>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(SwitchSize::Md);

@@ -35,15 +35,15 @@ impl DrawerSize {
 #[component]
 pub fn Drawer(
     #[prop(into)] opened: Signal<bool>,
-    #[prop(optional)] on_close: Option<Callback<()>>,
+    #[prop(optional, into)] on_close: Option<Callback<()>>,
     #[prop(optional)] position: Option<DrawerPosition>,
     #[prop(optional)] size: Option<DrawerSize>,
-    #[prop(optional)] title: Option<String>,
+    #[prop(optional, into)] title: Option<String>,
     #[prop(optional)] with_overlay: bool,
     #[prop(optional)] with_close_button: bool,
-    #[prop(optional)] padding: Option<String>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

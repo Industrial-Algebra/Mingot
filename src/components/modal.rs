@@ -29,14 +29,14 @@ impl ModalSize {
 #[component]
 pub fn Modal(
     #[prop(into)] opened: Signal<bool>,
-    #[prop(optional)] on_close: Option<Callback<()>>,
+    #[prop(optional, into)] on_close: Option<Callback<()>>,
     #[prop(optional)] size: Option<ModalSize>,
-    #[prop(optional)] title: Option<String>,
+    #[prop(optional, into)] title: Option<String>,
     #[prop(optional)] centered: bool,
     #[prop(optional)] close_on_click_outside: bool,
     #[prop(optional)] _close_on_escape: bool,
     #[prop(optional)] with_close_button: bool,
-    #[prop(optional)] padding: Option<String>,
+    #[prop(optional, into)] padding: Option<String>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();

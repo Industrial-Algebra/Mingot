@@ -16,16 +16,16 @@ pub enum RadioSize {
 pub fn Radio(
     #[prop(into)] value: String,
     #[prop(optional)] checked: Option<RwSignal<bool>>,
-    #[prop(optional)] name: Option<String>,
+    #[prop(optional, into)] name: Option<String>,
     #[prop(optional)] size: Option<RadioSize>,
-    #[prop(optional)] color: Option<String>,
-    #[prop(optional)] label: Option<String>,
-    #[prop(optional)] description: Option<String>,
+    #[prop(optional, into)] color: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] error: Option<String>,
-    #[prop(optional)] on_change: Option<Callback<String>>,
-    #[prop(optional)] class: Option<String>,
-    #[prop(optional)] style: Option<String>,
+    #[prop(optional, into)] error: Option<String>,
+    #[prop(optional, into)] on_change: Option<Callback<String>>,
+    #[prop(optional, into)] class: Option<String>,
+    #[prop(optional, into)] style: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(RadioSize::Md);
@@ -215,11 +215,11 @@ pub fn Radio(
 #[component]
 pub fn RadioGroup(
     #[prop(optional)] _value: Option<RwSignal<String>>,
-    #[prop(optional)] _name: Option<String>,
-    #[prop(optional)] label: Option<String>,
-    #[prop(optional)] description: Option<String>,
-    #[prop(optional)] error: Option<String>,
-    #[prop(optional)] _on_change: Option<Callback<String>>,
+    #[prop(optional, into)] _name: Option<String>,
+    #[prop(optional, into)] label: Option<String>,
+    #[prop(optional, into)] description: Option<String>,
+    #[prop(optional, into)] error: Option<String>,
+    #[prop(optional, into)] _on_change: Option<Callback<String>>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
