@@ -38,6 +38,9 @@ pub fn Textarea(
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
+    #[prop(optional, into)] maxlength: Option<String>,
+    #[prop(optional, into)] minlength: Option<String>,
+    #[prop(optional, into)] autocomplete: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(TextareaVariant::Default);
@@ -221,6 +224,9 @@ pub fn Textarea(
                 prop:value=move || textarea_value.get()
                 on:input=handle_input
                 on:change=handle_change
+                maxlength=maxlength
+                minlength=minlength
+                autocomplete=autocomplete
             />
 
             {description.map(|d| view! {

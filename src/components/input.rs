@@ -35,6 +35,13 @@ pub fn Input(
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
+    #[prop(optional, into)] step: Option<String>,
+    #[prop(optional, into)] min: Option<String>,
+    #[prop(optional, into)] max: Option<String>,
+    #[prop(optional, into)] pattern: Option<String>,
+    #[prop(optional, into)] autocomplete: Option<String>,
+    #[prop(optional, into)] maxlength: Option<String>,
+    #[prop(optional, into)] minlength: Option<String>,
 ) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(InputVariant::Default);
@@ -210,6 +217,13 @@ pub fn Input(
                 prop:value=move || value.get()
                 on:input=handle_input
                 on:change=handle_change
+                step=step
+                min=min
+                max=max
+                pattern=pattern
+                autocomplete=autocomplete
+                maxlength=maxlength
+                minlength=minlength
             />
 
             {description.map(|d| view! {
