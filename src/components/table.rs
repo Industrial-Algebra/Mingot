@@ -458,12 +458,12 @@ pub fn Pagination(
             <Button
                 variant=ButtonVariant::Subtle
                 disabled={current_page.get() <= 1}
-                on_click=move |_| {
+                on_click=Callback::new(move |_| {
                     let new_page = current_page.get().saturating_sub(1);
                     if new_page >= 1 {
                         handle_page_change(new_page);
                     }
-                }
+                })
             >
                 "‹"
             </Button>
@@ -490,12 +490,12 @@ pub fn Pagination(
             <Button
                 variant=ButtonVariant::Subtle
                 disabled={current_page.get() >= total_pages.get()}
-                on_click=move |_| {
+                on_click=Callback::new(move |_| {
                     let new_page = current_page.get() + 1;
                     if new_page <= total_pages.get() {
                         handle_page_change(new_page);
                     }
-                }
+                })
             >
                 "›"
             </Button>

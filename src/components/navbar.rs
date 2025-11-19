@@ -66,19 +66,16 @@ pub fn Navbar(
 }
 
 #[component]
-pub fn NavbarLink<F>(
+pub fn NavbarLink(
     #[prop(into)] href: String,
     #[prop(optional)] active: bool,
     #[prop(optional)] variant: Option<NavbarVariant>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] on_click: Option<F>,
+    #[prop(optional)] on_click: Option<Callback<leptos::ev::MouseEvent>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
-) -> impl IntoView
-where
-    F: Fn(leptos::ev::MouseEvent) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(NavbarVariant::Default);
 
@@ -173,8 +170,8 @@ where
 
     let handle_click = move |ev: leptos::ev::MouseEvent| {
         if !disabled {
-            if let Some(ref callback) = on_click {
-                callback(ev);
+            if let Some(callback) = on_click {
+                callback.run(ev);
             }
         }
     };

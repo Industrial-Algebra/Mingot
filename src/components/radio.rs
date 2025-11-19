@@ -13,7 +13,7 @@ pub enum RadioSize {
 }
 
 #[component]
-pub fn Radio<F>(
+pub fn Radio(
     #[prop(into)] value: String,
     #[prop(optional)] checked: Option<RwSignal<bool>>,
     #[prop(optional, into)] name: Option<String>,
@@ -23,13 +23,10 @@ pub fn Radio<F>(
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] error: Option<String>,
-    #[prop(optional)] on_change: Option<F>,
+    #[prop(optional)] on_change: Option<Callback<String>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
-) -> impl IntoView
-where
-    F: Fn(String) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(RadioSize::Md);
     let color = color.unwrap_or_else(|| "blue".to_string());
@@ -169,8 +166,8 @@ where
     let handle_change = move |_ev: ev::Event| {
         if !disabled {
             is_checked.set(true);
-            if let Some(callback) = &on_change {
-                callback(value_clone.clone());
+            if let Some(callback) = on_change {
+                callback.run(value_clone.clone());
             }
         }
     };
@@ -216,18 +213,15 @@ where
 }
 
 #[component]
-pub fn RadioGroup<F>(
+pub fn RadioGroup(
     #[prop(optional)] _value: Option<RwSignal<String>>,
     #[prop(optional, into)] _name: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional, into)] error: Option<String>,
-    #[prop(optional)] _on_change: Option<F>,
+    #[prop(optional)] _on_change: Option<Callback<String>>,
     children: Children,
-) -> impl IntoView
-where
-    F: Fn(String) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
 
     let label_styles = move || {

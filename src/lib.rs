@@ -18,7 +18,7 @@
 //!                     <Text size=TextSize::Xl weight=TextWeight::Bold>
 //!                         "Welcome to Mingot"
 //!                     </Text>
-//!                     <Button variant=ButtonVariant::Filled on_click=move |_| {}>
+//!                     <Button variant=ButtonVariant::Filled on_click=Callback::new(move |_| {})>
 //!                         "Click me"
 //!                     </Button>
 //!                 </Stack>

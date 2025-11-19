@@ -33,9 +33,9 @@ impl DrawerSize {
 }
 
 #[component]
-pub fn Drawer<F>(
+pub fn Drawer(
     #[prop(into)] opened: Signal<bool>,
-    #[prop(optional)] on_close: Option<F>,
+    #[prop(optional)] on_close: Option<Callback<()>>,
     #[prop(optional)] position: Option<DrawerPosition>,
     #[prop(optional)] size: Option<DrawerSize>,
     #[prop(optional, into)] title: Option<String>,
@@ -45,10 +45,7 @@ pub fn Drawer<F>(
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
-) -> impl IntoView
-where
-    F: Fn() + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let position = position.unwrap_or(DrawerPosition::Right);
     let size = size.unwrap_or(DrawerSize::Md);
@@ -173,14 +170,14 @@ where
     };
 
     let handle_overlay_click = move |_| {
-        if let Some(callback) = &on_close {
-            callback();
+        if let Some(callback) = on_close {
+            callback.run(());
         }
     };
 
     let handle_close_click = move |_| {
-        if let Some(callback) = &on_close {
-            callback();
+        if let Some(callback) = on_close {
+            callback.run(());
         }
     };
 

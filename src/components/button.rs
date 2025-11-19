@@ -22,7 +22,7 @@ pub enum ButtonSize {
 }
 
 #[component]
-pub fn Button<F>(
+pub fn Button(
     #[prop(optional)] variant: Option<ButtonVariant>,
     #[prop(optional)] size: Option<ButtonSize>,
     #[prop(optional, into)] color: Option<String>,
@@ -30,17 +30,14 @@ pub fn Button<F>(
     #[prop(optional, into)] full_width: Signal<bool>,
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional, into)] loading: Signal<bool>,
-    #[prop(optional)] on_click: Option<F>,
+    #[prop(optional)] on_click: Option<Callback<ev::MouseEvent>>,
     #[prop(optional, into)] button_type: Option<String>,
     #[prop(optional, into)] as_: Option<String>,
     #[prop(optional, into)] href: Option<String>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
-) -> impl IntoView
-where
-    F: Fn(ev::MouseEvent) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(ButtonVariant::Filled);
     let size = size.unwrap_or(ButtonSize::Md);
@@ -179,8 +176,8 @@ where
 
     let handle_click = move |ev: ev::MouseEvent| {
         if !disabled.get() && !loading.get() {
-            if let Some(callback) = &on_click {
-                callback(ev);
+            if let Some(callback) = on_click {
+                callback.run(ev);
             }
         }
     };

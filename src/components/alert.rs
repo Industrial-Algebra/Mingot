@@ -49,20 +49,17 @@ impl From<&str> for AlertColor {
 }
 
 #[component]
-pub fn Alert<F>(
+pub fn Alert(
     #[prop(optional)] variant: Option<AlertVariant>,
     #[prop(optional, into)] color: Option<AlertColor>,
     #[prop(optional, into)] title: Option<String>,
     #[prop(optional, into)] icon: Option<String>,
     #[prop(optional)] with_close_button: bool,
-    #[prop(optional)] on_close: Option<F>,
+    #[prop(optional)] on_close: Option<Callback<()>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
-) -> impl IntoView
-where
-    F: Fn() + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(AlertVariant::Light);
     let color = color.unwrap_or(AlertColor::Info);
@@ -170,8 +167,8 @@ where
 
     let handle_close = move |_| {
         is_visible.set(false);
-        if let Some(callback) = &on_close {
-            callback();
+        if let Some(callback) = on_close {
+            callback.run(());
         }
     };
 

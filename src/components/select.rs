@@ -42,7 +42,7 @@ pub enum SelectSize {
 }
 
 #[component]
-pub fn Select<F>(
+pub fn Select(
     #[prop(optional)] variant: Option<SelectVariant>,
     #[prop(optional)] size: Option<SelectSize>,
     #[prop(optional, into)] placeholder: Option<String>,
@@ -51,15 +51,12 @@ pub fn Select<F>(
     #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
     #[prop(into)] options: Vec<SelectOption>,
-    #[prop(optional)] on_change: Option<F>,
+    #[prop(optional)] on_change: Option<Callback<String>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
-) -> impl IntoView
-where
-    F: Fn(String) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(SelectVariant::Default);
     let size = size.unwrap_or(SelectSize::Md);
@@ -172,8 +169,8 @@ where
     let handle_change = move |ev: ev::Event| {
         let value = event_target_value(&ev);
         select_value.set(value.clone());
-        if let Some(callback) = &on_change {
-            callback(value);
+        if let Some(callback) = on_change {
+            callback.run(value);
         }
     };
 

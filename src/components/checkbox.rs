@@ -13,7 +13,7 @@ pub enum CheckboxSize {
 }
 
 #[component]
-pub fn Checkbox<F>(
+pub fn Checkbox(
     #[prop(optional)] checked: Option<RwSignal<bool>>,
     #[prop(optional)] size: Option<CheckboxSize>,
     #[prop(optional, into)] color: Option<String>,
@@ -21,13 +21,10 @@ pub fn Checkbox<F>(
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] error: Option<String>,
-    #[prop(optional)] on_change: Option<F>,
+    #[prop(optional)] on_change: Option<Callback<bool>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
-) -> impl IntoView
-where
-    F: Fn(bool) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or(CheckboxSize::Md);
     let color = color.unwrap_or_else(|| "blue".to_string());
@@ -168,8 +165,8 @@ where
         if !disabled {
             let new_value = !is_checked.get();
             is_checked.set(new_value);
-            if let Some(callback) = &on_change {
-                callback(new_value);
+            if let Some(callback) = on_change {
+                callback.run(new_value);
             }
         }
     };

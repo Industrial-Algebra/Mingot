@@ -20,7 +20,7 @@ pub enum InputSize {
 }
 
 #[component]
-pub fn Input<FI, FC>(
+pub fn Input(
     #[prop(optional)] variant: Option<InputVariant>,
     #[prop(optional)] size: Option<InputSize>,
     #[prop(optional, into)] placeholder: Option<String>,
@@ -29,17 +29,13 @@ pub fn Input<FI, FC>(
     #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
     #[prop(optional, into)] input_type: Option<String>,
-    #[prop(optional)] on_input: Option<FI>,
-    #[prop(optional)] on_change: Option<FC>,
+    #[prop(optional)] on_input: Option<Callback<String>>,
+    #[prop(optional)] on_change: Option<Callback<String>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
-) -> impl IntoView
-where
-    FI: Fn(String) + Copy + Send + Sync + 'static,
-    FC: Fn(String) + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(InputVariant::Default);
     let size = size.unwrap_or(InputSize::Md);
@@ -146,15 +142,15 @@ where
 
     let handle_input = move |ev: ev::Event| {
         let input_value = event_target_value(&ev);
-        if let Some(callback) = &on_input {
-            callback(input_value);
+        if let Some(callback) = on_input {
+            callback.run(input_value);
         }
     };
 
     let handle_change = move |ev: ev::Event| {
         let change_value = event_target_value(&ev);
-        if let Some(callback) = &on_change {
-            callback(change_value);
+        if let Some(callback) = on_change {
+            callback.run(change_value);
         }
     };
 

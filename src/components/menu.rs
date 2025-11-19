@@ -134,17 +134,14 @@ pub fn MenuDropdown(
 }
 
 #[component]
-pub fn MenuItem<F>(
+pub fn MenuItem(
     #[prop(optional, into)] icon: Option<String>,
-    #[prop(optional)] on_click: Option<F>,
+    #[prop(optional)] on_click: Option<Callback<()>>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
-) -> impl IntoView
-where
-    F: Fn() + Copy + Send + Sync + 'static,
-{
+) -> impl IntoView {
     let theme = use_theme();
     let opened = use_context::<RwSignal<bool>>().unwrap_or_else(|| RwSignal::new(false));
 
@@ -181,8 +178,8 @@ where
 
     let handle_click = move |_| {
         if !disabled {
-            if let Some(ref callback) = on_click {
-                callback();
+            if let Some(callback) = on_click {
+                callback.run(());
             }
             opened.set(false);
         }
