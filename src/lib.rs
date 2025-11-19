@@ -1,7 +1,33 @@
-//! Mingot - A Leptos Component Library inspired by Mantine UI
+//! Mingot - The Leptos UI library for applications that demand mathematical precision
 //!
-//! Mingot provides a comprehensive set of UI components for Leptos applications,
-//! following the design principles and component API of Mantine UI.
+//! Mingot provides ultra-precision UI components for scientific computing, financial applications,
+//! and mathematical software. Built with first-class support for u64+ precision integers and
+//! arbitrary-precision arithmetic via Amari integration.
+//!
+//! ## Why Mingot?
+//!
+//! Most web UI libraries stop at JavaScript's Number type (safe integers up to 2^53 - 1).
+//! Mingot goes beyond with:
+//!
+//! - **NumberInput** supporting u64, u128, i64, i128, and arbitrary precision
+//! - **Zero precision loss** throughout the component lifecycle
+//! - **Type-safe validation** with detailed error types
+//! - **Amari integration** for advanced mathematical computing (optional)
+//!
+//! ## Precision Without Compromise
+//!
+//! ```rust,no_run
+//! use mingot::prelude::*;
+//!
+//! // High-precision number input
+//! <NumberInput
+//!     precision=NumberInputPrecision::U64
+//!     label="Large Integer"
+//!     on_valid_change=Callback::new(move |result| {
+//!         // Supports values up to 18,446,744,073,709,551,615
+//!     })
+//! />
+//! ```
 //!
 //! # Quick Start
 //!
