@@ -25,6 +25,7 @@ pub mod tabs;
 // Form components
 pub mod checkbox;
 pub mod input;
+pub mod number_input;
 pub mod radio;
 pub mod select;
 pub mod switch;
@@ -77,6 +78,7 @@ pub use menu::*;
 pub use modal::*;
 pub use navbar::*;
 pub use notification::*;
+pub use number_input::*;
 pub use paper::*;
 pub use popover::*;
 pub use progress::*;
