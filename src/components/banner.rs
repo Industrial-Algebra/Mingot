@@ -41,19 +41,22 @@ impl BannerPosition {
 }
 
 #[component]
-pub fn Banner(
+pub fn Banner<F>(
     #[prop(optional)] variant: Option<BannerVariant>,
     #[prop(optional)] position: Option<BannerPosition>,
     #[prop(optional)] with_border: bool,
     #[prop(optional)] dismissible: bool,
     #[prop(optional)] opened: Option<RwSignal<bool>>,
-    #[prop(optional)] on_close: Option<Callback<()>>,
+    #[prop(optional)] on_close: Option<F>,
     #[prop(optional, into)] icon: Option<String>,
     #[prop(optional, into)] padding: Option<String>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
-) -> impl IntoView {
+) -> impl IntoView
+where
+    F: Fn() + Copy + Send + Sync + 'static,
+{
     let theme = use_theme();
     let variant = variant.unwrap_or(BannerVariant::Info);
     let position = position.unwrap_or(BannerPosition::Static);
@@ -142,8 +145,8 @@ pub fn Banner(
 
     let handle_close = move || {
         is_opened.set(false);
-        if let Some(callback) = on_close {
-            callback.run(());
+        if let Some(callback) = &on_close {
+            callback();
         }
     };
 

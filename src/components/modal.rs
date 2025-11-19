@@ -27,9 +27,9 @@ impl ModalSize {
 }
 
 #[component]
-pub fn Modal(
+pub fn Modal<F>(
     #[prop(into)] opened: Signal<bool>,
-    #[prop(optional)] on_close: Option<Callback<()>>,
+    #[prop(optional)] on_close: Option<F>,
     #[prop(optional)] size: Option<ModalSize>,
     #[prop(optional, into)] title: Option<String>,
     #[prop(optional)] centered: bool,
@@ -38,7 +38,10 @@ pub fn Modal(
     #[prop(optional)] with_close_button: bool,
     #[prop(optional, into)] padding: Option<String>,
     children: Children,
-) -> impl IntoView {
+) -> impl IntoView
+where
+    F: Fn() + Copy + Send + Sync + 'static,
+{
     let theme = use_theme();
     let size = size.unwrap_or(ModalSize::Md);
 
@@ -127,8 +130,8 @@ pub fn Modal(
     };
 
     let handle_close = move || {
-        if let Some(callback) = on_close {
-            callback.run(());
+        if let Some(callback) = &on_close {
+            callback();
         }
     };
 

@@ -24,17 +24,20 @@ impl SwitchSize {
 }
 
 #[component]
-pub fn Switch(
+pub fn Switch<F>(
     #[prop(optional)] checked: Option<RwSignal<bool>>,
     #[prop(optional)] size: Option<SwitchSize>,
     #[prop(optional, into)] color: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional)] disabled: bool,
-    #[prop(optional)] on_change: Option<Callback<bool>>,
+    #[prop(optional)] on_change: Option<F>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
-) -> impl IntoView {
+) -> impl IntoView
+where
+    F: Fn(bool) + Copy + Send + Sync + 'static,
+{
     let theme = use_theme();
     let size = size.unwrap_or(SwitchSize::Md);
     let is_checked = checked.unwrap_or_else(|| RwSignal::new(false));
@@ -144,8 +147,8 @@ pub fn Switch(
         if !disabled {
             let new_value = !is_checked.get();
             is_checked.set(new_value);
-            if let Some(callback) = on_change {
-                callback.run(new_value);
+            if let Some(callback) = &on_change {
+                callback(new_value);
             }
         }
     };

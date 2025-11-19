@@ -20,7 +20,7 @@ pub enum TextareaSize {
 }
 
 #[component]
-pub fn Textarea(
+pub fn Textarea<FI, FC>(
     #[prop(optional)] variant: Option<TextareaVariant>,
     #[prop(optional)] size: Option<TextareaSize>,
     #[prop(optional, into)] placeholder: Option<String>,
@@ -32,13 +32,17 @@ pub fn Textarea(
     #[prop(optional)] auto_size: bool,
     #[prop(optional)] _min_rows: Option<u32>,
     #[prop(optional)] _max_rows: Option<u32>,
-    #[prop(optional)] on_input: Option<Callback<String>>,
-    #[prop(optional)] on_change: Option<Callback<String>>,
+    #[prop(optional)] on_input: Option<FI>,
+    #[prop(optional)] on_change: Option<FC>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
-) -> impl IntoView {
+) -> impl IntoView
+where
+    FI: Fn(String) + Copy + Send + Sync + 'static,
+    FC: Fn(String) + Copy + Send + Sync + 'static,
+{
     let theme = use_theme();
     let variant = variant.unwrap_or(TextareaVariant::Default);
     let size = size.unwrap_or(TextareaSize::Md);
@@ -153,15 +157,15 @@ pub fn Textarea(
     let handle_input = move |ev: ev::Event| {
         let value = event_target_value(&ev);
         textarea_value.set(value.clone());
-        if let Some(callback) = on_input {
-            callback.run(value);
+        if let Some(callback) = &on_input {
+            callback(value);
         }
     };
 
     let handle_change = move |ev: ev::Event| {
         let value = event_target_value(&ev);
-        if let Some(callback) = on_change {
-            callback.run(value);
+        if let Some(callback) = &on_change {
+            callback(value);
         }
     };
 
