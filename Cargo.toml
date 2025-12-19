@@ -19,6 +19,9 @@ leptos_router = "0.8.9"
 web-sys = { version = "0.3", features = ["HtmlElement", "Window", "Document", "CssStyleDeclaration"] }
 wasm-bindgen = "0.2"
 
+# Optional: Arbitrary-precision mathematics
+amari = { version = "0.9.10", optional = true }
+
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
 
@@ -27,6 +30,7 @@ default = ["csr"]
 csr = ["leptos/csr"]
 ssr = ["leptos/ssr"]
 hydrate = ["leptos/hydrate"]
+high-precision = ["amari"]
 
 [profile.wasm-release]
 inherits = "release"
