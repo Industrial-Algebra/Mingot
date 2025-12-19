@@ -2,12 +2,12 @@
 name = "mingot"
 version = "0.1.0"
 edition = "2021"
-authors = ["Your Name <your.email@example.com>"]
-description = "A Leptos component library inspired by Mantine UI"
+authors = ["Industrial Algebra <noreply@industrial-algebra.org>"]
+description = "Leptos UI library for applications demanding mathematical precision - u64+ integers, arbitrary-precision via Amari, zero precision loss"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/yourusername/mingot"
-keywords = ["leptos", "ui", "components", "mantine"]
-categories = ["gui", "web-programming"]
+repository = "https://github.com/Industrial-Algebra/Mingot"
+keywords = ["leptos", "ui", "precision", "mathematics", "amari"]
+categories = ["gui", "web-programming", "science", "mathematics"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
