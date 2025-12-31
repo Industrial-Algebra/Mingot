@@ -13,7 +13,7 @@ Most web UI libraries are built for consumer applications where precision stops 
 Built for scientific computing, financial applications, and mathematical software, Mingot provides first-class support for:
 
 - **u64, u128** precision integers
-- **Arbitrary-precision** arithmetic via [Amari](https://github.com/justinelliottcobb/Amari)
+- **Arbitrary-precision** decimals via [rust_decimal](https://docs.rs/rust_decimal) (128-bit, 28-29 significant digits)
 - **High-precision decimals** with configurable decimal places
 - **Zero precision loss** in user input and display
 
@@ -40,12 +40,12 @@ HTML5 `<input type="number">` inherits these limitations, making standard UI lib
     })
 />
 
-// Arbitrary precision with Amari (Phase 2)
+// Arbitrary precision with rust_decimal (requires high-precision feature)
 <NumberInput
     precision=NumberInputPrecision::Arbitrary
     label="High-Precision Calculation"
-    on_valid_change=Callback::new(move |result: Result<Number, ParseError>| {
-        // No precision limits - uses Amari's Number type
+    on_valid_change=Callback::new(move |result: Result<String, ParseError>| {
+        // Up to 28-29 significant digits with exact decimal arithmetic
     })
 />
 ```
@@ -57,7 +57,7 @@ HTML5 `<input type="number">` inherits these limitations, making standard UI lib
 1. **No Compromises on Accuracy**: Every component that handles numeric data supports high-precision mathematics
 2. **Type Safety**: Rust's type system prevents precision loss at compile time
 3. **Validation at Input**: Real-time validation ensures invalid values never enter your system
-4. **Seamless Amari Integration**: Optional but first-class support for arbitrary-precision mathematics
+4. **Arbitrary Precision**: Optional rust_decimal integration for 128-bit decimal arithmetic
 
 ## Features
 
@@ -91,11 +91,11 @@ Add Mingot to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mingot = "0.2.0"
+mingot = "0.3.0"
 leptos = "0.8"
 
-# Optional: Enable arbitrary-precision support with Amari
-mingot = { version = "0.2.0", features = ["high-precision"] }
+# Optional: Enable arbitrary-precision support with rust_decimal
+mingot = { version = "0.3.0", features = ["high-precision"] }
 ```
 
 ## Quick Start

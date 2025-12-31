@@ -1,11 +1,11 @@
 # Mingot Roadmap
 
-**Vision**: Make Mingot the definitive UI library for precision-critical applications, with first-class support for arbitrary-precision mathematics through Amari integration.
+**Vision**: Make Mingot the definitive UI library for precision-critical applications, with first-class support for arbitrary-precision mathematics.
 
 ## Guiding Principles
 
 1. **Precision is Non-Negotiable**: Every component that touches numeric data must support u64+ precision
-2. **Amari-First Integration**: Deep, seamless integration with Amari's mathematical capabilities
+2. **Arbitrary Precision First**: rust_decimal for 128-bit decimals, with future Amari integration for specialized math
 3. **Zero Precision Loss**: No silent coercions, no rounding without explicit user control
 4. **Scientific Rigor**: Components designed with input from scientists, engineers, and mathematicians
 5. **Production-Ready**: Performance and reliability suitable for high-stakes applications
@@ -46,42 +46,46 @@
 
 ---
 
-## Phase 2: Amari Integration 🚧 IN PROGRESS
+## Phase 2: Arbitrary Precision ✅ COMPLETED
 
-**Status**: Feature branch in development
-**Target**: December 2025
+**Status**: Complete
+**Completed**: December 2025
 **Version**: 0.3.0
 
-### Objectives
+### Key Decision: rust_decimal vs Amari
 
-Make Amari integration seamless, optional, and zero-cost when unused.
+During implementation, we discovered that Amari's type system focuses on specialized mathematical structures:
+- `DualNumber` - Automatic differentiation (a + bε where ε² = 0)
+- `TropicalNumber` - Max-plus semiring algebra
+- `Scalar/Multivector` - Geometric algebra (Clifford algebras)
+
+None of these provide arbitrary-precision decimal arithmetic. The assumed `amari::Number` type does not exist.
+
+**Solution**: Integrated `rust_decimal` (v1.39) instead, which provides:
+- 128-bit fixed-point decimal representation
+- Up to 28-29 significant digits
+- Exact decimal arithmetic (no floating-point errors)
+- `FromStr` parsing for validation
+- WASM compatibility
 
 ### Deliverables
 
 #### Core Integration
-- [ ] Add `amari` as optional dependency with feature flag
-- [ ] Implement `NumberInputPrecision::Arbitrary` mode
-- [ ] Callbacks returning `Result<amari::Number, ParseError>`
-- [ ] Validation using Amari's parsing capabilities
-- [ ] Conversion helpers between stdlib and Amari types
-
-#### Component Enhancements
-- [ ] `on_amari_change: Option<Callback<Result<Number, ParseError>>>`
-- [ ] Direct Amari type display formatting
-- [ ] Support for Amari's special numeric formats
-- [ ] Integration with Amari's validation system
+- [x] Add `rust_decimal` as optional dependency with feature flag
+- [x] Implement `NumberInputPrecision::Arbitrary` mode
+- [x] Validation using rust_decimal's parsing capabilities
+- [x] Zero-cost abstraction when feature disabled
 
 #### Testing
-- [ ] Unit tests with `#[cfg(feature = "high-precision")]`
-- [ ] Integration tests with real Amari operations
-- [ ] Performance benchmarks (stdlib vs Amari parsing)
-- [ ] WASM binary size analysis (with/without feature)
+- [x] 8 unit tests with `#[cfg(feature = "high-precision")]`
+- [x] Large number validation (28-29 significant digits)
+- [x] Negative number handling
+- [x] Separator stripping (commas, underscores)
 
 #### Documentation
-- [ ] Amari integration guide
-- [ ] Migration examples (stdlib → Amari)
-- [ ] Performance characteristics documentation
-- [ ] Feature flag usage patterns
+- [x] Updated HIGH_PRECISION_PROPOSAL.md with decision rationale
+- [x] Updated README.md with rust_decimal examples
+- [x] Feature flag usage patterns
 
 ### Technical Specifications
 
@@ -89,10 +93,10 @@ Make Amari integration seamless, optional, and zero-cost when unused.
 ```toml
 [features]
 default = ["csr"]
-high-precision = ["amari"]
+high-precision = ["rust_decimal"]
 
 [dependencies]
-amari = { version = "0.9.10", optional = true }
+rust_decimal = { version = "1.39", optional = true, default-features = false }
 ```
 
 **API Example**:
@@ -100,19 +104,19 @@ amari = { version = "0.9.10", optional = true }
 #[cfg(feature = "high-precision")]
 <NumberInput
     precision=NumberInputPrecision::Arbitrary
-    on_amari_change=Callback::new(move |result: Result<Number, ParseError>| {
-        // Direct Amari Number type
+    label="High-Precision Value"
+    on_valid_change=Callback::new(move |result: Result<String, ParseError>| {
+        // Up to 28-29 significant digits with exact decimal arithmetic
     })
 />
 ```
 
-### Success Criteria
+### Future Amari Integration
 
-- ✅ Zero-cost abstraction: No overhead when feature disabled
-- ✅ All Phase 1 tests still pass
-- ✅ Amari integration tests pass
-- ✅ Documentation complete with examples
-- ✅ Performance benchmarks show acceptable overhead
+Amari types may be added in future phases for specialized use cases:
+- `DualNumber` inputs for automatic differentiation workflows
+- `Scalar` inputs for geometric algebra applications
+- These would be additional precision variants, not replacements for rust_decimal
 
 ---
 
@@ -514,8 +518,8 @@ The community is invited to shape Mingot's future:
 
 ---
 
-**Last Updated**: November 2025
-**Next Review**: January 2026
+**Last Updated**: December 2025
+**Next Review**: March 2026
 
 ---
 
