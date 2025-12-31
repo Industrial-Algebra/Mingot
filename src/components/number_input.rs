@@ -12,6 +12,8 @@ pub enum NumberInputPrecision {
     I64,
     I128,
     Decimal(u32), // Fixed decimal places
+    #[cfg(feature = "high-precision")]
+    Arbitrary, // Arbitrary precision via rust_decimal
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
@@ -134,6 +136,22 @@ fn validate_decimal(input: &str, max_decimals: u32) -> Result<String, ParseError
     }
 }
 
+/// Validate arbitrary precision decimal using rust_decimal
+/// Supports up to 28-29 significant digits with exact decimal arithmetic
+#[cfg(feature = "high-precision")]
+fn validate_arbitrary(input: &str) -> Result<rust_decimal::Decimal, ParseError> {
+    use rust_decimal::Decimal;
+    use std::str::FromStr;
+
+    let cleaned = input.replace([',', '_'], "").trim().to_string();
+
+    if cleaned.is_empty() {
+        return Err(ParseError::InvalidFormat("Empty input".to_string()));
+    }
+
+    Decimal::from_str(&cleaned).map_err(|e| ParseError::InvalidFormat(e.to_string()))
+}
+
 // Formatting functions (for future use in Phase 2/3)
 #[allow(dead_code)]
 fn add_thousand_separators(input: &str, separator: char) -> String {
@@ -251,6 +269,16 @@ pub fn NumberInput(
     let precision = precision.unwrap_or_default();
 
     // Determine allow_negative and allow_decimal based on precision if not explicitly set
+    #[cfg(feature = "high-precision")]
+    let allow_negative = allow_negative
+        || matches!(
+            precision,
+            NumberInputPrecision::I64
+                | NumberInputPrecision::I128
+                | NumberInputPrecision::Decimal(_)
+                | NumberInputPrecision::Arbitrary
+        );
+    #[cfg(not(feature = "high-precision"))]
     let allow_negative = allow_negative
         || matches!(
             precision,
@@ -258,6 +286,14 @@ pub fn NumberInput(
                 | NumberInputPrecision::I128
                 | NumberInputPrecision::Decimal(_)
         );
+
+    #[cfg(feature = "high-precision")]
+    let allow_decimal = allow_decimal
+        || matches!(
+            precision,
+            NumberInputPrecision::Decimal(_) | NumberInputPrecision::Arbitrary
+        );
+    #[cfg(not(feature = "high-precision"))]
     let allow_decimal = allow_decimal || matches!(precision, NumberInputPrecision::Decimal(_));
 
     let number_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
@@ -286,6 +322,11 @@ pub fn NumberInput(
                 Ok(input)
             }
             NumberInputPrecision::Decimal(places) => validate_decimal(&input, places),
+            #[cfg(feature = "high-precision")]
+            NumberInputPrecision::Arbitrary => {
+                validate_arbitrary(&input)?;
+                Ok(input)
+            }
         }
     };
 
@@ -545,5 +586,93 @@ mod tests {
         assert!(!is_valid_char('.', "12.3", false, true, false)); // Already has decimal
         assert!(is_valid_char('e', "123", false, false, true));
         assert!(!is_valid_char('a', "123", false, false, false));
+    }
+}
+
+/// Tests for arbitrary precision support (requires high-precision feature)
+#[cfg(all(test, feature = "high-precision"))]
+mod arbitrary_precision_tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_arbitrary_success() {
+        // Standard decimal
+        let result = validate_arbitrary("123.456");
+        assert!(result.is_ok());
+
+        // High precision decimal (more than f64 can represent exactly)
+        let result = validate_arbitrary("123.456789012345678901234567");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_arbitrary_large_number() {
+        // Large number beyond f64 safe integer range
+        let result = validate_arbitrary("99999999999999999999999999.99");
+        assert!(result.is_ok());
+
+        // Verify the value is preserved correctly
+        let decimal = result.unwrap();
+        assert!(decimal
+            .to_string()
+            .starts_with("99999999999999999999999999"));
+    }
+
+    #[test]
+    fn test_validate_arbitrary_negative() {
+        let result = validate_arbitrary("-123.456");
+        assert!(result.is_ok());
+
+        let decimal = result.unwrap();
+        assert!(decimal.is_sign_negative());
+    }
+
+    #[test]
+    fn test_validate_arbitrary_invalid() {
+        let result = validate_arbitrary("not_a_number");
+        assert!(result.is_err());
+        assert!(matches!(result, Err(ParseError::InvalidFormat(_))));
+    }
+
+    #[test]
+    fn test_validate_arbitrary_empty() {
+        let result = validate_arbitrary("");
+        assert!(result.is_err());
+        assert!(matches!(result, Err(ParseError::InvalidFormat(_))));
+    }
+
+    #[test]
+    fn test_validate_arbitrary_with_separators() {
+        // Thousand separators should be stripped
+        let result = validate_arbitrary("1,234,567.89");
+        assert!(result.is_ok());
+
+        // Underscore separators should be stripped
+        let result = validate_arbitrary("1_234_567.89");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_arbitrary_scientific_notation() {
+        // Note: rust_decimal's FromStr doesn't support scientific notation by default
+        // Scientific notation requires the "maths" feature and from_scientific() method
+        // For now, verify that standard decimal notation works correctly
+        let result = validate_arbitrary("12300000000");
+        assert!(result.is_ok());
+
+        let result = validate_arbitrary("0.0000123");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_arbitrary_zero() {
+        let result = validate_arbitrary("0");
+        assert!(result.is_ok());
+
+        let result = validate_arbitrary("0.0");
+        assert!(result.is_ok());
+
+        let result = validate_arbitrary("-0");
+        assert!(result.is_ok());
     }
 }
