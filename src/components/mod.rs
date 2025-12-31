@@ -1,4 +1,5 @@
 // Core components
+pub mod action_icon;
 pub mod button;
 pub mod container;
 pub mod divider;
@@ -18,6 +19,7 @@ pub mod paper;
 
 // Navigation components
 pub mod breadcrumbs;
+pub mod burger;
 pub mod menu;
 pub mod navbar;
 pub mod tabs;
@@ -26,6 +28,7 @@ pub mod tabs;
 pub mod checkbox;
 pub mod input;
 pub mod number_input;
+pub mod password_input;
 pub mod radio;
 pub mod select;
 pub mod switch;
@@ -33,14 +36,17 @@ pub mod textarea;
 
 // Overlay components
 pub mod drawer;
+pub mod loading_overlay;
 pub mod modal;
 pub mod popover;
 pub mod tooltip;
 
 // Feedback components
 pub mod alert;
+pub mod loader;
 pub mod notification;
 pub mod progress;
+pub mod skeleton;
 
 // Data display components
 pub mod accordion;
@@ -55,12 +61,14 @@ pub mod error_page;
 
 // Re-exports for convenience
 pub use accordion::*;
+pub use action_icon::*;
 pub use alert::*;
 pub use appshell::*;
 pub use avatar::*;
 pub use badge::*;
 pub use banner::*;
 pub use breadcrumbs::*;
+pub use burger::*;
 pub use button::*;
 pub use card::*;
 pub use checkbox::*;
@@ -74,17 +82,21 @@ pub use group::*;
 pub use header::*;
 pub use hero::*;
 pub use input::*;
+pub use loader::*;
+pub use loading_overlay::*;
 pub use menu::*;
 pub use modal::*;
 pub use navbar::*;
 pub use notification::*;
 pub use number_input::*;
 pub use paper::*;
+pub use password_input::*;
 pub use popover::*;
 pub use progress::*;
 pub use radio::*;
 pub use ring_progress::*;
 pub use select::*;
+pub use skeleton::*;
 pub use stack::*;
 pub use stats::*;
 pub use switch::*;
