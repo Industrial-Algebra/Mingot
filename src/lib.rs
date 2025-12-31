@@ -2,7 +2,7 @@
 //!
 //! Mingot provides ultra-precision UI components for scientific computing, financial applications,
 //! and mathematical software. Built with first-class support for u64+ precision integers and
-//! arbitrary-precision arithmetic via Amari integration.
+//! arbitrary-precision decimals via rust_decimal integration.
 //!
 //! ## Why Mingot?
 //!
@@ -12,7 +12,7 @@
 //! - **NumberInput** supporting u64, u128, i64, i128, and arbitrary precision
 //! - **Zero precision loss** throughout the component lifecycle
 //! - **Type-safe validation** with detailed error types
-//! - **Amari integration** for advanced mathematical computing (optional)
+//! - **rust_decimal integration** for 128-bit arbitrary-precision decimals (optional)
 //!
 //! ## Precision Without Compromise
 //!
