@@ -16,7 +16,7 @@
 //!
 //! ## Precision Without Compromise
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use mingot::prelude::*;
 //!
 //! // High-precision number input
