@@ -17,5 +17,8 @@ fn main() {
         .and_then(|e| e.dyn_into::<web_sys::HtmlElement>().ok())
         .expect("should find #app element");
 
+    // Clear the loading message before mounting
+    app_element.set_inner_html("");
+
     leptos::mount::mount_to(app_element, app::App).forget();
 }
