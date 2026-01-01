@@ -12,10 +12,11 @@
   to = "/index.html"
   status = 200
 
-# Cache WASM files aggressively
+# WASM files - correct MIME type and caching
 [[headers]]
   for = "/*.wasm"
   [headers.values]
+    Content-Type = "application/wasm"
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
