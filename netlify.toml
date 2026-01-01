@@ -1,0 +1,24 @@
+[build]
+  base = "demo"
+  command = "curl -sSL https://raw.githubusercontent.com/trunk-rs/trunk/main/scripts/install.sh | sh && ~/.cargo/bin/trunk build --release"
+  publish = "dist"
+
+[build.environment]
+  RUSTUP_TOOLCHAIN = "stable"
+
+# SPA redirect - serve index.html for all routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache WASM files aggressively
+[[headers]]
+  for = "/*.wasm"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
