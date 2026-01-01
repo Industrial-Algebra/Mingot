@@ -191,110 +191,275 @@ Enhance NumberInput with professional-grade features for production applications
 
 ---
 
-## Phase 4: Domain-Specific Components
+## Phase 4: Scientific Input Components
 
 **Target**: Q2 2026
 **Version**: 0.5.0
 
 ### Objectives
 
-Build specialized precision components for common domains.
+Build specialized input components for scientific computing, inspired by [Jupyter Widgets](https://ipywidgets.readthedocs.io/), [Mathematica Manipulate](https://reference.wolfram.com/language/ref/Manipulate.html), and [PyQtGraph](https://www.pyqtgraph.org/).
 
-### Components
+### Core Scientific Inputs
+
+#### UnitInput
+```rust
+<UnitInput
+    value=signal
+    unit="m/s"
+    category=UnitCategory::Velocity
+    allow_conversion=true
+    on_change=Callback::new(|(value, unit): (Decimal, Unit)| { ... })
+/>
+```
+
+**Features**:
+- Integrated unit selection dropdown
+- Automatic unit conversion (SI, Imperial, CGS)
+- Engineering notation with SI prefixes (k, M, G, μ, n, p)
+- Dimensional analysis validation
+- Common unit categories: Length, Mass, Time, Temperature, Energy, etc.
+
+#### ComplexNumberInput
+```rust
+<ComplexNumberInput
+    precision=NumberInputPrecision::Decimal(10)
+    format=ComplexFormat::Rectangular  // or Polar, Euler
+    on_change=Callback::new(|z: Complex| { ... })
+/>
+```
+
+**Features**:
+- Rectangular (a + bi), Polar (r∠θ), Euler (re^iθ) forms
+- Toggle between representations
+- Argand diagram visualization option
+- Conjugate and modulus display
+- Phase angle in degrees or radians
+
+#### FractionInput
+```rust
+<FractionInput
+    allow_mixed=true
+    auto_simplify=true
+    precision=NumberInputPrecision::I128
+    on_change=Callback::new(|frac: Fraction| { ... })
+/>
+```
+
+**Features**:
+- Numerator/denominator entry
+- Mixed number support (2 ³⁄₄)
+- Automatic simplification
+- Exact rational arithmetic
+- Decimal conversion display
+
+#### UncertaintyInput
+```rust
+<UncertaintyInput
+    precision=NumberInputPrecision::Decimal(6)
+    format=UncertaintyFormat::PlusMinus  // or Parentheses, Percent
+    on_change=Callback::new(|(value, error): (Decimal, Decimal)| { ... })
+/>
+```
+
+**Features**:
+- Value ± uncertainty entry (scientific measurements)
+- Percentage uncertainty display
+- Significant figures handling
+- Error propagation preview
+- Confidence interval display
+
+#### IntervalInput
+```rust
+<IntervalInput
+    precision=NumberInputPrecision::Decimal(8)
+    bounds=IntervalBounds::Closed  // or Open, HalfOpen
+    on_change=Callback::new(|interval: Interval| { ... })
+/>
+```
+
+**Features**:
+- Min/max bounds with open/closed indicators
+- Mathematical notation display [a, b] or (a, b)
+- Intersection/union preview
+- Infinity support
+- Set notation mode
+
+---
+
+### Coordinate & Geometry Inputs
+
+#### CoordinateInput
+```rust
+<CoordinateInput
+    system=CoordinateSystem::Cartesian3D  // or Polar, Spherical, Cylindrical
+    precision=NumberInputPrecision::Decimal(10)
+    on_change=Callback::new(|coords: Coordinates| { ... })
+/>
+```
+
+**Features**:
+- 2D/3D Cartesian (x, y, z)
+- Polar (r, θ) / Cylindrical (r, θ, z) / Spherical (r, θ, φ)
+- Automatic conversion between systems
+- Angle units (degrees, radians, gradians)
+- Visual coordinate preview
+
+#### PointLocator (Mathematica-style)
+```rust
+<PointLocator
+    bounds=((-10.0, 10.0), (-10.0, 10.0))
+    precision=NumberInputPrecision::Decimal(4)
+    snap_to_grid=Some(0.5)
+    on_change=Callback::new(|point: (Decimal, Decimal)| { ... })
+/>
+```
+
+**Features**:
+- Drag-and-drop point positioning
+- Grid snapping with configurable precision
+- Multi-point selection mode
+- Crosshair cursor with coordinate display
+- Zoom and pan support
+
+---
+
+### Domain-Specific Components
 
 #### CurrencyInput
 ```rust
 <CurrencyInput
     currency="USD"
-    precision=CurrencyPrecision::Cents  // or Satoshis, Wei, etc.
+    precision=CurrencyPrecision::Cents  // or Satoshis, Wei
     show_symbol=true
-    allow_negative=true
-    on_value_change=Callback::new(|amount: Currency| { ... })
+    on_change=Callback::new(|amount: Currency| { ... })
 />
 ```
 
 **Features**:
-- Multi-currency support with exchange rates
-- Exact decimal arithmetic (no floating point)
-- Support for cryptocurrency micro-units
-- Automatic rounding rules per currency
-- Tax and tip calculations
+- Multi-currency with ISO 4217 codes
+- Cryptocurrency micro-units (Satoshis, Wei, Gwei)
+- Exact decimal arithmetic
+- Locale-aware formatting
+- Exchange rate integration ready
 
-#### ScientificInput
+#### ScientificNotationInput
 ```rust
-<ScientificInput
+<ScientificNotationInput
     mantissa_precision=NumberInputPrecision::Decimal(6)
     exponent_range=(-308, 308)
-    allow_subnormal=true
-    notation=ScientificNotation::Engineering
+    notation=ScientificNotation::Engineering  // exponents divisible by 3
+    on_change=Callback::new(|value: Scientific| { ... })
 />
 ```
 
 **Features**:
-- Separate mantissa and exponent validation
-- Engineering notation (exponents divisible by 3)
-- Subnormal/denormal number handling
-- Unit prefixes (k, M, G, etc.)
+- Separate mantissa × 10^exponent entry
+- Engineering notation (k, M, G prefixes)
+- Automatic normalization
+- Subnormal number handling
+- Copy as LaTeX or plain text
 
 #### DateTimeInput
 ```rust
 <DateTimeInput
     precision=TimePrecision::Nanoseconds
     timezone="UTC"
-    on_timestamp_change=Callback::new(|nanos: i128| { ... })
+    on_change=Callback::new(|dt: DateTime| { ... })
 />
 ```
 
 **Features**:
-- Nanosecond-precision timestamps
-- Timezone-aware with no precision loss
-- Leap second handling
-- High-frequency trading time accuracy
+- Nanosecond precision timestamps
+- Timezone-aware with DST handling
+- Leap second support
+- Julian/Modified Julian date conversion
+- ISO 8601 and Unix timestamp formats
 
-#### RangeInput
+#### AngleInput
 ```rust
-<RangeInput
-    precision=NumberInputPrecision::Decimal(8)
-    min="0"
-    max="1"
-    step="0.00000001"
-    show_exact_value=true
+<AngleInput
+    unit=AngleUnit::Degrees  // or Radians, Gradians, DMS
+    precision=NumberInputPrecision::Decimal(6)
+    wrap=true  // 360° wraps to 0°
+    on_change=Callback::new(|angle: Angle| { ... })
 />
 ```
 
 **Features**:
-- Slider with exact value display
-- Precision-preserving range selection
-- Logarithmic scales for wide ranges
-- Two-handle range selection
-
-#### CalculatorInput
-```rust
-<CalculatorInput
-    precision=NumberInputPrecision::Arbitrary
-    allow_expressions=true
-    on_result=Callback::new(|result: Number| { ... })
-/>
-```
-
-**Features**:
-- Expression evaluation (e.g., "1.5 * 2.3 + 4")
-- Arbitrary precision throughout calculation
-- Support for mathematical functions
-- Memory and history features
+- Degrees, radians, gradians, turns
+- Degrees-Minutes-Seconds (DMS) format
+- Visual angle arc preview
+- Normalization options (0-360° or -180°-180°)
+- Trigonometric function preview
 
 ---
 
-## Phase 5: Advanced Mathematics
+## Phase 5: Mathematical Expression & Data Entry
 
 **Target**: Q3-Q4 2026
 **Version**: 0.6.0
 
 ### Objectives
 
-Deep integration with Amari's advanced mathematical capabilities.
+Advanced mathematical input components inspired by [MathLive](https://cortexjs.io/mathlive/), [Mathematica](https://www.wolfram.com/language/core-areas/user-interfaces/), and scientific data tools.
 
-### Components
+### Equation & Formula Components
+
+#### EquationEditor
+```rust
+<EquationEditor
+    output_format=EquationFormat::LaTeX  // or MathML, AsciiMath
+    symbols=SymbolPalette::Mathematics
+    on_change=Callback::new(|latex: String| { ... })
+/>
+```
+
+**Features**:
+- Visual WYSIWYG math editing (like MathLive/MathQuill)
+- LaTeX, MathML, and AsciiMath output
+- Symbol palette with Greek letters, operators, relations
+- Fraction, exponent, root, integral entry
+- Keyboard shortcuts for common symbols
+- Live KaTeX/MathJax preview
+
+#### FormulaInput
+```rust
+<FormulaInput
+    allow_symbolic=true
+    precision=NumberInputPrecision::Arbitrary
+    variables=vec!["x", "y", "z"]
+    on_change=Callback::new(|expr: Expression| { ... })
+/>
+```
+
+**Features**:
+- Mathematical expression parser
+- Symbolic variable support
+- Function recognition (sin, cos, exp, ln, etc.)
+- Automatic differentiation preview (Amari integration)
+- Expression tree visualization
+- Evaluation with substitution
+
+#### SymbolPalette
+```rust
+<SymbolPalette
+    categories=vec![SymbolCategory::Greek, SymbolCategory::Operators]
+    on_select=Callback::new(|symbol: &str| { ... })
+/>
+```
+
+**Features**:
+- Greek letters (α, β, γ, δ, etc.)
+- Mathematical operators (∑, ∏, ∫, ∂, ∇)
+- Set theory (∈, ⊂, ∪, ∩, ∅)
+- Logic (∀, ∃, ∧, ∨, ¬, ⇒)
+- Arrows and relations (→, ↔, ≤, ≥, ≠, ≈)
+- Searchable symbol picker
+
+---
+
+### Matrix & Linear Algebra Components
 
 #### MatrixInput
 ```rust
@@ -302,61 +467,112 @@ Deep integration with Amari's advanced mathematical capabilities.
     rows=3
     cols=3
     precision=NumberInputPrecision::Arbitrary
-    on_matrix_change=Callback::new(|matrix: Matrix<Number>| { ... })
+    show_operations=true
+    on_change=Callback::new(|matrix: Matrix| { ... })
 />
 ```
 
 **Features**:
-- Precision matrix entry with keyboard navigation
-- Matrix operations preview (determinant, inverse, etc.)
+- Spreadsheet-style matrix entry
+- Keyboard navigation (Tab, Arrow keys)
+- Row/column resize and insert
+- Matrix operations preview (det, tr, rank, inverse)
 - LaTeX display mode
-- Copy/paste from MATLAB, NumPy, etc.
+- Import/export MATLAB, NumPy, Mathematica formats
 
-#### VectorInput (Geometric Algebra)
+#### VectorInput
 ```rust
 <VectorInput
     dimensions=3
-    algebra=GeometricAlgebra::Euclidean3D
-    on_vector_change=Callback::new(|vec: MultiVector| { ... })
+    notation=VectorNotation::Column  // or Row, Geometric
+    precision=NumberInputPrecision::Decimal(10)
+    on_change=Callback::new(|vec: Vector| { ... })
 />
 ```
 
 **Features**:
-- Geometric algebra multivector input
-- Blade visualization
-- Wedge/dot product preview
-- Integration with Amari's geometric algebra
+- Row/column vector entry
+- Geometric algebra multivector support (Amari)
+- Magnitude and direction display
+- Dot/cross product preview
+- Unit vector normalization
+- Basis vector decomposition
 
-#### GraphInput
+#### TensorInput
 ```rust
-<GraphInput
-    coordinate_system=CoordinateSystem::Cartesian
-    x_precision=NumberInputPrecision::Decimal(10)
-    y_precision=NumberInputPrecision::Decimal(10)
-    snap_to_grid=false
+<TensorInput
+    shape=vec![2, 3, 4]
+    precision=NumberInputPrecision::Decimal(8)
+    on_change=Callback::new(|tensor: Tensor| { ... })
 />
 ```
 
 **Features**:
-- Precision coordinate input
-- Grid snapping with configurable precision
-- Polar/cylindrical/spherical coordinates
-- Function plotting with exact points
+- Multi-dimensional array entry
+- Slice and index selection
+- Einstein notation support
+- Contraction preview
+- Shape manipulation (reshape, transpose)
 
-#### FormulaInput
+---
+
+### Parameter Manipulation (Mathematica-style)
+
+#### ParameterSlider
 ```rust
-<FormulaInput
-    allow_symbolic=true
-    precision=NumberInputPrecision::Arbitrary
-    on_expression_change=Callback::new(|expr: Expression| { ... })
+<ParameterSlider
+    min="-10"
+    max="10"
+    step="0.01"
+    precision=NumberInputPrecision::Decimal(4)
+    show_value=true
+    on_change=Callback::new(|value: Decimal| { ... })
 />
 ```
 
 **Features**:
-- Mathematical expression editor
-- Symbolic mathematics support
-- Automatic differentiation preview
-- Integration with Amari's AD capabilities
+- High-precision slider with exact values
+- Logarithmic scale option
+- Keyboard fine-tuning
+- Value input alongside slider
+- Animation/autoplay mode
+- Modifier keys for step multipliers
+
+#### ParameterGrid
+```rust
+<ParameterGrid
+    parameters=vec![
+        ("amplitude", 0.0..10.0, 0.1),
+        ("frequency", 0.1..100.0, 0.1),
+        ("phase", 0.0..TAU, 0.01),
+    ]
+    on_change=Callback::new(|params: HashMap<String, Decimal>| { ... })
+/>
+```
+
+**Features**:
+- Multiple parameter sliders in grid
+- Linked parameter updates
+- Preset save/load
+- Reset to defaults
+- Parameter grouping/collapsing
+- Mathematica Manipulate-style layout
+
+#### ParameterTree (PyQtGraph-style)
+```rust
+<ParameterTree
+    schema=parameter_schema
+    on_change=Callback::new(|path: &str, value: Value| { ... })
+/>
+```
+
+**Features**:
+- Hierarchical parameter editing
+- Type-aware editors (number, bool, color, enum)
+- Expand/collapse groups
+- Search/filter parameters
+- Save/load configurations
+- Undo/redo support
 
 ---
 
