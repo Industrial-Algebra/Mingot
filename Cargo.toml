@@ -1,3 +1,7 @@
+[workspace]
+members = [".", "demo"]
+resolver = "2"
+
 [package]
 name = "mingot"
 version = "0.3.0"
