@@ -3,6 +3,7 @@ use leptos_router::components::{Route, Router, Routes};
 use leptos_router::path;
 use mingot::prelude::*;
 
+use crate::components::ThemeVars;
 use crate::layout::DocsLayout;
 use crate::pages::{ComponentPage, GettingStartedPage, HomePage, NotFoundPage};
 
@@ -10,6 +11,7 @@ use crate::pages::{ComponentPage, GettingStartedPage, HomePage, NotFoundPage};
 pub fn App() -> impl IntoView {
     view! {
         <MingotProvider>
+            <ThemeVars />
             <Router>
                 <DocsLayout>
                     <Routes fallback=NotFoundPage>

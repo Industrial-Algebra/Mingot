@@ -29,7 +29,7 @@ pub fn Header() -> impl IntoView {
                         "Mingot"
                     </span>
                     <span style="font-size: 0.75rem; padding: 0.125rem 0.5rem; background: #228be6; color: white; border-radius: 0.25rem;">
-                        "v0.3.0"
+                        "v0.4.0"
                     </span>
                 </a>
 

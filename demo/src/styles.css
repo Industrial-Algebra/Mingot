@@ -4,6 +4,24 @@
     --sidebar-width: 280px;
     --header-height: 60px;
     --content-max-width: 900px;
+
+    /* Default light theme values (will be overridden by ThemeVars) */
+    --background: #ffffff;
+    --text-color: #000000;
+    --border-color: #dee2e6;
+    --surface: #f8f9fa;
+    --surface-1: #f1f3f5;
+    --surface-2: #e9ecef;
+    --text-dimmed: #868e96;
+    --hover-bg: #f1f3f5;
+    --primary: #228be6;
+    --primary-light: #e7f5ff;
+    --success: #40c057;
+    --success-light: #d3f9d8;
+    --error: #fa5252;
+    --warning: #fab005;
+    --code-bg: #1e1e1e;
+    --code-inline-bg: #f1f3f5;
 }
 
 /* Reset and base */
@@ -15,6 +33,9 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    background-color: var(--background);
+    color: var(--text-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Layout */
@@ -30,15 +51,19 @@ body {
     top: 0;
     left: 0;
     overflow-y: auto;
-    border-right: 1px solid var(--border-color, #e9ecef);
+    border-right: 1px solid var(--border-color);
     padding: 1rem;
     padding-top: calc(var(--header-height) + 1rem);
+    background-color: var(--background);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .docs-main {
     flex: 1;
     margin-left: var(--sidebar-width);
     padding-top: var(--header-height);
+    background-color: var(--background);
+    transition: background-color 0.2s ease;
 }
 
 .docs-header {
@@ -48,7 +73,9 @@ body {
     right: 0;
     height: var(--header-height);
     z-index: 100;
-    border-bottom: 1px solid var(--border-color, #e9ecef);
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--background);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .docs-content {
@@ -67,9 +94,10 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-dimmed, #868e96);
+    color: var(--text-dimmed);
     margin-bottom: 0.5rem;
     padding: 0 0.5rem;
+    transition: color 0.2s ease;
 }
 
 .nav-link {
@@ -79,27 +107,28 @@ body {
     padding: 0.5rem;
     border-radius: 0.25rem;
     text-decoration: none;
-    color: var(--text-color, #212529);
+    color: var(--text-color);
     font-size: 0.875rem;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .nav-link:hover {
-    background-color: var(--hover-bg, #f1f3f5);
+    background-color: var(--hover-bg);
 }
 
 .nav-link.active {
-    background-color: var(--primary-light, #e7f5ff);
-    color: var(--primary, #228be6);
+    background-color: var(--primary-light);
+    color: var(--primary);
     font-weight: 500;
 }
 
 /* Demo block */
 .demo-block {
-    border: 1px solid var(--border-color, #e9ecef);
+    border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     overflow: hidden;
     margin: 1.5rem 0;
+    transition: border-color 0.2s ease;
 }
 
 .demo-preview {
@@ -108,17 +137,20 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 120px;
-    background-color: var(--surface, #ffffff);
+    background-color: var(--surface);
+    transition: background-color 0.2s ease;
 }
 
 .demo-controls {
     padding: 1rem;
-    background-color: var(--surface-1, #f8f9fa);
-    border-top: 1px solid var(--border-color, #e9ecef);
+    background-color: var(--surface-1);
+    border-top: 1px solid var(--border-color);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .demo-code-section {
-    border-top: 1px solid var(--border-color, #e9ecef);
+    border-top: 1px solid var(--border-color);
+    transition: border-color 0.2s ease;
 }
 
 .demo-code-header {
@@ -126,14 +158,15 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 1rem;
-    background-color: var(--surface-1, #f8f9fa);
+    background-color: var(--surface-1);
+    transition: background-color 0.2s ease;
 }
 
 .demo-code-content {
     margin: 0;
     padding: 1rem;
     overflow-x: auto;
-    background-color: var(--code-bg, #1e1e1e);
+    background-color: var(--code-bg);
 }
 
 .demo-code-content code {
@@ -154,20 +187,23 @@ body {
 .props-table td {
     padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid var(--border-color, #e9ecef);
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.2s ease;
 }
 
 .props-table th {
     font-weight: 600;
-    background-color: var(--surface-1, #f8f9fa);
+    background-color: var(--surface-1);
+    transition: background-color 0.2s ease;
 }
 
 .props-table code {
     font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
     font-size: 0.8125rem;
     padding: 0.125rem 0.375rem;
-    background-color: var(--code-inline-bg, #f1f3f5);
+    background-color: var(--code-inline-bg);
     border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
 }
 
 /* Responsive */
@@ -201,8 +237,9 @@ pre code.hljs {
     font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
     font-size: 0.875em;
     padding: 0.125rem 0.375rem;
-    background-color: var(--code-inline-bg, #f1f3f5);
+    background-color: var(--code-inline-bg);
     border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
 }
 
 /* Page title */
@@ -211,8 +248,9 @@ pre code.hljs {
 }
 
 .page-description {
-    color: var(--text-dimmed, #868e96);
+    color: var(--text-dimmed);
     margin-bottom: 2rem;
+    transition: color 0.2s ease;
 }
 
 /* Section headings */
@@ -220,7 +258,8 @@ pre code.hljs {
     margin-top: 2.5rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color, #e9ecef);
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.2s ease;
 }
 
 /* Import statement */
@@ -236,19 +275,19 @@ pre code.hljs {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     cursor: pointer;
-    border: 1px solid var(--border-color, #e9ecef);
+    border: 1px solid var(--border-color);
     border-radius: 0.25rem;
-    background: var(--surface, #ffffff);
-    color: var(--text-color, #212529);
+    background: var(--surface);
+    color: var(--text-color);
     transition: all 0.15s ease;
 }
 
 .copy-button:hover {
-    background: var(--surface-1, #f8f9fa);
+    background: var(--surface-1);
 }
 
 .copy-button.copied {
-    background: var(--success-light, #d3f9d8);
-    border-color: var(--success, #40c057);
-    color: var(--success, #40c057);
+    background: var(--success-light);
+    border-color: var(--success);
+    color: var(--success);
 }

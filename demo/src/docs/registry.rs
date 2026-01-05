@@ -25,12 +25,55 @@ pub struct ComponentDoc {
 /// Get component documentation by slug
 pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
     match slug {
+        // Core
         "button" => Some(button_doc()),
-        "number-input" => Some(number_input_doc()),
-        "input" => Some(input_doc()),
+        "action-icon" => Some(action_icon_doc()),
+        "divider" => Some(divider_doc()),
+        "group" => Some(group_doc()),
         "text" => Some(text_doc()),
         "stack" => Some(stack_doc()),
         "container" => Some(container_doc()),
+        // Layout
+        "app-shell" => Some(app_shell_doc()),
+        "card" => Some(card_doc()),
+        "grid" => Some(grid_doc()),
+        "header" => Some(header_doc()),
+        "paper" => Some(paper_doc()),
+        // Navigation
+        "breadcrumbs" => Some(breadcrumbs_doc()),
+        "burger" => Some(burger_doc()),
+        "navbar" => Some(navbar_doc()),
+        "tabs" => Some(tabs_doc()),
+        // Form
+        "input" => Some(input_doc()),
+        "number-input" => Some(number_input_doc()),
+        "checkbox" => Some(checkbox_doc()),
+        "password-input" => Some(password_input_doc()),
+        "radio" => Some(radio_doc()),
+        "select" => Some(select_doc()),
+        "switch" => Some(switch_doc()),
+        "textarea" => Some(textarea_doc()),
+        // Overlay
+        "drawer" => Some(drawer_doc()),
+        "loading-overlay" => Some(loading_overlay_doc()),
+        "modal" => Some(modal_doc()),
+        "popover" => Some(popover_doc()),
+        "tooltip" => Some(tooltip_doc()),
+        // Feedback
+        "alert" => Some(alert_doc()),
+        "loader" => Some(loader_doc()),
+        "notification" => Some(notification_doc()),
+        "progress" => Some(progress_doc()),
+        "skeleton" => Some(skeleton_doc()),
+        // Data Display
+        "accordion" => Some(accordion_doc()),
+        "avatar" => Some(avatar_doc()),
+        "badge" => Some(badge_doc()),
+        "ring-progress" => Some(ring_progress_doc()),
+        "stats" => Some(stats_doc()),
+        "table" => Some(table_doc()),
+        // Misc
+        "error-page" => Some(error_page_doc()),
         _ => None,
     }
 }
@@ -479,6 +522,2012 @@ fn container_doc() -> ComponentDoc {
                     </div>
                 </DemoBlock>
             }.into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Core Components
+// ============================================================================
+
+fn action_icon_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "ActionIcon",
+        import_name: "ActionIcon, ActionIconVariant, ActionIconSize",
+        description:
+            "An icon-only button component for actions like close, settings, or menu toggles.",
+        props: vec![
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<ActionIconVariant>",
+                default: Some("Filled"),
+                description: "Visual style: Filled, Outline, Light, Subtle, or Transparent",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<ActionIconSize>",
+                default: Some("Md"),
+                description: "Size: Xs, Sm, Md, Lg, or Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "color",
+                prop_type: "Option<String>",
+                default: Some("\"blue\""),
+                description: "Theme color for the button",
+                required: false,
+            },
+            PropDoc {
+                name: "on_click",
+                prop_type: "Option<Callback<MouseEvent>>",
+                default: None,
+                description: "Click handler",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Icon content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Variants">
+                    <Group spacing="md">
+                        <ActionIcon variant=ActionIconVariant::Filled>"✓"</ActionIcon>
+                        <ActionIcon variant=ActionIconVariant::Outline>"✓"</ActionIcon>
+                        <ActionIcon variant=ActionIconVariant::Light>"✓"</ActionIcon>
+                        <ActionIcon variant=ActionIconVariant::Subtle>"✓"</ActionIcon>
+                    </Group>
+                </DemoBlock>
+                <DemoBlock title="Sizes">
+                    <Group spacing="md" align=GroupAlign::Center>
+                        <ActionIcon size=ActionIconSize::Xs>"×"</ActionIcon>
+                        <ActionIcon size=ActionIconSize::Sm>"×"</ActionIcon>
+                        <ActionIcon size=ActionIconSize::Md>"×"</ActionIcon>
+                        <ActionIcon size=ActionIconSize::Lg>"×"</ActionIcon>
+                        <ActionIcon size=ActionIconSize::Xl>"×"</ActionIcon>
+                    </Group>
+                </DemoBlock>
+                <DemoBlock title="Colors">
+                    <Group spacing="md">
+                        <ActionIcon color="blue">"★"</ActionIcon>
+                        <ActionIcon color="red">"★"</ActionIcon>
+                        <ActionIcon color="green">"★"</ActionIcon>
+                        <ActionIcon color="orange">"★"</ActionIcon>
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn divider_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Divider",
+        import_name: "Divider, DividerOrientation, DividerVariant, DividerLabelPosition",
+        description: "A horizontal or vertical line to separate content sections.",
+        props: vec![
+            PropDoc {
+                name: "orientation",
+                prop_type: "Option<DividerOrientation>",
+                default: Some("Horizontal"),
+                description: "Orientation: Horizontal or Vertical",
+                required: false,
+            },
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<DividerVariant>",
+                default: Some("Solid"),
+                description: "Line style: Solid, Dashed, or Dotted",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Optional label text (horizontal only)",
+                required: false,
+            },
+            PropDoc {
+                name: "label_position",
+                prop_type: "Option<DividerLabelPosition>",
+                default: Some("Center"),
+                description: "Label position: Left, Center, or Right",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Basic Divider">
+                    <div style="width: 100%;">
+                        <Text>"Content above"</Text>
+                        <Divider />
+                        <Text>"Content below"</Text>
+                    </div>
+                </DemoBlock>
+                <DemoBlock title="With Label">
+                    <div style="width: 100%;">
+                        <Divider label="OR" />
+                        <Divider label="Section" label_position=DividerLabelPosition::Left />
+                    </div>
+                </DemoBlock>
+                <DemoBlock title="Variants">
+                    <div style="width: 100%;">
+                        <Divider variant=DividerVariant::Solid />
+                        <Divider variant=DividerVariant::Dashed />
+                        <Divider variant=DividerVariant::Dotted />
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn group_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Group",
+        import_name: "Group, GroupAlign, GroupJustify",
+        description: "A horizontal layout component that groups children with consistent spacing.",
+        props: vec![
+            PropDoc {
+                name: "spacing",
+                prop_type: "Option<String>",
+                default: Some("\"md\""),
+                description: "Gap between items",
+                required: false,
+            },
+            PropDoc {
+                name: "align",
+                prop_type: "Option<GroupAlign>",
+                default: Some("Center"),
+                description: "Vertical alignment: Start, Center, End, Baseline",
+                required: false,
+            },
+            PropDoc {
+                name: "justify",
+                prop_type: "Option<GroupJustify>",
+                default: Some("Start"),
+                description:
+                    "Horizontal distribution: Start, Center, End, SpaceBetween, SpaceAround",
+                required: false,
+            },
+            PropDoc {
+                name: "wrap",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether items should wrap to next line",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Group content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Basic Group">
+                    <Group spacing="md">
+                        <Button>"One"</Button>
+                        <Button>"Two"</Button>
+                        <Button>"Three"</Button>
+                    </Group>
+                </DemoBlock>
+                <DemoBlock title="Justify">
+                    <div style="width: 100%;">
+                        <Group justify=GroupJustify::SpaceBetween>
+                            <Button>"Left"</Button>
+                            <Button>"Right"</Button>
+                        </Group>
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Layout Components
+// ============================================================================
+
+fn app_shell_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "AppShell",
+        import_name: "AppShell",
+        description: "A layout component for building application shells with header, navbar, and main content areas.",
+        props: vec![
+            PropDoc {
+                name: "header",
+                prop_type: "Option<Children>",
+                default: None,
+                description: "Header content",
+                required: false,
+            },
+            PropDoc {
+                name: "navbar",
+                prop_type: "Option<Children>",
+                default: None,
+                description: "Navbar/sidebar content",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Main content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="AppShell Structure">
+                    <div style="border: 1px solid #dee2e6; border-radius: 0.25rem; overflow: hidden; height: 200px;">
+                        <div style="background: #228be6; color: white; padding: 0.5rem 1rem; font-weight: 500;">"Header"</div>
+                        <div style="display: flex; height: calc(100% - 40px);">
+                            <div style="width: 200px; background: #f1f3f5; padding: 1rem; border-right: 1px solid #dee2e6;">"Navbar"</div>
+                            <div style="flex: 1; padding: 1rem;">"Main Content"</div>
+                        </div>
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn card_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Card",
+        import_name: "Card",
+        description: "A container component with a border, background, and optional shadow.",
+        props: vec![
+            PropDoc {
+                name: "shadow",
+                prop_type: "Option<String>",
+                default: Some("\"sm\""),
+                description: "Shadow size: xs, sm, md, lg, xl",
+                required: false,
+            },
+            PropDoc {
+                name: "padding",
+                prop_type: "Option<String>",
+                default: Some("\"md\""),
+                description: "Internal padding",
+                required: false,
+            },
+            PropDoc {
+                name: "radius",
+                prop_type: "Option<String>",
+                default: Some("\"sm\""),
+                description: "Border radius",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Card content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Basic Card">
+                    <Card>
+                        <Text weight=TextWeight::Bold>"Card Title"</Text>
+                        <Text size=TextSize::Sm color="dimmed">"Card content goes here."</Text>
+                    </Card>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn grid_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Grid",
+        import_name: "Grid, GridCol",
+        description: "A responsive grid layout component based on CSS Grid.",
+        props: vec![
+            PropDoc {
+                name: "columns",
+                prop_type: "Option<u32>",
+                default: Some("12"),
+                description: "Number of columns",
+                required: false,
+            },
+            PropDoc {
+                name: "gutter",
+                prop_type: "Option<String>",
+                default: Some("\"md\""),
+                description: "Gap between grid items",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Grid content (GridCol components)",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Grid Layout">
+                    <Grid>
+                        <GridCol span=6>
+                            <div style="background: #e7f5ff; padding: 1rem; text-align: center;">"span=6"</div>
+                        </GridCol>
+                        <GridCol span=6>
+                            <div style="background: #d0ebff; padding: 1rem; text-align: center;">"span=6"</div>
+                        </GridCol>
+                        <GridCol span=4>
+                            <div style="background: #a5d8ff; padding: 1rem; text-align: center;">"span=4"</div>
+                        </GridCol>
+                        <GridCol span=4>
+                            <div style="background: #74c0fc; padding: 1rem; text-align: center;">"span=4"</div>
+                        </GridCol>
+                        <GridCol span=4>
+                            <div style="background: #4dabf7; padding: 1rem; text-align: center;">"span=4"</div>
+                        </GridCol>
+                    </Grid>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn header_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Header",
+        import_name: "Header",
+        description: "A fixed or static header component for application layouts.",
+        props: vec![
+            PropDoc {
+                name: "height",
+                prop_type: "Option<String>",
+                default: Some("\"60px\""),
+                description: "Header height",
+                required: false,
+            },
+            PropDoc {
+                name: "fixed",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether header is fixed to top",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Header content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Header Example">
+                    <div style="border: 1px solid #dee2e6; border-radius: 0.25rem;">
+                        <Header>
+                            <Group justify=GroupJustify::SpaceBetween style="padding: 0 1rem; height: 100%;">
+                                <Text weight=TextWeight::Bold>"Logo"</Text>
+                                <Group spacing="md">
+                                    <Text>"Home"</Text>
+                                    <Text>"About"</Text>
+                                    <Text>"Contact"</Text>
+                                </Group>
+                            </Group>
+                        </Header>
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn paper_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Paper",
+        import_name: "Paper",
+        description:
+            "A container with a background color and optional shadow, useful for elevated surfaces.",
+        props: vec![
+            PropDoc {
+                name: "shadow",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Shadow size: xs, sm, md, lg, xl",
+                required: false,
+            },
+            PropDoc {
+                name: "padding",
+                prop_type: "Option<String>",
+                default: Some("\"md\""),
+                description: "Internal padding",
+                required: false,
+            },
+            PropDoc {
+                name: "radius",
+                prop_type: "Option<String>",
+                default: Some("\"sm\""),
+                description: "Border radius",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Paper content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Paper with Shadow">
+                    <Group spacing="lg">
+                        <Paper shadow="xs" padding="md">"xs shadow"</Paper>
+                        <Paper shadow="md" padding="md">"md shadow"</Paper>
+                        <Paper shadow="xl" padding="md">"xl shadow"</Paper>
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Navigation Components
+// ============================================================================
+
+fn breadcrumbs_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Breadcrumbs",
+        import_name: "Breadcrumbs, BreadcrumbItem",
+        description: "Navigation breadcrumbs showing the current page location.",
+        props: vec![
+            PropDoc {
+                name: "items",
+                prop_type: "Vec<BreadcrumbItem>",
+                default: None,
+                description: "Vector of breadcrumb items",
+                required: true,
+            },
+            PropDoc {
+                name: "separator",
+                prop_type: "Option<String>",
+                default: Some("\"/\""),
+                description: "Character or string used as separator",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Breadcrumbs" code=r#"<Breadcrumbs items=vec![
+    BreadcrumbItem::new("Home").href("/"),
+    BreadcrumbItem::new("Docs").href("/docs"),
+    BreadcrumbItem::new("Current Page"),
+] />"#>
+                    <Breadcrumbs items=vec![
+                        BreadcrumbItem::new("Home").href("/"),
+                        BreadcrumbItem::new("Docs").href("/docs"),
+                        BreadcrumbItem::new("Current Page"),
+                    ] />
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn burger_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Burger",
+        import_name: "Burger, BurgerSize",
+        description: "A hamburger menu button with animated open/close state.",
+        props: vec![
+            PropDoc {
+                name: "opened",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the burger is in open state",
+                required: true,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<BurgerSize>",
+                default: Some("Md"),
+                description: "Size: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "on_click",
+                prop_type: "Option<Callback<MouseEvent>>",
+                default: None,
+                description: "Click handler",
+                required: false,
+            },
+        ],
+        demo: || {
+            let opened = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Burger Menu">
+                    <Group spacing="lg">
+                        <Burger
+                            opened=opened
+                            on_click=Callback::new(move |_| opened.update(|o| *o = !*o))
+                        />
+                        <Text>{move || if opened.get() { "Open" } else { "Closed" }}</Text>
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn navbar_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Navbar",
+        import_name: "Navbar, NavbarLink, NavbarBrand, NavbarOrientation, NavbarVariant",
+        description: "A navigation component with horizontal or vertical orientation.",
+        props: vec![
+            PropDoc {
+                name: "orientation",
+                prop_type: "Option<NavbarOrientation>",
+                default: Some("Horizontal"),
+                description: "Layout direction: Horizontal or Vertical",
+                required: false,
+            },
+            PropDoc {
+                name: "spacing",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Gap between items",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Navbar content (NavbarLink, NavbarBrand)",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Navbar" code=r#"<Navbar orientation=NavbarOrientation::Vertical>
+    <NavbarBrand>"Brand"</NavbarBrand>
+    <NavbarLink href="/" active=true>"Home"</NavbarLink>
+    <NavbarLink href="/about">"About"</NavbarLink>
+</Navbar>"#>
+                    <div style="border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem;">
+                        <Navbar orientation=NavbarOrientation::Vertical>
+                            <NavbarBrand>"Navigation"</NavbarBrand>
+                            <NavbarLink href="#" active=true>"Dashboard"</NavbarLink>
+                            <NavbarLink href="#">"Settings"</NavbarLink>
+                            <NavbarLink href="#">"Profile"</NavbarLink>
+                        </Navbar>
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn tabs_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Tabs",
+        import_name: "Tabs, TabsList, TabsTab, TabsPanel",
+        description: "Tabbed interface for organizing content into sections.",
+        props: vec![
+            PropDoc {
+                name: "active",
+                prop_type: "RwSignal<String>",
+                default: None,
+                description: "Signal controlling the active tab value",
+                required: true,
+            },
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<TabsVariant>",
+                default: Some("Default"),
+                description: "Visual style: Default, Outline, Pills",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "TabsList and TabsPanel components",
+                required: true,
+            },
+        ],
+        demo: || {
+            let active = RwSignal::new("first".to_string());
+            view! {
+                <DemoBlock title="Tabs" code=r#"let active = RwSignal::new("first".to_string());
+<Tabs active=active>
+    <TabsList>
+        <TabsTab value="first">"First"</TabsTab>
+        <TabsTab value="second">"Second"</TabsTab>
+    </TabsList>
+    <TabsPanel value="first">"First content"</TabsPanel>
+    <TabsPanel value="second">"Second content"</TabsPanel>
+</Tabs>"#>
+                    <Tabs active=active>
+                        <TabsList>
+                            <TabsTab value="first">"First"</TabsTab>
+                            <TabsTab value="second">"Second"</TabsTab>
+                            <TabsTab value="third">"Third"</TabsTab>
+                        </TabsList>
+                        <TabsPanel value="first">
+                            <Text>"First tab content"</Text>
+                        </TabsPanel>
+                        <TabsPanel value="second">
+                            <Text>"Second tab content"</Text>
+                        </TabsPanel>
+                        <TabsPanel value="third">
+                            <Text>"Third tab content"</Text>
+                        </TabsPanel>
+                    </Tabs>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Form Components
+// ============================================================================
+
+fn checkbox_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Checkbox",
+        import_name: "Checkbox",
+        description: "A checkbox input component with label support.",
+        props: vec![
+            PropDoc {
+                name: "checked",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the checkbox is checked",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<bool>>",
+                default: None,
+                description: "Change handler",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "Signal<bool>",
+                default: Some("false"),
+                description: "Whether the checkbox is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            let checked = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Checkbox">
+                    <Stack spacing="md">
+                        <Checkbox
+                            checked=checked
+                            label="Accept terms and conditions"
+                            on_change=Callback::new(move |v| checked.set(v))
+                        />
+                        <Text size=TextSize::Sm color="dimmed">
+                            {move || if checked.get() { "Checked" } else { "Unchecked" }}
+                        </Text>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn password_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "PasswordInput",
+        import_name: "PasswordInput",
+        description: "A password input with visibility toggle.",
+        props: vec![
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "placeholder",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Placeholder text",
+                required: false,
+            },
+            PropDoc {
+                name: "on_input",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Input handler",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "Signal<bool>",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Password Input">
+                    <div style="max-width: 300px;">
+                        <PasswordInput label="Password" placeholder="Enter your password" />
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn radio_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Radio",
+        import_name: "Radio, RadioGroup",
+        description: "Radio button inputs for selecting one option from a group.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "String",
+                default: None,
+                description: "Value of this radio option",
+                required: true,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Callback when radio is selected",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether the radio is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            let selected = RwSignal::new("option1".to_string());
+            view! {
+                <DemoBlock title="Radio Group" code=r#"<RadioGroup label="Select an option">
+    <Radio value="option1" label="Option 1" />
+    <Radio value="option2" label="Option 2" />
+</RadioGroup>"#>
+                    <RadioGroup label="Select an option">
+                        <Stack spacing="sm">
+                            <Radio value="option1" label="Option 1" on_change=Callback::new(move |v| selected.set(v)) />
+                            <Radio value="option2" label="Option 2" on_change=Callback::new(move |v| selected.set(v)) />
+                            <Radio value="option3" label="Option 3" on_change=Callback::new(move |v| selected.set(v)) />
+                        </Stack>
+                    </RadioGroup>
+                    <Text size=TextSize::Sm color="dimmed" style="margin-top: 0.5rem;">
+                        "Selected: " {move || selected.get()}
+                    </Text>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn select_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Select",
+        import_name: "Select, SelectOption",
+        description: "A dropdown select input component.",
+        props: vec![
+            PropDoc {
+                name: "options",
+                prop_type: "Vec<SelectOption>",
+                default: None,
+                description: "Vector of select options",
+                required: true,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "placeholder",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Placeholder text",
+                required: false,
+            },
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<String>>",
+                default: None,
+                description: "Currently selected value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Change handler",
+                required: false,
+            },
+        ],
+        demo: || {
+            let value = RwSignal::new(String::new());
+            view! {
+                <DemoBlock title="Select" code=r#"<Select
+    label="Choose a framework"
+    placeholder="Select one"
+    options=vec![
+        SelectOption::new("leptos", "Leptos"),
+        SelectOption::new("yew", "Yew"),
+        SelectOption::new("dioxus", "Dioxus"),
+    ]
+/>"#>
+                    <div style="max-width: 300px;">
+                        <Select
+                            label="Choose a framework"
+                            placeholder="Select one"
+                            value=value
+                            options=vec![
+                                SelectOption::new("leptos", "Leptos"),
+                                SelectOption::new("yew", "Yew"),
+                                SelectOption::new("dioxus", "Dioxus"),
+                            ]
+                            on_change=Callback::new(move |v| value.set(v))
+                        />
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn switch_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Switch",
+        import_name: "Switch",
+        description: "A toggle switch component for boolean values.",
+        props: vec![
+            PropDoc {
+                name: "checked",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the switch is on",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<bool>>",
+                default: None,
+                description: "Change handler",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "Signal<bool>",
+                default: Some("false"),
+                description: "Whether the switch is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            let checked = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Switch">
+                    <Switch
+                        checked=checked
+                        label="Enable notifications"
+                        on_change=Callback::new(move |v| checked.set(v))
+                    />
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn textarea_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Textarea",
+        import_name: "Textarea",
+        description: "A multi-line text input component.",
+        props: vec![
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "placeholder",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Placeholder text",
+                required: false,
+            },
+            PropDoc {
+                name: "rows",
+                prop_type: "Option<u32>",
+                default: Some("4"),
+                description: "Number of visible rows",
+                required: false,
+            },
+            PropDoc {
+                name: "on_input",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Input handler",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Textarea">
+                    <div style="max-width: 400px;">
+                        <Textarea label="Message" placeholder="Enter your message..." rows=4 />
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Overlay Components
+// ============================================================================
+
+fn drawer_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Drawer",
+        import_name: "Drawer, DrawerPosition",
+        description: "A sliding panel that appears from the edge of the screen.",
+        props: vec![
+            PropDoc {
+                name: "opened",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the drawer is open",
+                required: true,
+            },
+            PropDoc {
+                name: "position",
+                prop_type: "Option<DrawerPosition>",
+                default: Some("Left"),
+                description: "Position: Left, Right, Top, Bottom",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<String>",
+                default: Some("\"300px\""),
+                description: "Width (left/right) or height (top/bottom)",
+                required: false,
+            },
+            PropDoc {
+                name: "on_close",
+                prop_type: "Option<Callback<()>>",
+                default: None,
+                description: "Called when drawer should close",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Drawer content",
+                required: true,
+            },
+        ],
+        demo: || {
+            let opened = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Drawer">
+                    <Button on_click=Callback::new(move |_| opened.set(true))>
+                        "Open Drawer"
+                    </Button>
+                    <Drawer opened=opened on_close=Callback::new(move |_| opened.set(false))>
+                        <Stack spacing="md" style="padding: 1rem;">
+                            <Text weight=TextWeight::Bold>"Drawer Content"</Text>
+                            <Text>"This is the drawer panel."</Text>
+                            <Button on_click=Callback::new(move |_| opened.set(false))>
+                                "Close"
+                            </Button>
+                        </Stack>
+                    </Drawer>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn loading_overlay_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "LoadingOverlay",
+        import_name: "LoadingOverlay, LoaderVariant, LoaderSize",
+        description: "An overlay with a loading indicator that covers its parent container. Parent should have position: relative.",
+        props: vec![
+            PropDoc {
+                name: "visible",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the overlay is visible",
+                required: true,
+            },
+            PropDoc {
+                name: "loader_variant",
+                prop_type: "Option<LoaderVariant>",
+                default: Some("Oval"),
+                description: "Loader style: Oval, Dots, Bars",
+                required: false,
+            },
+            PropDoc {
+                name: "loader_size",
+                prop_type: "Option<LoaderSize>",
+                default: Some("Md"),
+                description: "Loader size: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "overlay_opacity",
+                prop_type: "Option<f32>",
+                default: Some("0.75"),
+                description: "Opacity of the overlay background",
+                required: false,
+            },
+        ],
+        demo: || {
+            let loading = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Loading Overlay" code=r#"<div style="position: relative;">
+    <LoadingOverlay visible=Signal::derive(move || loading.get()) />
+    <p>"Content here"</p>
+</div>"#>
+                    <Button on_click=Callback::new(move |_| {
+                        loading.set(true);
+                        set_timeout(move || loading.set(false), std::time::Duration::from_secs(2));
+                    })>
+                        "Show Loading (2s)"
+                    </Button>
+                    <div style="position: relative; margin-top: 1rem; padding: 2rem; border: 1px solid #dee2e6; border-radius: 0.25rem; min-height: 100px;">
+                        <LoadingOverlay visible=Signal::derive(move || loading.get()) />
+                        <Text>"Content behind the overlay"</Text>
+                    </div>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn modal_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Modal",
+        import_name: "Modal",
+        description: "A dialog overlay that appears above the page content.",
+        props: vec![
+            PropDoc {
+                name: "opened",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the modal is open",
+                required: true,
+            },
+            PropDoc {
+                name: "title",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Modal title",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<String>",
+                default: Some("\"md\""),
+                description: "Modal size: xs, sm, md, lg, xl",
+                required: false,
+            },
+            PropDoc {
+                name: "on_close",
+                prop_type: "Option<Callback<()>>",
+                default: None,
+                description: "Called when modal should close",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Modal content",
+                required: true,
+            },
+        ],
+        demo: || {
+            let opened = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Modal">
+                    <Button on_click=Callback::new(move |_| opened.set(true))>
+                        "Open Modal"
+                    </Button>
+                    <Modal opened=opened title="Modal Title" on_close=Callback::new(move |_| opened.set(false))>
+                        <Text>"This is the modal content."</Text>
+                        <Group justify=GroupJustify::End style="margin-top: 1rem;">
+                            <Button variant=ButtonVariant::Outline on_click=Callback::new(move |_| opened.set(false))>
+                                "Cancel"
+                            </Button>
+                            <Button on_click=Callback::new(move |_| opened.set(false))>
+                                "Confirm"
+                            </Button>
+                        </Group>
+                    </Modal>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn popover_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Popover",
+        import_name: "Popover, PopoverTarget, PopoverDropdown",
+        description: "A floating panel that appears relative to a target element.",
+        props: vec![
+            PropDoc {
+                name: "opened",
+                prop_type: "Signal<bool>",
+                default: None,
+                description: "Whether the popover is open",
+                required: false,
+            },
+            PropDoc {
+                name: "position",
+                prop_type: "Option<PopoverPosition>",
+                default: Some("Bottom"),
+                description: "Position relative to target",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "PopoverTarget and PopoverDropdown",
+                required: true,
+            },
+        ],
+        demo: || {
+            let opened = RwSignal::new(false);
+            view! {
+                <DemoBlock title="Popover">
+                    <Popover opened=opened>
+                        <PopoverTarget>
+                            <Button on_click=Callback::new(move |_| opened.update(|o| *o = !*o))>
+                                "Toggle Popover"
+                            </Button>
+                        </PopoverTarget>
+                        <PopoverDropdown>
+                            <Text size=TextSize::Sm>"Popover content"</Text>
+                        </PopoverDropdown>
+                    </Popover>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn tooltip_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Tooltip",
+        import_name: "Tooltip",
+        description: "A small popup that appears on hover to provide additional information.",
+        props: vec![
+            PropDoc {
+                name: "label",
+                prop_type: "String",
+                default: None,
+                description: "Tooltip text content",
+                required: true,
+            },
+            PropDoc {
+                name: "position",
+                prop_type: "Option<TooltipPosition>",
+                default: Some("Top"),
+                description: "Position: Top, Bottom, Left, Right",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Target element",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Tooltip">
+                    <Group spacing="lg">
+                        <Tooltip label="This is a tooltip">
+                            <Button>"Hover me"</Button>
+                        </Tooltip>
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Feedback Components
+// ============================================================================
+
+fn alert_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Alert",
+        import_name: "Alert, AlertVariant, AlertColor",
+        description: "A component to display important messages to users.",
+        props: vec![
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<AlertVariant>",
+                default: Some("Light"),
+                description: "Visual style: Filled, Light, Outline",
+                required: false,
+            },
+            PropDoc {
+                name: "color",
+                prop_type: "Option<AlertColor>",
+                default: Some("Info"),
+                description:
+                    "Color theme: Info (blue), Success (green), Warning (yellow), Error (red)",
+                required: false,
+            },
+            PropDoc {
+                name: "title",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Alert title",
+                required: false,
+            },
+            PropDoc {
+                name: "with_close_button",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether alert can be dismissed",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Alert content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Alert Colors" code=r#"<Alert color=AlertColor::Info title="Information">
+    "This is an informational message."
+</Alert>
+<Alert color=AlertColor::Success title="Success">
+    "Operation completed successfully."
+</Alert>"#>
+                    <Stack spacing="md">
+                        <Alert color=AlertColor::Info title="Information">
+                            "This is an informational message."
+                        </Alert>
+                        <Alert color=AlertColor::Success title="Success">
+                            "Operation completed successfully."
+                        </Alert>
+                        <Alert color=AlertColor::Warning title="Warning">
+                            "Please review before proceeding."
+                        </Alert>
+                        <Alert color=AlertColor::Error title="Error">
+                            "Something went wrong."
+                        </Alert>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn loader_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Loader",
+        import_name: "Loader, LoaderVariant, LoaderSize",
+        description: "A loading spinner indicator.",
+        props: vec![
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<LoaderVariant>",
+                default: Some("Oval"),
+                description: "Style: Oval, Dots, or Bars",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<LoaderSize>",
+                default: Some("Md"),
+                description: "Size: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "color",
+                prop_type: "Option<String>",
+                default: Some("\"blue\""),
+                description: "Theme color",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Loader Variants">
+                    <Group spacing="xl">
+                        <Loader variant=LoaderVariant::Oval />
+                        <Loader variant=LoaderVariant::Dots />
+                        <Loader variant=LoaderVariant::Bars />
+                    </Group>
+                </DemoBlock>
+                <DemoBlock title="Loader Sizes">
+                    <Group spacing="xl" align=GroupAlign::Center>
+                        <Loader size=LoaderSize::Xs />
+                        <Loader size=LoaderSize::Sm />
+                        <Loader size=LoaderSize::Md />
+                        <Loader size=LoaderSize::Lg />
+                        <Loader size=LoaderSize::Xl />
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn notification_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Notification",
+        import_name: "NotificationProvider, NotificationData, NotificationColor, use_notifications, show_notification",
+        description: "Toast notifications system with provider pattern.",
+        props: vec![
+            PropDoc {
+                name: "position",
+                prop_type: "Option<NotificationPosition>",
+                default: Some("TopRight"),
+                description: "Position: TopLeft, TopRight, TopCenter, BottomLeft, BottomRight, BottomCenter",
+                required: false,
+            },
+            PropDoc {
+                name: "max_notifications",
+                prop_type: "Option<usize>",
+                default: Some("5"),
+                description: "Maximum notifications shown at once",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Notifications" code=r#"// Wrap app with NotificationProvider
+<NotificationProvider>
+    <App />
+</NotificationProvider>
+
+// In components, use the hook
+let show = use_notifications();
+show(show_notification("Message", NotificationColor::Success, Some("Title".into())));"#>
+                    <Stack spacing="md">
+                        <Text size=TextSize::Sm color="dimmed">
+                            "Notifications use a provider pattern. Wrap your app with NotificationProvider, then use the use_notifications() hook."
+                        </Text>
+                        <Card>
+                            <Text weight=TextWeight::Bold>"Example Notification Structure"</Text>
+                            <Stack spacing="xs" style="margin-top: 0.5rem;">
+                                <Text size=TextSize::Sm>"• Info (blue) - Information messages"</Text>
+                                <Text size=TextSize::Sm>"• Success (green) - Confirmations"</Text>
+                                <Text size=TextSize::Sm>"• Warning (yellow) - Cautions"</Text>
+                                <Text size=TextSize::Sm>"• Error (red) - Errors"</Text>
+                            </Stack>
+                        </Card>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn progress_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Progress",
+        import_name: "Progress, ProgressSize",
+        description: "A progress bar component.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<f32>",
+                default: None,
+                description: "Current progress value (0-100)",
+                required: true,
+            },
+            PropDoc {
+                name: "color",
+                prop_type: "Option<String>",
+                default: Some("\"blue\""),
+                description: "Theme color",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<ProgressSize>",
+                default: Some("Md"),
+                description: "Height: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "striped",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show stripes",
+                required: false,
+            },
+            PropDoc {
+                name: "animate",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to animate stripes",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Progress Bar" code=r#"<Progress value=Signal::derive(|| 50.0) />
+<Progress value=Signal::derive(|| 75.0) striped=true animate=true />"#>
+                    <Stack spacing="md" style="width: 100%;">
+                        <Progress value=Signal::derive(|| 25.0) />
+                        <Progress value=Signal::derive(|| 50.0) color="green" />
+                        <Progress value=Signal::derive(|| 75.0) color="orange" striped=true />
+                        <Progress value=Signal::derive(|| 100.0) color="red" striped=true animate=true />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn skeleton_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Skeleton",
+        import_name: "Skeleton, SkeletonText",
+        description: "A placeholder loading component that mimics content layout.",
+        props: vec![
+            PropDoc {
+                name: "height",
+                prop_type: "Option<String>",
+                default: Some("\"1rem\""),
+                description: "Height of the skeleton",
+                required: false,
+            },
+            PropDoc {
+                name: "width",
+                prop_type: "Option<String>",
+                default: Some("\"100%\""),
+                description: "Width of the skeleton",
+                required: false,
+            },
+            PropDoc {
+                name: "circle",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to render as a circle",
+                required: false,
+            },
+            PropDoc {
+                name: "animate",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to animate the shimmer effect",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Skeleton Loading">
+                    <Stack spacing="md">
+                        <Group spacing="md">
+                            <Skeleton height="50px" width="50px" circle=true />
+                            <Stack spacing="xs" style="flex: 1;">
+                                <Skeleton height="1rem" width="40%" />
+                                <Skeleton height="0.75rem" width="70%" />
+                            </Stack>
+                        </Group>
+                        <SkeletonText lines=3 />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Data Display Components
+// ============================================================================
+
+fn accordion_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Accordion",
+        import_name: "Accordion, AccordionItem, AccordionVariant",
+        description: "A collapsible content panel component.",
+        props: vec![
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<AccordionVariant>",
+                default: Some("Default"),
+                description: "Visual style: Default, Contained, Separated",
+                required: false,
+            },
+            PropDoc {
+                name: "multiple",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Allow multiple panels to be open",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "AccordionItem components",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Accordion" code=r#"<Accordion>
+    <AccordionItem _value="first" label="First Section">
+        <Text>"Content here"</Text>
+    </AccordionItem>
+</Accordion>"#>
+                    <Accordion>
+                        <AccordionItem _value="first" label="First Section">
+                            <Text>"Content of the first section."</Text>
+                        </AccordionItem>
+                        <AccordionItem _value="second" label="Second Section">
+                            <Text>"Content of the second section."</Text>
+                        </AccordionItem>
+                        <AccordionItem _value="third" label="Third Section">
+                            <Text>"Content of the third section."</Text>
+                        </AccordionItem>
+                    </Accordion>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn avatar_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Avatar",
+        import_name: "Avatar, AvatarSize, AvatarRadius, AvatarGroup",
+        description: "A component for displaying user avatars with image or initials.",
+        props: vec![
+            PropDoc {
+                name: "src",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Image URL",
+                required: false,
+            },
+            PropDoc {
+                name: "alt",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Alt text for image",
+                required: false,
+            },
+            PropDoc {
+                name: "initials",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Initials to display when no image",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<AvatarSize>",
+                default: Some("Md"),
+                description: "Size: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "radius",
+                prop_type: "Option<AvatarRadius>",
+                default: Some("Full"),
+                description: "Border radius: Xs, Sm, Md, Lg, Xl, Full",
+                required: false,
+            },
+            PropDoc {
+                name: "color",
+                prop_type: "Option<String>",
+                default: Some("\"blue\""),
+                description: "Background color for placeholder",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Avatar" code=r#"<Avatar initials="JD" color="blue" />
+            <Avatar src="/image.jpg" alt="User" />"#>
+                    <Group spacing="md">
+                        <Avatar initials="JD" color="blue" />
+                        <Avatar initials="AB" color="red" />
+                        <Avatar initials="CD" color="green" />
+                        <Avatar size=AvatarSize::Lg initials="EF" color="orange" />
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn badge_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Badge",
+        import_name: "Badge, BadgeVariant",
+        description: "A small label component for displaying status or counts.",
+        props: vec![
+            PropDoc {
+                name: "variant",
+                prop_type: "Option<BadgeVariant>",
+                default: Some("Filled"),
+                description: "Visual style: Filled, Light, Outline, Dot",
+                required: false,
+            },
+            PropDoc {
+                name: "color",
+                prop_type: "Option<String>",
+                default: Some("\"blue\""),
+                description: "Theme color",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<String>",
+                default: Some("\"md\""),
+                description: "Size: xs, sm, md, lg, xl",
+                required: false,
+            },
+            PropDoc {
+                name: "children",
+                prop_type: "Children",
+                default: None,
+                description: "Badge content",
+                required: true,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Badge Variants">
+                    <Group spacing="md">
+                        <Badge variant=BadgeVariant::Filled>"Filled"</Badge>
+                        <Badge variant=BadgeVariant::Light>"Light"</Badge>
+                        <Badge variant=BadgeVariant::Outline>"Outline"</Badge>
+                        <Badge variant=BadgeVariant::Dot>"With Dot"</Badge>
+                    </Group>
+                </DemoBlock>
+                <DemoBlock title="Badge Colors">
+                    <Group spacing="md">
+                        <Badge color="blue">"Blue"</Badge>
+                        <Badge color="red">"Red"</Badge>
+                        <Badge color="green">"Green"</Badge>
+                        <Badge color="orange">"Orange"</Badge>
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn ring_progress_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "RingProgress",
+        import_name: "RingProgress, RingProgressSection",
+        description: "A circular progress indicator with support for multiple sections.",
+        props: vec![
+            PropDoc {
+                name: "sections",
+                prop_type: "Vec<RingProgressSection>",
+                default: None,
+                description: "Progress sections with value and color",
+                required: true,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<RingProgressSize>",
+                default: Some("Md"),
+                description: "Size: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "thickness",
+                prop_type: "Option<f64>",
+                default: Some("12"),
+                description: "Thickness of the ring in pixels",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<Children>",
+                default: None,
+                description: "Content displayed in the center",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Ring Progress">
+                    <Group spacing="xl">
+                        <RingProgress
+                            sections=vec![
+                                RingProgressSection::new(40.0, "blue"),
+                            ]
+                        />
+                        <RingProgress
+                            sections=vec![
+                                RingProgressSection::new(30.0, "blue"),
+                                RingProgressSection::new(25.0, "green"),
+                                RingProgressSection::new(20.0, "orange"),
+                            ]
+                        />
+                    </Group>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn stats_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Stats",
+        import_name: "Stats, StatsGroup",
+        description: "A component for displaying statistics with labels and values.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "String",
+                default: None,
+                description: "The statistic value to display",
+                required: true,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "String",
+                default: None,
+                description: "Label/title for the statistic",
+                required: true,
+            },
+            PropDoc {
+                name: "icon",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Icon to display",
+                required: false,
+            },
+            PropDoc {
+                name: "description",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Additional description",
+                required: false,
+            },
+            PropDoc {
+                name: "diff",
+                prop_type: "Option<f32>",
+                default: None,
+                description: "Percentage difference (positive=green, negative=red)",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Stats" code=r#"<StatsGroup cols=3>
+    <Stats value="1,234" label="Total Users" />
+    <Stats value="$45,678" label="Revenue" diff=12.5 />
+</StatsGroup>"#>
+                    <StatsGroup cols=3>
+                        <Stats value="1,234" label="Total Users" />
+                        <Stats value="$45,678" label="Revenue" diff=12.5 />
+                        <Stats value="89%" label="Conversion" diff=-2.3 />
+                    </StatsGroup>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn table_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Table",
+        import_name: "Table, TableColumn",
+        description: "A data table component with sorting and styling options.",
+        props: vec![
+            PropDoc {
+                name: "columns",
+                prop_type: "Vec<TableColumn>",
+                default: None,
+                description: "Column definitions",
+                required: true,
+            },
+            PropDoc {
+                name: "data",
+                prop_type: "Vec<T>",
+                default: None,
+                description: "Row data",
+                required: true,
+            },
+            PropDoc {
+                name: "striped",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Alternate row colors",
+                required: false,
+            },
+            PropDoc {
+                name: "hoverable",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Highlight rows on hover",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Table">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #dee2e6;">
+                                <th style="padding: 0.75rem; text-align: left;">"Name"</th>
+                                <th style="padding: 0.75rem; text-align: left;">"Email"</th>
+                                <th style="padding: 0.75rem; text-align: left;">"Role"</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #dee2e6;">
+                                <td style="padding: 0.75rem;">"John Doe"</td>
+                                <td style="padding: 0.75rem;">"john@example.com"</td>
+                                <td style="padding: 0.75rem;">"Admin"</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #dee2e6;">
+                                <td style="padding: 0.75rem;">"Jane Smith"</td>
+                                <td style="padding: 0.75rem;">"jane@example.com"</td>
+                                <td style="padding: 0.75rem;">"User"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// Miscellaneous Components
+// ============================================================================
+
+fn error_page_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "ErrorPage",
+        import_name: "ErrorPage, ErrorPageType",
+        description: "A full-page error display component for common HTTP errors.",
+        props: vec![
+            PropDoc {
+                name: "error_type",
+                prop_type: "ErrorPageType",
+                default: None,
+                description: "Error type: NotFound, Unauthorized, Forbidden, InternalError, ServiceUnavailable, Custom",
+                required: true,
+            },
+            PropDoc {
+                name: "title",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Custom title (for Custom error type)",
+                required: false,
+            },
+            PropDoc {
+                name: "description",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Custom description",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Error Pages">
+                    <Stack spacing="md">
+                        <Card>
+                            <Text weight=TextWeight::Bold>"404 - Not Found"</Text>
+                            <Text size=TextSize::Sm color="dimmed">"The page you are looking for does not exist."</Text>
+                        </Card>
+                        <Card>
+                            <Text weight=TextWeight::Bold>"500 - Internal Server Error"</Text>
+                            <Text size=TextSize::Sm color="dimmed">"Something went wrong on our end."</Text>
+                        </Card>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
         },
     }
 }

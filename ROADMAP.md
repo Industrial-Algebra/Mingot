@@ -120,10 +120,54 @@ Amari types may be added in future phases for specialized use cases:
 
 ---
 
-## Phase 3: Advanced Precision Features
+## Phase 3A: Demo Site & UI Components ✅ COMPLETED
 
-**Target**: Q1 2026
+**Status**: Complete
+**Completed**: January 2026
 **Version**: 0.4.0
+
+### Objectives
+
+Build an interactive component documentation site and close gaps with Mantine UI library.
+
+### Deliverables
+
+#### Demo Site
+- [x] Storybook-like component documentation site
+- [x] Interactive demos with live code examples
+- [x] Props documentation tables
+- [x] Syntax-highlighted code blocks (highlight.js)
+- [x] Dark/light theme support with CSS variable injection
+- [x] Netlify deployment configuration
+- [x] Hot-reload development environment
+
+#### New UI Components (Mantine Gap Analysis)
+- [x] **Loader** - Loading spinner with Oval, Dots, Bars variants
+- [x] **Skeleton** - Loading placeholder with shimmer animation
+- [x] **SkeletonText** - Multi-line text skeleton helper
+- [x] **PasswordInput** - Password field with visibility toggle
+- [x] **ActionIcon** - Icon-only button with multiple variants
+- [x] **Burger** - Hamburger menu button with animated transform
+- [x] **LoadingOverlay** - Full overlay with centered loader
+
+#### Theme System Improvements
+- [x] CSS variable injection for demo site theming
+- [x] Proper dark mode color contrast
+- [x] Smooth theme transitions
+
+### Technical Highlights
+
+- Demo site uses Mingot as path dependency for dogfooding
+- 46 components now documented with interactive examples
+- Zero external JS dependencies (except highlight.js CDN)
+- Full CSR (client-side rendering) for static deployment
+
+---
+
+## Phase 3B: Advanced Precision Features
+
+**Target**: Q2 2026
+**Version**: 0.5.0
 
 ### Objectives
 
@@ -600,6 +644,174 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 - Min-plus/max-plus algebra widgets
 - Path algebra visualization
 - Integration with Amari's tropical algebra
+
+---
+
+## Phase 7: Node-Based Network UI
+
+**Target**: 2027
+**Version**: 0.8.0
+
+### Objectives
+
+Build a flexible, precision-aware node graph editor inspired by [ComfyUI](https://github.com/comfyanonymous/ComfyUI), [Blender's node editor](https://docs.blender.org/manual/en/latest/interface/controls/nodes/index.html), and [Rete.js](https://rete.js.org/). Enable visual programming workflows for data pipelines, mathematical computations, and creative applications.
+
+### Core Components
+
+#### NodeCanvas
+```rust
+<NodeCanvas
+    graph=graph_signal
+    on_connection=Callback::new(|conn: Connection| { ... })
+    on_node_move=Callback::new(|id, pos| { ... })
+    zoom_range=(0.1, 4.0)
+    grid_snap=Some(20.0)
+/>
+```
+
+**Features**:
+- Infinite canvas with pan and zoom
+- Grid snapping with configurable resolution
+- Minimap for navigation
+- Multi-node selection and group operations
+- Undo/redo for all operations
+- Touch and stylus support
+
+#### Node
+```rust
+<Node
+    id="node_001"
+    title="Precision Multiply"
+    position=(100.0, 200.0)
+    inputs=vec![
+        NodePort::new("a", PortType::Decimal),
+        NodePort::new("b", PortType::Decimal),
+    ]
+    outputs=vec![
+        NodePort::new("result", PortType::Decimal),
+    ]
+    on_input_change=Callback::new(|port, value| { ... })
+/>
+```
+
+**Features**:
+- Collapsible/expandable node bodies
+- Custom node colors and icons
+- Inline parameter editing (NumberInput integration!)
+- Preview/thumbnail display
+- Error state visualization
+- Execution progress indicator
+
+#### NodePort
+```rust
+<NodePort
+    id="input_a"
+    direction=PortDirection::Input
+    port_type=PortType::Decimal { precision: NumberInputPrecision::Arbitrary }
+    connected=is_connected_signal
+    on_connect=Callback::new(|source_port| { ... })
+/>
+```
+
+**Features**:
+- Type-safe connections (prevent incompatible types)
+- Multi-connection support (fan-in/fan-out)
+- Visual type indicators (color-coded by data type)
+- Hover previews of flowing data
+- Optional/required port indicators
+- Array/batch port support
+
+#### NodeConnection
+```rust
+<NodeConnection
+    from_node="node_001"
+    from_port="output"
+    to_node="node_002"
+    to_port="input_a"
+    style=ConnectionStyle::Bezier  // or Straight, Step
+/>
+```
+
+**Features**:
+- Bezier, straight, or stepped connection styles
+- Animated data flow visualization
+- Connection reroute points
+- Highlight on hover/selection
+- Delete on middle-click or backspace
+- Precision-aware data flow (visualize precision loss warnings)
+
+### Precision Integration
+
+**Key Differentiator**: Unlike other node editors, Mingot's node graph is precision-aware:
+
+- **Precision Propagation**: Track precision through the graph, warn when precision is lost
+- **Type-Safe Ports**: Ports know their precision requirements (U64, U128, Decimal, Arbitrary)
+- **Exact Arithmetic Nodes**: Built-in nodes for exact decimal operations
+- **Validation Flow**: Real-time validation status propagates through connections
+- **Precision Inspector**: Click any connection to see exact value with full precision
+
+### Built-in Node Libraries
+
+#### Arithmetic Nodes
+- Add, Subtract, Multiply, Divide (precision-preserving)
+- Power, Root, Logarithm
+- Modulo, Floor, Ceiling, Round
+- Comparison (with epsilon for decimals)
+
+#### Mathematical Nodes
+- Trigonometric (sin, cos, tan, etc.)
+- Matrix operations (integrate with MatrixInput)
+- Complex number operations
+- Statistical aggregations
+
+#### Control Flow Nodes
+- Switch/Case
+- Loop/Iterate
+- Filter/Map
+- Merge/Split
+
+#### Data Nodes
+- Constant values (with NumberInput)
+- Input/Output terminals
+- Variable references
+- Buffer/Cache
+
+### Graph Operations
+
+```rust
+// Graph management
+let graph = use_node_graph();
+
+graph.add_node(node_definition);
+graph.remove_node(node_id);
+graph.connect(from, to);
+graph.disconnect(connection_id);
+
+// Execution
+graph.execute();  // Run the graph
+graph.validate(); // Check for cycles, type mismatches
+
+// Serialization
+let json = graph.to_json();
+graph.from_json(json);
+```
+
+### Use Cases
+
+1. **Scientific Computing Pipelines**: Chain precision-critical calculations visually
+2. **Data Transformation**: ETL workflows with exact numeric handling
+3. **Generative AI Workflows**: ComfyUI-style image/audio generation pipelines
+4. **Financial Modeling**: Build calculation graphs with audit trails
+5. **Educational Tools**: Visual mathematics and physics simulations
+6. **Game Development**: Shader graphs, behavior trees, dialogue systems
+
+### API Design Goals
+
+- **Declarative**: Define graphs in Leptos RSX or load from JSON
+- **Reactive**: Graph changes trigger re-execution automatically (optional)
+- **Extensible**: Custom node types via trait implementation
+- **Serializable**: Full graph state to/from JSON for persistence
+- **Accessible**: Keyboard navigation, screen reader support for node operations
 
 ---
 
