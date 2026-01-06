@@ -3,6 +3,7 @@ use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
+use wasm_bindgen::JsCast;
 
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum NumberInputPrecision {
@@ -152,8 +153,7 @@ fn validate_arbitrary(input: &str) -> Result<rust_decimal::Decimal, ParseError> 
     Decimal::from_str(&cleaned).map_err(|e| ParseError::InvalidFormat(e.to_string()))
 }
 
-// Formatting functions (for future use in Phase 2/3)
-#[allow(dead_code)]
+// Formatting functions
 fn add_thousand_separators(input: &str, separator: char) -> String {
     let cleaned = input.replace([',', '_'], "");
     let parts: Vec<&str> = cleaned.split('.').collect();
@@ -187,7 +187,6 @@ fn add_thousand_separators(input: &str, separator: char) -> String {
     result
 }
 
-#[allow(dead_code)]
 fn convert_to_scientific(input: &str) -> String {
     let cleaned = input.replace([',', '_'], "");
 
@@ -198,13 +197,254 @@ fn convert_to_scientific(input: &str) -> String {
     }
 }
 
-#[allow(dead_code)]
 fn format_number(input: &str, format: NumberInputFormat, thousand_separator: char) -> String {
     match format {
         NumberInputFormat::Standard => input.to_string(),
         NumberInputFormat::Thousand => add_thousand_separators(input, thousand_separator),
         NumberInputFormat::Scientific => convert_to_scientific(input),
     }
+}
+
+/// Normalize a pasted number by detecting and handling various formats
+/// Handles: thousand separators, alternate decimal separators, currency symbols, whitespace
+fn normalize_pasted_number(input: &str, decimal_separator: char) -> String {
+    // Trim whitespace
+    let trimmed = input.trim();
+
+    // Remove common currency symbols and their variations
+    let without_currency = trimmed
+        .replace(['$', '€', '£', '¥', '₹'], "")
+        .replace("USD", "")
+        .replace("EUR", "")
+        .replace("GBP", "")
+        .trim()
+        .to_string();
+
+    // Remove thousand separators (commas, spaces, apostrophes, underscores)
+    let without_thousands = without_currency.replace([',', ' ', '\'', '_'], "");
+
+    // Handle alternate decimal separators
+    // If the user's decimal separator is not '.', replace it
+    if decimal_separator != '.' {
+        without_thousands.replace(decimal_separator, ".")
+    } else {
+        without_thousands
+    }
+}
+
+/// Increment/decrement operations for different precision types
+fn increment_value(
+    current: &str,
+    step: &str,
+    precision: NumberInputPrecision,
+    is_increment: bool,
+    min: Option<&str>,
+    max: Option<&str>,
+) -> String {
+    if current.is_empty() {
+        return if is_increment {
+            step.to_string()
+        } else {
+            format!("-{}", step)
+        };
+    }
+
+    let cleaned = current.replace([',', '_'], "");
+    let step_cleaned = step.replace([',', '_'], "");
+
+    let result = match precision {
+        NumberInputPrecision::U64 => {
+            let current_val: u64 = cleaned.parse().unwrap_or(0);
+            let step_val: u64 = step_cleaned.parse().unwrap_or(1);
+
+            let new_val = if is_increment {
+                current_val.saturating_add(step_val)
+            } else {
+                current_val.saturating_sub(step_val)
+            };
+
+            // Apply min/max bounds
+            let bounded = apply_bounds_u64(new_val, min, max);
+            bounded.to_string()
+        }
+        NumberInputPrecision::U128 => {
+            let current_val: u128 = cleaned.parse().unwrap_or(0);
+            let step_val: u128 = step_cleaned.parse().unwrap_or(1);
+
+            let new_val = if is_increment {
+                current_val.saturating_add(step_val)
+            } else {
+                current_val.saturating_sub(step_val)
+            };
+
+            let bounded = apply_bounds_u128(new_val, min, max);
+            bounded.to_string()
+        }
+        NumberInputPrecision::I64 => {
+            let current_val: i64 = cleaned.parse().unwrap_or(0);
+            let step_val: i64 = step_cleaned.parse().unwrap_or(1);
+
+            let new_val = if is_increment {
+                current_val.saturating_add(step_val)
+            } else {
+                current_val.saturating_sub(step_val)
+            };
+
+            let bounded = apply_bounds_i64(new_val, min, max);
+            bounded.to_string()
+        }
+        NumberInputPrecision::I128 => {
+            let current_val: i128 = cleaned.parse().unwrap_or(0);
+            let step_val: i128 = step_cleaned.parse().unwrap_or(1);
+
+            let new_val = if is_increment {
+                current_val.saturating_add(step_val)
+            } else {
+                current_val.saturating_sub(step_val)
+            };
+
+            let bounded = apply_bounds_i128(new_val, min, max);
+            bounded.to_string()
+        }
+        NumberInputPrecision::Decimal(places) => {
+            let current_val: f64 = cleaned.parse().unwrap_or(0.0);
+            let step_val: f64 = step_cleaned.parse().unwrap_or(1.0);
+
+            let new_val = if is_increment {
+                current_val + step_val
+            } else {
+                current_val - step_val
+            };
+
+            let bounded = apply_bounds_f64(new_val, min, max);
+            format!("{:.1$}", bounded, places as usize)
+        }
+        #[cfg(feature = "high-precision")]
+        NumberInputPrecision::Arbitrary => {
+            use rust_decimal::Decimal;
+            use std::str::FromStr;
+
+            let current_val = Decimal::from_str(&cleaned).unwrap_or(Decimal::ZERO);
+            let step_val = Decimal::from_str(&step_cleaned).unwrap_or(Decimal::ONE);
+
+            let new_val = if is_increment {
+                current_val + step_val
+            } else {
+                current_val - step_val
+            };
+
+            let bounded = apply_bounds_decimal(new_val, min, max);
+            bounded.to_string()
+        }
+    };
+
+    result
+}
+
+fn apply_bounds_u64(value: u64, min: Option<&str>, max: Option<&str>) -> u64 {
+    let mut result = value;
+    if let Some(min_str) = min {
+        if let Ok(min_val) = min_str.replace([',', '_'], "").parse::<u64>() {
+            result = result.max(min_val);
+        }
+    }
+    if let Some(max_str) = max {
+        if let Ok(max_val) = max_str.replace([',', '_'], "").parse::<u64>() {
+            result = result.min(max_val);
+        }
+    }
+    result
+}
+
+fn apply_bounds_u128(value: u128, min: Option<&str>, max: Option<&str>) -> u128 {
+    let mut result = value;
+    if let Some(min_str) = min {
+        if let Ok(min_val) = min_str.replace([',', '_'], "").parse::<u128>() {
+            result = result.max(min_val);
+        }
+    }
+    if let Some(max_str) = max {
+        if let Ok(max_val) = max_str.replace([',', '_'], "").parse::<u128>() {
+            result = result.min(max_val);
+        }
+    }
+    result
+}
+
+fn apply_bounds_i64(value: i64, min: Option<&str>, max: Option<&str>) -> i64 {
+    let mut result = value;
+    if let Some(min_str) = min {
+        if let Ok(min_val) = min_str.replace([',', '_'], "").parse::<i64>() {
+            result = result.max(min_val);
+        }
+    }
+    if let Some(max_str) = max {
+        if let Ok(max_val) = max_str.replace([',', '_'], "").parse::<i64>() {
+            result = result.min(max_val);
+        }
+    }
+    result
+}
+
+fn apply_bounds_i128(value: i128, min: Option<&str>, max: Option<&str>) -> i128 {
+    let mut result = value;
+    if let Some(min_str) = min {
+        if let Ok(min_val) = min_str.replace([',', '_'], "").parse::<i128>() {
+            result = result.max(min_val);
+        }
+    }
+    if let Some(max_str) = max {
+        if let Ok(max_val) = max_str.replace([',', '_'], "").parse::<i128>() {
+            result = result.min(max_val);
+        }
+    }
+    result
+}
+
+fn apply_bounds_f64(value: f64, min: Option<&str>, max: Option<&str>) -> f64 {
+    let mut result = value;
+    if let Some(min_str) = min {
+        if let Ok(min_val) = min_str.replace([',', '_'], "").parse::<f64>() {
+            if result < min_val {
+                result = min_val;
+            }
+        }
+    }
+    if let Some(max_str) = max {
+        if let Ok(max_val) = max_str.replace([',', '_'], "").parse::<f64>() {
+            if result > max_val {
+                result = max_val;
+            }
+        }
+    }
+    result
+}
+
+#[cfg(feature = "high-precision")]
+fn apply_bounds_decimal(
+    value: rust_decimal::Decimal,
+    min: Option<&str>,
+    max: Option<&str>,
+) -> rust_decimal::Decimal {
+    use rust_decimal::Decimal;
+    use std::str::FromStr;
+
+    let mut result = value;
+    if let Some(min_str) = min {
+        if let Ok(min_val) = Decimal::from_str(&min_str.replace([',', '_'], "")) {
+            if result < min_val {
+                result = min_val;
+            }
+        }
+    }
+    if let Some(max_str) = max {
+        if let Ok(max_val) = Decimal::from_str(&max_str.replace([',', '_'], "")) {
+            if result > max_val {
+                result = max_val;
+            }
+        }
+    }
+    result
 }
 
 // Input filtering
@@ -238,13 +478,36 @@ pub fn NumberInput(
 
     // Precision configuration
     #[prop(optional)] precision: Option<NumberInputPrecision>,
-    #[prop(optional, into)] _min: Option<String>,
-    #[prop(optional, into)] _max: Option<String>,
+    #[prop(optional, into)] min: Option<String>,
+    #[prop(optional, into)] max: Option<String>,
+
+    // Increment/decrement controls
+    /// Whether to show +/- controls
+    #[prop(default = false)]
+    show_controls: bool,
+    /// Step size for increment/decrement (default: "1")
+    #[prop(optional, into)]
+    step: Option<String>,
+    /// Step size when Shift is held (default: 10x step)
+    #[prop(optional, into)]
+    shift_step: Option<String>,
+    /// Whether to allow mouse wheel to change value
+    #[prop(default = false)]
+    allow_mouse_wheel: bool,
 
     // Display formatting
-    #[prop(optional)] _format: Option<NumberInputFormat>,
-    #[prop(optional)] _decimal_separator: Option<char>,
-    #[prop(optional)] _thousand_separator: Option<char>,
+    /// Format to apply to displayed value (on blur)
+    #[prop(optional)]
+    format: Option<NumberInputFormat>,
+    /// Decimal separator character (default: '.')
+    #[prop(default = '.')]
+    decimal_separator: char,
+    /// Thousand separator character (default: ',')
+    #[prop(default = ',')]
+    thousand_separator: char,
+    /// Whether to auto-format value on blur
+    #[prop(default = false)]
+    format_on_blur: bool,
 
     // Validation options
     #[prop(optional)] allow_negative: bool,
@@ -298,6 +561,76 @@ pub fn NumberInput(
 
     let number_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
 
+    // Store min/max as owned strings for use in closures
+    let min_value = min.clone();
+    let max_value = max.clone();
+    let step_value = step.unwrap_or_else(|| "1".to_string());
+    let shift_step_value = shift_step.unwrap_or_else(|| {
+        // Default shift step is 10x the step
+        let step_num: f64 = step_value.parse().unwrap_or(1.0);
+        format!("{}", step_num * 10.0)
+    });
+
+    // Clone values for use in multiple closures
+    let min_for_increment = min_value.clone();
+    let max_for_increment = max_value.clone();
+    let step_for_increment = step_value.clone();
+    let shift_step_for_increment = shift_step_value.clone();
+
+    let min_for_wheel = min_value.clone();
+    let max_for_wheel = max_value.clone();
+    let step_for_wheel = step_value.clone();
+    let shift_step_for_wheel = shift_step_value.clone();
+
+    let min_for_keyboard = min_value.clone();
+    let max_for_keyboard = max_value.clone();
+    let step_for_keyboard = step_value.clone();
+    let shift_step_for_keyboard = shift_step_value.clone();
+
+    // Increment/decrement handler
+    let handle_step = move |is_increment: bool, use_shift_step: bool| {
+        if disabled.get() {
+            return;
+        }
+
+        let current = number_value.get();
+        let step_to_use = if use_shift_step {
+            &shift_step_for_increment
+        } else {
+            &step_for_increment
+        };
+
+        let new_value = increment_value(
+            &current,
+            step_to_use,
+            precision,
+            is_increment,
+            min_for_increment.as_deref(),
+            max_for_increment.as_deref(),
+        );
+
+        number_value.set(new_value.clone());
+
+        if let Some(callback) = on_change {
+            callback.run(new_value.clone());
+        }
+
+        if let Some(callback) = on_valid_change {
+            callback.run(Ok(new_value));
+        }
+    };
+
+    // Create clones for button handlers
+    let handle_increment = {
+        let handle_step = handle_step.clone();
+        move |_| handle_step(true, false)
+    };
+
+    let handle_decrement = {
+        let handle_step = handle_step.clone();
+        move |_| handle_step(false, false)
+    };
+
     // Validation function based on precision
     let validate_input = move |input: String| -> Result<String, ParseError> {
         if input.is_empty() {
@@ -330,8 +663,360 @@ pub fn NumberInput(
         }
     };
 
-    let error_clone = error.clone();
-    let input_styles = move || {
+    let handle_input = move |ev: ev::Event| {
+        let input_value = event_target_value(&ev);
+
+        // Filter invalid characters
+        let filtered: String = input_value
+            .chars()
+            .filter(|ch| {
+                is_valid_char(
+                    *ch,
+                    &number_value.get(),
+                    allow_negative,
+                    allow_decimal,
+                    allow_scientific,
+                )
+            })
+            .collect();
+
+        // Validate the input
+        let validation_result = validate_input(filtered.clone());
+
+        // Always update the raw value
+        number_value.set(filtered.clone());
+
+        // Call on_change with raw value
+        if let Some(callback) = on_change {
+            callback.run(filtered.clone());
+        }
+
+        // Call on_valid_change with validation result
+        if let Some(callback) = on_valid_change {
+            callback.run(validation_result);
+        }
+    };
+
+    // Keyboard handler for arrow up/down
+    let handle_keydown = move |ev: ev::KeyboardEvent| {
+        if disabled.get() {
+            return;
+        }
+
+        let key = ev.key();
+        let use_shift = ev.shift_key();
+
+        match key.as_str() {
+            "ArrowUp" => {
+                ev.prevent_default();
+                let current = number_value.get();
+                let step_to_use = if use_shift {
+                    &shift_step_for_keyboard
+                } else {
+                    &step_for_keyboard
+                };
+
+                let new_value = increment_value(
+                    &current,
+                    step_to_use,
+                    precision,
+                    true,
+                    min_for_keyboard.as_deref(),
+                    max_for_keyboard.as_deref(),
+                );
+
+                number_value.set(new_value.clone());
+
+                if let Some(callback) = on_change {
+                    callback.run(new_value.clone());
+                }
+
+                if let Some(callback) = on_valid_change {
+                    callback.run(Ok(new_value));
+                }
+            }
+            "ArrowDown" => {
+                ev.prevent_default();
+                let current = number_value.get();
+                let step_to_use = if use_shift {
+                    &shift_step_for_keyboard
+                } else {
+                    &step_for_keyboard
+                };
+
+                let new_value = increment_value(
+                    &current,
+                    step_to_use,
+                    precision,
+                    false,
+                    min_for_keyboard.as_deref(),
+                    max_for_keyboard.as_deref(),
+                );
+
+                number_value.set(new_value.clone());
+
+                if let Some(callback) = on_change {
+                    callback.run(new_value.clone());
+                }
+
+                if let Some(callback) = on_valid_change {
+                    callback.run(Ok(new_value));
+                }
+            }
+            _ => {}
+        }
+    };
+
+    // Wheel handler for mouse wheel scrolling
+    let handle_wheel = move |ev: ev::WheelEvent| {
+        if !allow_mouse_wheel || disabled.get() {
+            return;
+        }
+
+        // Only handle wheel when input is focused
+        let target = ev.target();
+        if let Some(target) = target {
+            if let Ok(element) = target.dyn_into::<web_sys::HtmlElement>() {
+                // Check if we're the focused element
+                if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                    if let Some(active) = document.active_element() {
+                        if let Ok(active_element) = active.dyn_into::<web_sys::HtmlElement>() {
+                            if element != active_element {
+                                return;
+                            }
+                        } else {
+                            return;
+                        }
+                    } else {
+                        return;
+                    }
+                }
+            }
+        }
+
+        ev.prevent_default();
+
+        let use_shift = ev.shift_key();
+        let is_increment = ev.delta_y() < 0.0; // Scroll up = increment
+
+        let current = number_value.get();
+        let step_to_use = if use_shift {
+            &shift_step_for_wheel
+        } else {
+            &step_for_wheel
+        };
+
+        let new_value = increment_value(
+            &current,
+            step_to_use,
+            precision,
+            is_increment,
+            min_for_wheel.as_deref(),
+            max_for_wheel.as_deref(),
+        );
+
+        number_value.set(new_value.clone());
+
+        if let Some(callback) = on_change {
+            callback.run(new_value.clone());
+        }
+
+        if let Some(callback) = on_valid_change {
+            callback.run(Ok(new_value));
+        }
+    };
+
+    // Track whether we're focused (to show raw vs formatted value)
+    let is_focused = RwSignal::new(false);
+
+    // Handle blur - apply formatting if enabled
+    let handle_blur = move |_ev: ev::FocusEvent| {
+        is_focused.set(false);
+
+        if !format_on_blur {
+            return;
+        }
+
+        let current = number_value.get();
+        if current.is_empty() {
+            return;
+        }
+
+        let format_type = format.unwrap_or(NumberInputFormat::Thousand);
+        let formatted = format_number(&current, format_type, thousand_separator);
+
+        // Update the displayed value (but keep the raw value internally the same)
+        number_value.set(formatted);
+    };
+
+    // Handle focus - remove formatting to allow editing
+    let handle_focus = move |_ev: ev::FocusEvent| {
+        is_focused.set(true);
+
+        if !format_on_blur {
+            return;
+        }
+
+        // Strip formatting on focus to allow editing
+        let current = number_value.get();
+        let cleaned = current
+            .replace([thousand_separator, '_'], "")
+            .trim()
+            .to_string();
+
+        // Also handle alternate decimal separators
+        let cleaned = if decimal_separator != '.' {
+            cleaned.replace(decimal_separator, ".")
+        } else {
+            cleaned
+        };
+
+        number_value.set(cleaned);
+    };
+
+    // Handle paste - detect and normalize pasted values
+    let handle_paste = move |ev: ev::ClipboardEvent| {
+        if disabled.get() {
+            return;
+        }
+
+        // Get clipboard data from the underlying web_sys event
+        let clipboard_event: &web_sys::ClipboardEvent = ev.as_ref();
+        if let Some(clipboard_data) = clipboard_event.clipboard_data() {
+            if let Ok(pasted_text) = clipboard_data.get_data("text/plain") {
+                ev.prevent_default();
+
+                // Normalize the pasted value
+                let cleaned = normalize_pasted_number(&pasted_text, decimal_separator);
+
+                // Filter to valid characters
+                let filtered: String = cleaned
+                    .chars()
+                    .filter(|ch| {
+                        is_valid_char(
+                            *ch,
+                            &number_value.get(),
+                            allow_negative,
+                            allow_decimal,
+                            allow_scientific,
+                        )
+                    })
+                    .collect();
+
+                // Validate and set
+                let validation_result = validate_input(filtered.clone());
+                number_value.set(filtered.clone());
+
+                if let Some(callback) = on_change {
+                    callback.run(filtered.clone());
+                }
+
+                if let Some(callback) = on_valid_change {
+                    callback.run(validation_result);
+                }
+            }
+        }
+    };
+
+    let label_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        format!(
+            "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
+            theme_val.typography.font_sizes.sm,
+            theme_val.typography.font_weights.medium,
+            scheme_colors.text
+        )
+    };
+
+    let description_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        format!(
+            "margin-top: 0.25rem; font-size: {}; color: {};",
+            theme_val.typography.font_sizes.xs,
+            scheme_colors
+                .get_color("gray", 6)
+                .unwrap_or_else(|| "#868e96".to_string())
+        )
+    };
+
+    let error_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        format!(
+            "margin-top: 0.25rem; font-size: {}; color: {};",
+            theme_val.typography.font_sizes.xs,
+            scheme_colors
+                .get_color("red", 6)
+                .unwrap_or_else(|| "#fa5252".to_string())
+        )
+    };
+
+    // Control button container styles
+    let controls_styles = move || {
+        let theme_val = theme.get();
+        StyleBuilder::new()
+            .add("position", "absolute")
+            .add("right", "1px")
+            .add("top", "1px")
+            .add("bottom", "1px")
+            .add("display", "flex")
+            .add("flex-direction", "column")
+            .add(
+                "border-radius",
+                format!("0 {} {} 0", theme_val.radius.sm, theme_val.radius.sm),
+            )
+            .add("overflow", "hidden")
+            .build()
+    };
+
+    // Control button styles (for +/- buttons)
+    let control_button_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        let is_disabled = disabled.get();
+
+        StyleBuilder::new()
+            .add("display", "flex")
+            .add("align-items", "center")
+            .add("justify-content", "center")
+            .add("width", "1.5rem")
+            .add("flex", "1")
+            .add("border", "none")
+            .add(
+                "background-color",
+                scheme_colors
+                    .get_color("gray", 1)
+                    .unwrap_or_else(|| "#f1f3f5".to_string()),
+            )
+            .add("color", scheme_colors.text.clone())
+            .add(
+                "cursor",
+                if is_disabled {
+                    "not-allowed"
+                } else {
+                    "pointer"
+                },
+            )
+            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add(
+                "font-weight",
+                theme_val.typography.font_weights.medium.to_string(),
+            )
+            .add("user-select", "none")
+            .add("transition", "background-color 0.15s ease")
+            .add_if(is_disabled, "opacity", "0.5")
+            .build()
+    };
+
+    // Input wrapper styles (for positioning controls)
+    let input_wrapper_styles =
+        move || "position: relative; display: flex; align-items: stretch;".to_string();
+
+    // Adjust input padding when controls are shown
+    let error_clone2 = error.clone();
+    let input_with_controls_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         let mut builder = StyleBuilder::new();
@@ -346,36 +1031,71 @@ pub fn NumberInput(
             .add("outline", "none")
             .add("box-sizing", "border-box");
 
-        // Size-based styles
+        // Size-based styles with extra padding for controls
         match size {
             InputSize::Xs => {
                 builder
                     .add("height", "1.875rem")
-                    .add("padding", "0 0.625rem")
+                    .add(
+                        "padding",
+                        if show_controls {
+                            "0 2rem 0 0.625rem"
+                        } else {
+                            "0 0.625rem"
+                        },
+                    )
                     .add("font-size", theme_val.typography.font_sizes.xs);
             }
             InputSize::Sm => {
                 builder
                     .add("height", "2.25rem")
-                    .add("padding", "0 0.75rem")
+                    .add(
+                        "padding",
+                        if show_controls {
+                            "0 2rem 0 0.75rem"
+                        } else {
+                            "0 0.75rem"
+                        },
+                    )
                     .add("font-size", theme_val.typography.font_sizes.sm);
             }
             InputSize::Md => {
                 builder
                     .add("height", "2.625rem")
-                    .add("padding", "0 0.875rem")
+                    .add(
+                        "padding",
+                        if show_controls {
+                            "0 2rem 0 0.875rem"
+                        } else {
+                            "0 0.875rem"
+                        },
+                    )
                     .add("font-size", theme_val.typography.font_sizes.sm);
             }
             InputSize::Lg => {
                 builder
                     .add("height", "3.125rem")
-                    .add("padding", "0 1rem")
+                    .add(
+                        "padding",
+                        if show_controls {
+                            "0 2rem 0 1rem"
+                        } else {
+                            "0 1rem"
+                        },
+                    )
                     .add("font-size", theme_val.typography.font_sizes.md);
             }
             InputSize::Xl => {
                 builder
                     .add("height", "3.75rem")
-                    .add("padding", "0 1.125rem")
+                    .add(
+                        "padding",
+                        if show_controls {
+                            "0 2rem 0 1.125rem"
+                        } else {
+                            "0 1.125rem"
+                        },
+                    )
                     .add("font-size", theme_val.typography.font_sizes.lg);
             }
         }
@@ -383,7 +1103,7 @@ pub fn NumberInput(
         // Variant-based styles
         match variant {
             InputVariant::Default => {
-                let border_color = if error_clone.is_some() {
+                let border_color = if error_clone2.is_some() {
                     scheme_colors
                         .get_color("red", 6)
                         .unwrap_or_else(|| "#fa5252".to_string())
@@ -429,75 +1149,6 @@ pub fn NumberInput(
         builder.build()
     };
 
-    let handle_input = move |ev: ev::Event| {
-        let input_value = event_target_value(&ev);
-
-        // Filter invalid characters
-        let filtered: String = input_value
-            .chars()
-            .filter(|ch| {
-                is_valid_char(
-                    *ch,
-                    &number_value.get(),
-                    allow_negative,
-                    allow_decimal,
-                    allow_scientific,
-                )
-            })
-            .collect();
-
-        // Validate the input
-        let validation_result = validate_input(filtered.clone());
-
-        // Always update the raw value
-        number_value.set(filtered.clone());
-
-        // Call on_change with raw value
-        if let Some(callback) = on_change {
-            callback.run(filtered.clone());
-        }
-
-        // Call on_valid_change with validation result
-        if let Some(callback) = on_valid_change {
-            callback.run(validation_result);
-        }
-    };
-
-    let label_styles = move || {
-        let theme_val = theme.get();
-        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
-        format!(
-            "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
-            theme_val.typography.font_weights.medium,
-            scheme_colors.text
-        )
-    };
-
-    let description_styles = move || {
-        let theme_val = theme.get();
-        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
-        format!(
-            "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
-            scheme_colors
-                .get_color("gray", 6)
-                .unwrap_or_else(|| "#868e96".to_string())
-        )
-    };
-
-    let error_styles = move || {
-        let theme_val = theme.get();
-        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
-        format!(
-            "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
-            scheme_colors
-                .get_color("red", 6)
-                .unwrap_or_else(|| "#fa5252".to_string())
-        )
-    };
-
     let class_str = format!("mingot-number-input {}", class.unwrap_or_default());
 
     view! {
@@ -509,17 +1160,60 @@ pub fn NumberInput(
                 </label>
             })}
 
-            <input
-                type="text"
-                inputmode="decimal"
-                class=class_str
-                style=input_styles
-                placeholder=placeholder.unwrap_or_default()
-                disabled=move || disabled.get()
-                required=required
-                prop:value=move || number_value.get()
-                on:input=handle_input
-            />
+            <div style=input_wrapper_styles>
+                <input
+                    type="text"
+                    inputmode="decimal"
+                    class=class_str
+                    style=input_with_controls_styles
+                    placeholder=placeholder.unwrap_or_default()
+                    disabled=move || disabled.get()
+                    required=required
+                    prop:value=move || number_value.get()
+                    on:input=handle_input
+                    on:keydown=handle_keydown
+                    on:wheel=handle_wheel
+                    on:focus=handle_focus
+                    on:blur=handle_blur
+                    on:paste=handle_paste
+                />
+
+                // Increment/decrement controls
+                {show_controls.then(|| {
+                    let inc_styles = control_button_styles;
+                    let dec_styles = control_button_styles;
+                    view! {
+                        <div class="mingot-number-input-controls" style=controls_styles>
+                            <button
+                                type="button"
+                                class="mingot-number-input-increment"
+                                style=inc_styles
+                                disabled=move || disabled.get()
+                                on:click=handle_increment.clone()
+                                aria-label="Increment"
+                                tabindex="-1"
+                            >
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                class="mingot-number-input-decrement"
+                                style=dec_styles
+                                disabled=move || disabled.get()
+                                on:click=handle_decrement.clone()
+                                aria-label="Decrement"
+                                tabindex="-1"
+                            >
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    }
+                })}
+            </div>
 
             {description.map(|d| view! {
                 <div style=description_styles>{d}</div>
@@ -535,6 +1229,91 @@ pub fn NumberInput(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_increment_u64() {
+        let result = increment_value("10", "1", NumberInputPrecision::U64, true, None, None);
+        assert_eq!(result, "11");
+
+        let result = increment_value("10", "5", NumberInputPrecision::U64, true, None, None);
+        assert_eq!(result, "15");
+    }
+
+    #[test]
+    fn test_decrement_u64() {
+        let result = increment_value("10", "1", NumberInputPrecision::U64, false, None, None);
+        assert_eq!(result, "9");
+
+        // Test saturation at 0
+        let result = increment_value("0", "1", NumberInputPrecision::U64, false, None, None);
+        assert_eq!(result, "0");
+    }
+
+    #[test]
+    fn test_increment_with_min_max() {
+        // Test max bound
+        let result = increment_value(
+            "95",
+            "10",
+            NumberInputPrecision::U64,
+            true,
+            None,
+            Some("100"),
+        );
+        assert_eq!(result, "100");
+
+        // Test min bound
+        let result = increment_value("5", "10", NumberInputPrecision::U64, false, Some("0"), None);
+        assert_eq!(result, "0");
+    }
+
+    #[test]
+    fn test_increment_i64_negative() {
+        let result = increment_value("-10", "1", NumberInputPrecision::I64, true, None, None);
+        assert_eq!(result, "-9");
+
+        let result = increment_value("-10", "1", NumberInputPrecision::I64, false, None, None);
+        assert_eq!(result, "-11");
+    }
+
+    #[test]
+    fn test_increment_decimal() {
+        let result = increment_value(
+            "1.5",
+            "0.1",
+            NumberInputPrecision::Decimal(2),
+            true,
+            None,
+            None,
+        );
+        assert_eq!(result, "1.60");
+
+        let result = increment_value(
+            "1.5",
+            "0.1",
+            NumberInputPrecision::Decimal(2),
+            false,
+            None,
+            None,
+        );
+        assert_eq!(result, "1.40");
+    }
+
+    #[test]
+    fn test_increment_empty_value() {
+        let result = increment_value("", "1", NumberInputPrecision::I64, true, None, None);
+        assert_eq!(result, "1");
+
+        let result = increment_value("", "1", NumberInputPrecision::I64, false, None, None);
+        assert_eq!(result, "-1");
+    }
+
+    #[test]
+    fn test_increment_with_thousand_separators() {
+        // Input with separators should work
+        let result = increment_value("1,000", "1", NumberInputPrecision::U64, true, None, None);
+        assert_eq!(result, "1001");
+    }
 
     #[test]
     fn test_validate_u64_success() {
@@ -575,6 +1354,63 @@ mod tests {
         assert_eq!(add_thousand_separators("123", ','), "123");
         assert_eq!(add_thousand_separators("-1234567", ','), "-1,234,567");
         assert_eq!(add_thousand_separators("1234567.89", ','), "1,234,567.89");
+    }
+
+    #[test]
+    fn test_format_number_standard() {
+        assert_eq!(
+            format_number("1234567", NumberInputFormat::Standard, ','),
+            "1234567"
+        );
+    }
+
+    #[test]
+    fn test_format_number_thousand() {
+        assert_eq!(
+            format_number("1234567", NumberInputFormat::Thousand, ','),
+            "1,234,567"
+        );
+        assert_eq!(
+            format_number("1234567.89", NumberInputFormat::Thousand, ','),
+            "1,234,567.89"
+        );
+    }
+
+    #[test]
+    fn test_format_number_scientific() {
+        // Scientific notation
+        let result = format_number("1234567", NumberInputFormat::Scientific, ',');
+        assert!(result.contains("e") || result.contains("E"));
+    }
+
+    #[test]
+    fn test_normalize_pasted_number_basic() {
+        // Basic number
+        assert_eq!(normalize_pasted_number("123.45", '.'), "123.45");
+        // With thousand separators
+        assert_eq!(normalize_pasted_number("1,234,567.89", '.'), "1234567.89");
+        // With whitespace
+        assert_eq!(normalize_pasted_number("  123.45  ", '.'), "123.45");
+    }
+
+    #[test]
+    fn test_normalize_pasted_number_currency() {
+        // Dollar sign
+        assert_eq!(normalize_pasted_number("$1,234.56", '.'), "1234.56");
+        // Euro sign (all separators removed, then decimal can be swapped if needed)
+        assert_eq!(normalize_pasted_number("€1.234,56", '.'), "1.23456");
+        // Pound sign
+        assert_eq!(normalize_pasted_number("£1,000", '.'), "1000");
+    }
+
+    #[test]
+    fn test_normalize_pasted_number_alternate_separators() {
+        // European format with comma as decimal (user set decimal_separator to ',')
+        assert_eq!(normalize_pasted_number("1.234,56", ','), "1.23456");
+        // Underscore separators
+        assert_eq!(normalize_pasted_number("1_000_000", '.'), "1000000");
+        // Apostrophe separators (Swiss format)
+        assert_eq!(normalize_pasted_number("1'234'567", '.'), "1234567");
     }
 
     #[test]
@@ -674,5 +1510,32 @@ mod arbitrary_precision_tests {
 
         let result = validate_arbitrary("-0");
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_increment_arbitrary() {
+        let result = increment_value(
+            "1.23456789012345678901234567",
+            "0.00000000000000000000000001",
+            NumberInputPrecision::Arbitrary,
+            true,
+            None,
+            None,
+        );
+        // rust_decimal should handle this with high precision
+        assert!(result.contains("1.234567890123456789"));
+    }
+
+    #[test]
+    fn test_increment_arbitrary_with_bounds() {
+        let result = increment_value(
+            "99.99",
+            "0.01",
+            NumberInputPrecision::Arbitrary,
+            true,
+            None,
+            Some("100.00"),
+        );
+        assert_eq!(result, "100.00");
     }
 }
