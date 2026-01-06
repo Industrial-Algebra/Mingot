@@ -43,14 +43,20 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         "breadcrumbs" => Some(breadcrumbs_doc()),
         "burger" => Some(burger_doc()),
         "navbar" => Some(navbar_doc()),
+        "pagination" => Some(pagination_doc()),
         "tabs" => Some(tabs_doc()),
         // Form
         "input" => Some(input_doc()),
         "number-input" => Some(number_input_doc()),
         "checkbox" => Some(checkbox_doc()),
+        "file-input" => Some(file_input_doc()),
         "password-input" => Some(password_input_doc()),
+        "pin-input" => Some(pin_input_doc()),
         "radio" => Some(radio_doc()),
         "select" => Some(select_doc()),
+        "slider" => Some(slider_doc()),
+        "range-slider" => Some(range_slider_doc()),
+        "segmented-control" => Some(segmented_control_doc()),
         "switch" => Some(switch_doc()),
         "textarea" => Some(textarea_doc()),
         // Overlay
@@ -183,14 +189,70 @@ fn button_doc() -> ComponentDoc {
 fn number_input_doc() -> ComponentDoc {
     ComponentDoc {
         name: "NumberInput",
-        import_name: "NumberInput, NumberInputPrecision, ParseError",
-        description: "High-precision numeric input supporting u64, u128, i64, i128, fixed decimals, and arbitrary precision via rust_decimal.",
+        import_name: "NumberInput, NumberInputPrecision, NumberInputFormat, NumberInputLocale, ParseError",
+        description: "High-precision numeric input supporting u64, u128, i64, i128, fixed decimals, and arbitrary precision via rust_decimal. Features increment controls, locale formatting, and precision indicators.",
         props: vec![
             PropDoc {
                 name: "precision",
                 prop_type: "NumberInputPrecision",
-                default: Some("U64"),
+                default: Some("I64"),
                 description: "Precision type: U64, U128, I64, I128, Decimal(u32), or Arbitrary",
+                required: false,
+            },
+            PropDoc {
+                name: "show_controls",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show +/- increment/decrement controls",
+                required: false,
+            },
+            PropDoc {
+                name: "step",
+                prop_type: "Option<String>",
+                default: Some("\"1\""),
+                description: "Step size for increment/decrement",
+                required: false,
+            },
+            PropDoc {
+                name: "format_on_blur",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to auto-format value on blur",
+                required: false,
+            },
+            PropDoc {
+                name: "format",
+                prop_type: "Option<NumberInputFormat>",
+                default: Some("Standard"),
+                description: "Format type: Standard, Thousand, Scientific, Engineering",
+                required: false,
+            },
+            PropDoc {
+                name: "locale",
+                prop_type: "Option<NumberInputLocale>",
+                default: None,
+                description: "Locale preset: US, EU, Swiss, Indian",
+                required: false,
+            },
+            PropDoc {
+                name: "show_precision_indicator",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show precision type indicator",
+                required: false,
+            },
+            PropDoc {
+                name: "show_overflow_warning",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show warning when approaching limits",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_mouse_wheel",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether mouse wheel can change value when focused",
                 required: false,
             },
             PropDoc {
@@ -201,115 +263,133 @@ fn number_input_doc() -> ComponentDoc {
                 required: false,
             },
             PropDoc {
-                name: "placeholder",
-                prop_type: "Option<String>",
-                default: None,
-                description: "Placeholder text when empty",
-                required: false,
-            },
-            PropDoc {
                 name: "on_valid_change",
                 prop_type: "Option<Callback<Result<String, ParseError>>>",
                 default: None,
                 description: "Callback fired with validation result on each change",
                 required: false,
             },
-            PropDoc {
-                name: "disabled",
-                prop_type: "Signal<bool>",
-                default: Some("false"),
-                description: "Whether the input is disabled",
-                required: false,
-            },
-            PropDoc {
-                name: "error",
-                prop_type: "Option<String>",
-                default: None,
-                description: "Error message to display",
-                required: false,
-            },
         ],
         demo: || {
             let u64_value = RwSignal::new(String::new());
-            let u128_value = RwSignal::new(String::new());
-            let decimal_value = RwSignal::new(String::new());
+            let controls_value = RwSignal::new("100".to_string());
+            let format_value = RwSignal::new("1234567.89".to_string());
 
             view! {
                 <div>
                     <DemoBlock title="Precision Types">
                         <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 400px;">
-                            <div>
-                                <NumberInput
-                                    precision=NumberInputPrecision::U64
-                                    label="U64 (up to 18,446,744,073,709,551,615)"
-                                    placeholder="Enter a large integer"
-                                    on_valid_change=Callback::new(move |result: Result<String, ParseError>| {
-                                        if let Ok(val) = result {
-                                            u64_value.set(val);
-                                        }
-                                    })
-                                />
-                                <div style="font-size: 0.75rem; color: #868e96; margin-top: 0.25rem;">
-                                    "Value: " {move || u64_value.get()}
-                                </div>
-                            </div>
-
-                            <div>
-                                <NumberInput
-                                    precision=NumberInputPrecision::U128
-                                    label="U128 (up to 340 undecillion)"
-                                    placeholder="Enter a very large integer"
-                                    on_valid_change=Callback::new(move |result: Result<String, ParseError>| {
-                                        if let Ok(val) = result {
-                                            u128_value.set(val);
-                                        }
-                                    })
-                                />
-                                <div style="font-size: 0.75rem; color: #868e96; margin-top: 0.25rem;">
-                                    "Value: " {move || u128_value.get()}
-                                </div>
-                            </div>
-
-                            <div>
-                                <NumberInput
-                                    precision=NumberInputPrecision::Decimal(6)
-                                    label="Decimal (6 places)"
-                                    placeholder="0.000000"
-                                    on_valid_change=Callback::new(move |result: Result<String, ParseError>| {
-                                        if let Ok(val) = result {
-                                            decimal_value.set(val);
-                                        }
-                                    })
-                                />
-                                <div style="font-size: 0.75rem; color: #868e96; margin-top: 0.25rem;">
-                                    "Value: " {move || decimal_value.get()}
-                                </div>
-                            </div>
+                            <NumberInput
+                                precision=NumberInputPrecision::U64
+                                label="U64 (up to 18.4 quintillion)"
+                                placeholder="Enter a large integer"
+                                show_precision_indicator=true
+                                on_valid_change=Callback::new(move |result: Result<String, ParseError>| {
+                                    if let Ok(val) = result {
+                                        u64_value.set(val);
+                                    }
+                                })
+                            />
+                            <NumberInput
+                                precision=NumberInputPrecision::Decimal(6)
+                                label="Decimal (6 places)"
+                                placeholder="0.000000"
+                                show_precision_indicator=true
+                            />
                         </div>
                     </DemoBlock>
 
-                    <h2 class="section-title">"Why NumberInput?"</h2>
-                    <p style="margin-bottom: 1rem;">
-                        "Standard HTML number inputs are limited by JavaScript's Number type (max safe integer: 2"<sup>"53"</sup>"-1). "
-                        "NumberInput handles values up to 2"<sup>"128"</sup>" and beyond with arbitrary precision decimals."
-                    </p>
+                    <h2 class="section-title">"Increment/Decrement Controls"</h2>
+                    <DemoBlock title="With +/- Controls">
+                        <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 400px;">
+                            <NumberInput
+                                value=controls_value
+                                precision=NumberInputPrecision::I64
+                                label="With controls (use arrow keys or click +/-)"
+                                show_controls=true
+                                step="10"
+                                shift_step="100"
+                                allow_mouse_wheel=true
+                                description="Arrow keys: ±10, Shift+Arrow: ±100, Mouse wheel supported"
+                            />
+                            <NumberInput
+                                precision=NumberInputPrecision::Decimal(2)
+                                label="Decimal stepping"
+                                placeholder="0.00"
+                                show_controls=true
+                                step="0.01"
+                                shift_step="1"
+                            />
+                        </div>
+                    </DemoBlock>
 
-                    <DemoBlock title="Real-World Use Cases">
+                    <h2 class="section-title">"Number Formatting"</h2>
+                    <DemoBlock title="Auto-formatting on blur">
+                        <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 400px;">
+                            <NumberInput
+                                value=format_value
+                                precision=NumberInputPrecision::Decimal(2)
+                                label="Thousand separators (US format)"
+                                format_on_blur=true
+                                format=NumberInputFormat::Thousand
+                                locale=NumberInputLocale::US
+                            />
+                            <NumberInput
+                                precision=NumberInputPrecision::Decimal(2)
+                                label="EU format (1.234.567,89)"
+                                placeholder="Enter number"
+                                format_on_blur=true
+                                format=NumberInputFormat::Thousand
+                                locale=NumberInputLocale::EU
+                            />
+                            <NumberInput
+                                precision=NumberInputPrecision::I64
+                                label="Engineering notation (exponents ÷ 3)"
+                                placeholder="e.g., 1234567"
+                                format_on_blur=true
+                                format=NumberInputFormat::Engineering
+                            />
+                        </div>
+                    </DemoBlock>
+
+                    <h2 class="section-title">"Overflow Warnings"</h2>
+                    <DemoBlock title="Approaching limits">
+                        <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 400px;">
+                            <NumberInput
+                                precision=NumberInputPrecision::U64
+                                label="Try entering a value near 18,446,744,073,709,551,615"
+                                placeholder="Enter large value"
+                                show_overflow_warning=true
+                                show_precision_indicator=true
+                            />
+                        </div>
+                    </DemoBlock>
+
+                    <h2 class="section-title">"Real-World Use Cases"</h2>
+                    <DemoBlock title="Domain-specific examples">
                         <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 400px;">
                             <NumberInput
                                 precision=NumberInputPrecision::U64
                                 label="Cryptocurrency: Satoshi Amount"
                                 placeholder="e.g., 100000000 (1 BTC)"
+                                show_controls=true
+                                step="100000"
+                                format_on_blur=true
+                                format=NumberInputFormat::Thousand
                             />
                             <NumberInput
                                 precision=NumberInputPrecision::Decimal(8)
                                 label="Financial: Exact Currency"
-                                placeholder="e.g., 1234567.89012345"
+                                placeholder="e.g., 1234567.89"
+                                format_on_blur=true
+                                locale=NumberInputLocale::US
                             />
                             <NumberInput
                                 precision=NumberInputPrecision::I128
-                                label="Scientific: Large Signed Values"
-                                placeholder="Positive or negative"
+                                label="Scientific: Large Values (auto-scientific)"
+                                placeholder="Values > 1 trillion become scientific"
+                                auto_scientific_threshold=1000000000000.0
+                                format_on_blur=true
                             />
                         </div>
                     </DemoBlock>
@@ -2524,6 +2604,518 @@ fn error_page_doc() -> ComponentDoc {
                             <Text weight=TextWeight::Bold>"500 - Internal Server Error"</Text>
                             <Text size=TextSize::Sm color="dimmed">"Something went wrong on our end."</Text>
                         </Card>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+// ============================================================================
+// New Form Components (v0.5.0)
+// ============================================================================
+
+fn slider_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Slider",
+        import_name: "Slider, SliderSize, SliderMark",
+        description: "A slider component for selecting numeric values within a range.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<f64>",
+                default: None,
+                description: "Current value of the slider",
+                required: true,
+            },
+            PropDoc {
+                name: "min",
+                prop_type: "f64",
+                default: Some("0.0"),
+                description: "Minimum value",
+                required: false,
+            },
+            PropDoc {
+                name: "max",
+                prop_type: "f64",
+                default: Some("100.0"),
+                description: "Maximum value",
+                required: false,
+            },
+            PropDoc {
+                name: "step",
+                prop_type: "f64",
+                default: Some("1.0"),
+                description: "Step increment (0.0 for continuous)",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<SliderSize>",
+                default: Some("Md"),
+                description: "Size of the slider: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label displayed above the slider",
+                required: false,
+            },
+            PropDoc {
+                name: "show_value",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show the current value",
+                required: false,
+            },
+            PropDoc {
+                name: "marks",
+                prop_type: "Option<Vec<SliderMark>>",
+                default: None,
+                description: "Marks to display on the track",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<f64>>",
+                default: None,
+                description: "Callback when value changes",
+                required: false,
+            },
+        ],
+        demo: || {
+            let slider_value = RwSignal::new(50.0);
+
+            view! {
+                <DemoBlock title="Slider">
+                    <Stack spacing="lg">
+                        <div>
+                            <Slider
+                                value=slider_value
+                                min=0.0
+                                max=100.0
+                                label="Volume"
+                                show_value=true
+                                on_change=Callback::new(move |v| slider_value.set(v))
+                            />
+                        </div>
+                        <div>
+                            <Slider
+                                value=Signal::derive(move || 25.0)
+                                min=0.0
+                                max=100.0
+                                label="With marks"
+                                marks=vec![
+                                    SliderMark::with_label(0.0, "0%"),
+                                    SliderMark::with_label(50.0, "50%"),
+                                    SliderMark::with_label(100.0, "100%"),
+                                ]
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn range_slider_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "RangeSlider",
+        import_name: "RangeSlider, SliderSize",
+        description: "A dual-handle slider for selecting a range of values.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<(f64, f64)>",
+                default: None,
+                description: "Current range value (min, max)",
+                required: true,
+            },
+            PropDoc {
+                name: "min",
+                prop_type: "f64",
+                default: Some("0.0"),
+                description: "Minimum allowed value",
+                required: false,
+            },
+            PropDoc {
+                name: "max",
+                prop_type: "f64",
+                default: Some("100.0"),
+                description: "Maximum allowed value",
+                required: false,
+            },
+            PropDoc {
+                name: "min_range",
+                prop_type: "f64",
+                default: Some("0.0"),
+                description: "Minimum gap between handles",
+                required: false,
+            },
+            PropDoc {
+                name: "step",
+                prop_type: "f64",
+                default: Some("1.0"),
+                description: "Step increment",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label displayed above the slider",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<(f64, f64)>>",
+                default: None,
+                description: "Callback when range changes",
+                required: false,
+            },
+        ],
+        demo: || {
+            let range_value = RwSignal::new((25.0, 75.0));
+
+            view! {
+                <DemoBlock title="Range Slider">
+                    <Stack spacing="lg">
+                        <div>
+                            <RangeSlider
+                                value=range_value
+                                min=0.0
+                                max=100.0
+                                label="Price Range"
+                                show_value=true
+                                on_change=Callback::new(move |v| range_value.set(v))
+                            />
+                        </div>
+                        <Text size=TextSize::Sm color="dimmed">
+                            {move || format!("Selected: ${} - ${}", range_value.get().0 as i32, range_value.get().1 as i32)}
+                        </Text>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn segmented_control_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "SegmentedControl",
+        import_name: "SegmentedControl, SegmentedControlItem, SegmentedControlSize",
+        description: "A toggle button group for single selection, like styled radio buttons.",
+        props: vec![
+            PropDoc {
+                name: "data",
+                prop_type: "Vec<SegmentedControlItem>",
+                default: None,
+                description: "Items to display (value, label, disabled)",
+                required: true,
+            },
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<String>",
+                default: None,
+                description: "Currently selected value",
+                required: true,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<SegmentedControlSize>",
+                default: Some("Md"),
+                description: "Size: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "full_width",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to take full container width",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Callback when selection changes",
+                required: false,
+            },
+        ],
+        demo: || {
+            let selected = RwSignal::new("react".to_string());
+
+            view! {
+                <DemoBlock title="Segmented Control">
+                    <Stack spacing="lg">
+                        <SegmentedControl
+                            data=vec![
+                                SegmentedControlItem::new("react", "React"),
+                                SegmentedControlItem::new("vue", "Vue"),
+                                SegmentedControlItem::new("svelte", "Svelte"),
+                                SegmentedControlItem::new("angular", "Angular"),
+                            ]
+                            value=selected
+                            on_change=Callback::new(move |v| selected.set(v))
+                        />
+                        <Text size=TextSize::Sm color="dimmed">
+                            {move || format!("Selected: {}", selected.get())}
+                        </Text>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn file_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "FileInput",
+        import_name: "FileInput, FileInfo",
+        description: "A file input component for uploading files with a styled interface.",
+        props: vec![
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label displayed above the input",
+                required: false,
+            },
+            PropDoc {
+                name: "placeholder",
+                prop_type: "Option<String>",
+                default: Some("\"Choose file...\""),
+                description: "Placeholder text when no file is selected",
+                required: false,
+            },
+            PropDoc {
+                name: "accept",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Accepted file types (e.g., \".pdf,.doc\" or \"image/*\")",
+                required: false,
+            },
+            PropDoc {
+                name: "multiple",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether multiple files can be selected",
+                required: false,
+            },
+            PropDoc {
+                name: "clearable",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show a clear button",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Vec<FileInfo>>>",
+                default: None,
+                description: "Callback when files are selected",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="File Input">
+                    <Stack spacing="lg">
+                        <FileInput
+                            label="Upload document"
+                            accept=".pdf,.doc,.docx"
+                            placeholder="Choose a document..."
+                        />
+                        <FileInput
+                            label="Upload images"
+                            accept="image/*"
+                            multiple=true
+                            placeholder="Choose images..."
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn pin_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "PinInput",
+        import_name: "PinInput, PinInputType",
+        description: "A PIN input component for entering verification codes, OTPs, etc.",
+        props: vec![
+            PropDoc {
+                name: "length",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of input fields",
+                required: false,
+            },
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<String>",
+                default: None,
+                description: "Current value (concatenated)",
+                required: true,
+            },
+            PropDoc {
+                name: "input_type",
+                prop_type: "Option<PinInputType>",
+                default: Some("Number"),
+                description: "Type of allowed characters: Number, Alphanumeric, Text",
+                required: false,
+            },
+            PropDoc {
+                name: "mask",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to mask input like a password",
+                required: false,
+            },
+            PropDoc {
+                name: "placeholder",
+                prop_type: "Option<String>",
+                default: Some("\"○\""),
+                description: "Placeholder character for empty fields",
+                required: false,
+            },
+            PropDoc {
+                name: "on_complete",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Callback when all fields are filled",
+                required: false,
+            },
+        ],
+        demo: || {
+            let pin_value = RwSignal::new(String::new());
+
+            view! {
+                <DemoBlock title="PIN Input">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm weight=TextWeight::Medium>"Enter verification code"</Text>
+                            <PinInput
+                                length=6
+                                value=pin_value
+                                on_complete=Callback::new(move |code: String| {
+                                    web_sys::console::log_1(&format!("Code entered: {}", code).into());
+                                })
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm weight=TextWeight::Medium>"Masked PIN"</Text>
+                            <PinInput
+                                length=4
+                                value=Signal::derive(|| String::new())
+                                mask=true
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn pagination_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "Pagination",
+        import_name: "Pagination, PaginationSize",
+        description: "A pagination component for navigating through pages of content.",
+        props: vec![
+            PropDoc {
+                name: "total",
+                prop_type: "usize",
+                default: None,
+                description: "Total number of pages",
+                required: true,
+            },
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<usize>",
+                default: None,
+                description: "Current page (1-indexed)",
+                required: true,
+            },
+            PropDoc {
+                name: "siblings",
+                prop_type: "usize",
+                default: Some("1"),
+                description: "Number of siblings on each side of current page",
+                required: false,
+            },
+            PropDoc {
+                name: "boundaries",
+                prop_type: "usize",
+                default: Some("1"),
+                description: "Number of elements at the start and end",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<PaginationSize>",
+                default: Some("Md"),
+                description: "Size of the pagination buttons: Xs, Sm, Md, Lg, Xl",
+                required: false,
+            },
+            PropDoc {
+                name: "with_edges",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show first/last page buttons",
+                required: false,
+            },
+            PropDoc {
+                name: "with_controls",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show previous/next buttons",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<usize>>",
+                default: None,
+                description: "Callback when page changes",
+                required: false,
+            },
+        ],
+        demo: || {
+            let current_page = RwSignal::new(1_usize);
+            let edge_page = RwSignal::new(10_usize);
+
+            view! {
+                <DemoBlock title="Pagination">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Basic pagination"</Text>
+                            <Pagination
+                                total=10
+                                value=current_page
+                                on_change=Callback::new(move |p| current_page.set(p))
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"With edge buttons"</Text>
+                            <Pagination
+                                total=20
+                                value=edge_page
+                                with_edges=true
+                                siblings=2
+                                on_change=Callback::new(move |p| edge_page.set(p))
+                            />
+                        </div>
                     </Stack>
                 </DemoBlock>
             }
