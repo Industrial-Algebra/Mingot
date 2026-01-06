@@ -350,8 +350,10 @@ where
     }
 }
 
+/// Simple pagination component for use with tables.
+/// For a standalone pagination component with more features, use `Pagination` from the pagination module.
 #[component]
-pub fn Pagination(
+pub fn TablePagination(
     #[prop(into)] current_page: Signal<usize>,
     #[prop(into)] total_pages: Signal<usize>,
     #[prop(into)] on_page_change: Callback<usize>,
@@ -614,7 +616,7 @@ where
             {move || {
                 if total_items.get() > 0 {
                     view! {
-                        <Pagination
+                        <TablePagination
                             current_page=Signal::from(current_page)
                             total_pages=total_pages
                             on_page_change=Callback::new(move |page: usize| {
