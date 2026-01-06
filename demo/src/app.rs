@@ -39,15 +39,21 @@ pub fn App() -> impl IntoView {
                         <Route path=path!("/navigation/breadcrumbs") view=move || view! { <ComponentPage slug="breadcrumbs" /> } />
                         <Route path=path!("/navigation/burger") view=move || view! { <ComponentPage slug="burger" /> } />
                         <Route path=path!("/navigation/navbar") view=move || view! { <ComponentPage slug="navbar" /> } />
+                        <Route path=path!("/navigation/pagination") view=move || view! { <ComponentPage slug="pagination" /> } />
                         <Route path=path!("/navigation/tabs") view=move || view! { <ComponentPage slug="tabs" /> } />
 
                         // Form components
                         <Route path=path!("/form/checkbox") view=move || view! { <ComponentPage slug="checkbox" /> } />
+                        <Route path=path!("/form/file-input") view=move || view! { <ComponentPage slug="file-input" /> } />
                         <Route path=path!("/form/input") view=move || view! { <ComponentPage slug="input" /> } />
                         <Route path=path!("/form/number-input") view=move || view! { <ComponentPage slug="number-input" /> } />
                         <Route path=path!("/form/password-input") view=move || view! { <ComponentPage slug="password-input" /> } />
+                        <Route path=path!("/form/pin-input") view=move || view! { <ComponentPage slug="pin-input" /> } />
                         <Route path=path!("/form/radio") view=move || view! { <ComponentPage slug="radio" /> } />
+                        <Route path=path!("/form/range-slider") view=move || view! { <ComponentPage slug="range-slider" /> } />
+                        <Route path=path!("/form/segmented-control") view=move || view! { <ComponentPage slug="segmented-control" /> } />
                         <Route path=path!("/form/select") view=move || view! { <ComponentPage slug="select" /> } />
+                        <Route path=path!("/form/slider") view=move || view! { <ComponentPage slug="slider" /> } />
                         <Route path=path!("/form/switch") view=move || view! { <ComponentPage slug="switch" /> } />
                         <Route path=path!("/form/textarea") view=move || view! { <ComponentPage slug="textarea" /> } />
 

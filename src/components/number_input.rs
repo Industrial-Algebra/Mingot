@@ -21,8 +21,19 @@ pub enum NumberInputPrecision {
 pub enum NumberInputFormat {
     #[default]
     Standard, // 123456789
-    Thousand,   // 123,456,789
-    Scientific, // 1.23e8
+    Thousand,    // 123,456,789
+    Scientific,  // 1.23456789e8
+    Engineering, // 123.456789e6 (exponents divisible by 3)
+}
+
+/// Locale presets for number formatting
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+pub enum NumberInputLocale {
+    #[default]
+    US, // 1,234,567.89
+    EU,     // 1.234.567,89
+    Swiss,  // 1'234'567.89
+    Indian, // 12,34,567.89
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -197,12 +208,252 @@ fn convert_to_scientific(input: &str) -> String {
     }
 }
 
+/// Convert to engineering notation (exponents divisible by 3)
+fn convert_to_engineering(input: &str) -> String {
+    let cleaned = input.replace([',', '_'], "");
+
+    if let Ok(num) = cleaned.parse::<f64>() {
+        if num == 0.0 {
+            return "0".to_string();
+        }
+
+        let abs_num = num.abs();
+        let log10 = abs_num.log10().floor() as i32;
+        // Round down to nearest multiple of 3
+        let exp = (log10 / 3) * 3;
+        let mantissa = num / 10_f64.powi(exp);
+
+        if exp == 0 {
+            format!("{}", mantissa)
+        } else {
+            format!("{}e{}", mantissa, exp)
+        }
+    } else {
+        input.to_string()
+    }
+}
+
+/// Get locale-specific separators
+fn get_locale_separators(locale: NumberInputLocale) -> (char, char) {
+    match locale {
+        NumberInputLocale::US => (',', '.'),
+        NumberInputLocale::EU => ('.', ','),
+        NumberInputLocale::Swiss => ('\'', '.'),
+        NumberInputLocale::Indian => (',', '.'),
+    }
+}
+
+/// Add thousand separators with Indian numbering system (12,34,567)
+fn add_indian_separators(input: &str) -> String {
+    let cleaned = input.replace([',', '_'], "");
+    let parts: Vec<&str> = cleaned.split('.').collect();
+
+    let integer_part = parts[0];
+    let is_negative = integer_part.starts_with('-');
+    let abs_part = if is_negative {
+        &integer_part[1..]
+    } else {
+        integer_part
+    };
+
+    let len = abs_part.len();
+    if len <= 3 {
+        return cleaned;
+    }
+
+    let mut result = String::new();
+    let chars: Vec<char> = abs_part.chars().collect();
+
+    // First group of 3 from the right, then groups of 2
+    for (i, ch) in chars.iter().enumerate() {
+        let pos_from_right = len - i;
+        if i > 0 && (pos_from_right == 3 || (pos_from_right > 3 && (pos_from_right - 3) % 2 == 0)) {
+            result.push(',');
+        }
+        result.push(*ch);
+    }
+
+    if is_negative {
+        result = format!("-{}", result);
+    }
+
+    if parts.len() > 1 {
+        result = format!("{}.{}", result, parts[1]);
+    }
+
+    result
+}
+
 fn format_number(input: &str, format: NumberInputFormat, thousand_separator: char) -> String {
     match format {
         NumberInputFormat::Standard => input.to_string(),
         NumberInputFormat::Thousand => add_thousand_separators(input, thousand_separator),
         NumberInputFormat::Scientific => convert_to_scientific(input),
+        NumberInputFormat::Engineering => convert_to_engineering(input),
     }
+}
+
+/// Format number according to locale settings
+fn format_number_locale(
+    input: &str,
+    format: NumberInputFormat,
+    locale: NumberInputLocale,
+) -> String {
+    let (thousand_sep, decimal_sep) = get_locale_separators(locale);
+
+    match format {
+        NumberInputFormat::Thousand => {
+            // For locale formatting, we need to handle decimal separator carefully
+            let cleaned = input.replace([',', '_'], "");
+            let parts: Vec<&str> = cleaned.split('.').collect();
+
+            // Format integer part with thousand separators
+            let integer_formatted = if matches!(locale, NumberInputLocale::Indian) {
+                add_indian_separators(parts[0])
+            } else {
+                add_thousand_separators(parts[0], thousand_sep)
+            };
+
+            // Rejoin with locale's decimal separator
+            if parts.len() > 1 {
+                format!("{}{}{}", integer_formatted, decimal_sep, parts[1])
+            } else {
+                integer_formatted
+            }
+        }
+        NumberInputFormat::Standard => input.to_string(),
+        NumberInputFormat::Scientific => convert_to_scientific(input),
+        NumberInputFormat::Engineering => convert_to_engineering(input),
+    }
+}
+
+/// Calculate the number of decimal places in a value
+fn count_decimal_places(input: &str) -> u32 {
+    let cleaned = input.replace([',', '_'], "");
+    if let Some(dot_pos) = cleaned.find('.') {
+        (cleaned.len() - dot_pos - 1) as u32
+    } else {
+        0
+    }
+}
+
+/// Calculate the total number of significant digits
+fn count_significant_digits(input: &str) -> usize {
+    let cleaned = input.replace([',', '_', '.', '-', '+'], "");
+    // Remove leading zeros
+    let trimmed = cleaned.trim_start_matches('0');
+    if trimmed.is_empty() {
+        1 // "0" has 1 significant digit
+    } else {
+        trimmed.len()
+    }
+}
+
+/// Get a human-readable precision description
+fn get_precision_description(precision: NumberInputPrecision) -> &'static str {
+    match precision {
+        NumberInputPrecision::U64 => "Unsigned 64-bit integer (0 to 18.4 quintillion)",
+        NumberInputPrecision::U128 => "Unsigned 128-bit integer (0 to 340 undecillion)",
+        NumberInputPrecision::I64 => "Signed 64-bit integer (±9.2 quintillion)",
+        NumberInputPrecision::I128 => "Signed 128-bit integer (±170 undecillion)",
+        NumberInputPrecision::Decimal(_) => "Fixed decimal precision",
+        #[cfg(feature = "high-precision")]
+        NumberInputPrecision::Arbitrary => "Arbitrary precision (28-29 significant digits)",
+    }
+}
+
+/// Check if a value is approaching the type's limits
+fn check_overflow_warning(
+    input: &str,
+    precision: NumberInputPrecision,
+    threshold_percent: f64,
+) -> Option<String> {
+    if input.is_empty() {
+        return None;
+    }
+
+    let cleaned = input.replace([',', '_'], "");
+
+    match precision {
+        NumberInputPrecision::U64 => {
+            if let Ok(val) = cleaned.parse::<u64>() {
+                let max = u64::MAX as f64;
+                let current = val as f64;
+                if current / max > threshold_percent {
+                    return Some(format!(
+                        "Value is {:.1}% of maximum ({})",
+                        (current / max) * 100.0,
+                        u64::MAX
+                    ));
+                }
+            }
+        }
+        NumberInputPrecision::U128 => {
+            if let Ok(val) = cleaned.parse::<u128>() {
+                // Use string length comparison for u128 since it can't fit in f64
+                let max_len = u128::MAX.to_string().len();
+                let val_len = val.to_string().len();
+                if val_len >= max_len - 1 {
+                    return Some(format!("Value is approaching maximum ({})", u128::MAX));
+                }
+            }
+        }
+        NumberInputPrecision::I64 => {
+            if let Ok(val) = cleaned.parse::<i64>() {
+                let max = i64::MAX as f64;
+                let min = i64::MIN as f64;
+                let current = val as f64;
+                if current / max > threshold_percent {
+                    return Some(format!(
+                        "Value is {:.1}% of maximum ({})",
+                        (current / max) * 100.0,
+                        i64::MAX
+                    ));
+                }
+                if current / min > threshold_percent {
+                    return Some(format!(
+                        "Value is {:.1}% of minimum ({})",
+                        (current / min) * 100.0,
+                        i64::MIN
+                    ));
+                }
+            }
+        }
+        NumberInputPrecision::I128 => {
+            if let Ok(val) = cleaned.parse::<i128>() {
+                let max_len = i128::MAX.to_string().len();
+                let val_str = val.to_string();
+                let val_len = if val_str.starts_with('-') {
+                    val_str.len() - 1
+                } else {
+                    val_str.len()
+                };
+                if val_len >= max_len - 1 {
+                    if val >= 0 {
+                        return Some(format!("Value is approaching maximum ({})", i128::MAX));
+                    } else {
+                        return Some(format!("Value is approaching minimum ({})", i128::MIN));
+                    }
+                }
+            }
+        }
+        NumberInputPrecision::Decimal(places) => {
+            // Check if we're approaching decimal place limit
+            let current_places = count_decimal_places(&cleaned);
+            if current_places >= places {
+                return Some(format!("At maximum {} decimal places", places));
+            }
+        }
+        #[cfg(feature = "high-precision")]
+        NumberInputPrecision::Arbitrary => {
+            let sig_digits = count_significant_digits(&cleaned);
+            if sig_digits >= 27 {
+                return Some(format!("Using {} of ~28-29 significant digits", sig_digits));
+            }
+        }
+    }
+
+    None
 }
 
 /// Normalize a pasted number by detecting and handling various formats
@@ -499,6 +750,9 @@ pub fn NumberInput(
     /// Format to apply to displayed value (on blur)
     #[prop(optional)]
     format: Option<NumberInputFormat>,
+    /// Locale preset for formatting (overrides decimal/thousand separator)
+    #[prop(optional)]
+    locale: Option<NumberInputLocale>,
     /// Decimal separator character (default: '.')
     #[prop(default = '.')]
     decimal_separator: char,
@@ -508,6 +762,21 @@ pub fn NumberInput(
     /// Whether to auto-format value on blur
     #[prop(default = false)]
     format_on_blur: bool,
+    /// Threshold for auto-switching to scientific notation (e.g., 1e12 = 1 trillion)
+    /// Set to 0 to disable auto-switch
+    #[prop(default = 0.0)]
+    auto_scientific_threshold: f64,
+
+    // Visual indicators
+    /// Whether to show precision type indicator below the input
+    #[prop(default = false)]
+    show_precision_indicator: bool,
+    /// Whether to show warning when approaching type limits
+    #[prop(default = false)]
+    show_overflow_warning: bool,
+    /// Threshold for overflow warning (0.0-1.0, default 0.9 = 90% of max)
+    #[prop(default = 0.9)]
+    overflow_warning_threshold: f64,
 
     // Validation options
     #[prop(optional)] allow_negative: bool,
@@ -833,7 +1102,7 @@ pub fn NumberInput(
     let handle_blur = move |_ev: ev::FocusEvent| {
         is_focused.set(false);
 
-        if !format_on_blur {
+        if !format_on_blur && auto_scientific_threshold == 0.0 {
             return;
         }
 
@@ -842,10 +1111,24 @@ pub fn NumberInput(
             return;
         }
 
-        let format_type = format.unwrap_or(NumberInputFormat::Thousand);
-        let formatted = format_number(&current, format_type, thousand_separator);
+        // Check for auto-scientific notation switch
+        let mut format_type = format.unwrap_or(NumberInputFormat::Thousand);
+        if auto_scientific_threshold > 0.0 {
+            if let Ok(num) = current.replace([',', '_'], "").parse::<f64>() {
+                if num.abs() >= auto_scientific_threshold {
+                    format_type = NumberInputFormat::Scientific;
+                }
+            }
+        }
 
-        // Update the displayed value (but keep the raw value internally the same)
+        // Apply formatting with locale support if specified
+        let formatted = if let Some(loc) = locale {
+            format_number_locale(&current, format_type, loc)
+        } else {
+            format_number(&current, format_type, thousand_separator)
+        };
+
+        // Update the displayed value
         number_value.set(formatted);
     };
 
@@ -853,20 +1136,29 @@ pub fn NumberInput(
     let handle_focus = move |_ev: ev::FocusEvent| {
         is_focused.set(true);
 
-        if !format_on_blur {
+        if !format_on_blur && auto_scientific_threshold == 0.0 {
             return;
         }
 
+        // Get the separators to strip (either from locale or explicit props)
+        let (thou_sep, dec_sep) = if let Some(loc) = locale {
+            get_locale_separators(loc)
+        } else {
+            (thousand_separator, decimal_separator)
+        };
+
         // Strip formatting on focus to allow editing
         let current = number_value.get();
+
+        // Also strip 'e' notation separators and locale-specific separators
         let cleaned = current
-            .replace([thousand_separator, '_'], "")
+            .replace([thou_sep, '_', '\'', ' '], "")
             .trim()
             .to_string();
 
-        // Also handle alternate decimal separators
-        let cleaned = if decimal_separator != '.' {
-            cleaned.replace(decimal_separator, ".")
+        // Handle alternate decimal separators
+        let cleaned = if dec_sep != '.' {
+            cleaned.replace(dec_sep, ".")
         } else {
             cleaned
         };
@@ -1219,6 +1511,72 @@ pub fn NumberInput(
                 <div style=description_styles>{d}</div>
             })}
 
+            // Precision indicator
+            {show_precision_indicator.then(|| {
+                let precision_description = get_precision_description(precision);
+                let indicator_styles = move || {
+                    let theme_val = theme.get();
+                    let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+                    format!(
+                        "margin-top: 0.25rem; font-size: {}; color: {}; display: flex; align-items: center; gap: 0.25rem;",
+                        theme_val.typography.font_sizes.xs,
+                        scheme_colors
+                            .get_color("blue", 6)
+                            .unwrap_or_else(|| "#228be6".to_string())
+                    )
+                };
+                view! {
+                    <div
+                        class="mingot-number-input-precision-indicator"
+                        style=indicator_styles
+                        role="status"
+                        aria-label=format!("Precision: {}", precision_description)
+                    >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>{precision_description}</span>
+                    </div>
+                }
+            })}
+
+            // Overflow warning
+            {show_overflow_warning.then(|| {
+                let warning_styles = move || {
+                    let theme_val = theme.get();
+                    let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+                    format!(
+                        "margin-top: 0.25rem; font-size: {}; color: {}; display: flex; align-items: center; gap: 0.25rem;",
+                        theme_val.typography.font_sizes.xs,
+                        scheme_colors
+                            .get_color("orange", 6)
+                            .unwrap_or_else(|| "#fd7e14".to_string())
+                    )
+                };
+                let warning_message = move || {
+                    check_overflow_warning(&number_value.get(), precision, overflow_warning_threshold)
+                };
+                view! {
+                    {move || warning_message().map(|msg| view! {
+                        <div
+                            class="mingot-number-input-overflow-warning"
+                            style=warning_styles
+                            role="alert"
+                            aria-live="polite"
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <span>{msg}</span>
+                        </div>
+                    })}
+                }
+            })}
+
             {error.map(|e| view! {
                 <div style=error_styles>{e}</div>
             })}
@@ -1422,6 +1780,108 @@ mod tests {
         assert!(!is_valid_char('.', "12.3", false, true, false)); // Already has decimal
         assert!(is_valid_char('e', "123", false, false, true));
         assert!(!is_valid_char('a', "123", false, false, false));
+    }
+
+    #[test]
+    fn test_format_number_engineering() {
+        // Engineering notation (exponents divisible by 3)
+        let result = convert_to_engineering("1234567");
+        assert!(result.contains("e6")); // 1.234567e6
+
+        let result = convert_to_engineering("1000000000");
+        assert!(result.contains("e9")); // 1e9
+
+        let result = convert_to_engineering("123");
+        assert!(!result.contains("e")); // No exponent for small numbers
+
+        let result = convert_to_engineering("0.000123");
+        assert!(result.contains("e-3") || result.contains("e-6")); // Engineering notation for small
+    }
+
+    #[test]
+    fn test_locale_separators() {
+        assert_eq!(get_locale_separators(NumberInputLocale::US), (',', '.'));
+        assert_eq!(get_locale_separators(NumberInputLocale::EU), ('.', ','));
+        assert_eq!(get_locale_separators(NumberInputLocale::Swiss), ('\'', '.'));
+        assert_eq!(get_locale_separators(NumberInputLocale::Indian), (',', '.'));
+    }
+
+    #[test]
+    fn test_indian_number_format() {
+        assert_eq!(add_indian_separators("1234567"), "12,34,567");
+        assert_eq!(add_indian_separators("12345678"), "1,23,45,678");
+        assert_eq!(add_indian_separators("123"), "123");
+        assert_eq!(add_indian_separators("1234"), "1,234");
+    }
+
+    #[test]
+    fn test_count_decimal_places() {
+        assert_eq!(count_decimal_places("123"), 0);
+        assert_eq!(count_decimal_places("123.45"), 2);
+        assert_eq!(count_decimal_places("123.456789"), 6);
+        assert_eq!(count_decimal_places("0.1"), 1);
+    }
+
+    #[test]
+    fn test_count_significant_digits() {
+        assert_eq!(count_significant_digits("123"), 3);
+        assert_eq!(count_significant_digits("00123"), 3);
+        assert_eq!(count_significant_digits("123.456"), 6);
+        assert_eq!(count_significant_digits("0"), 1);
+        assert_eq!(count_significant_digits("-123.45"), 5);
+    }
+
+    #[test]
+    fn test_overflow_warning_u64() {
+        // No warning for small values
+        assert!(check_overflow_warning("1000", NumberInputPrecision::U64, 0.9).is_none());
+
+        // Warning for values close to max
+        let large_val = format!("{}", u64::MAX - 100);
+        assert!(check_overflow_warning(&large_val, NumberInputPrecision::U64, 0.9).is_some());
+    }
+
+    #[test]
+    fn test_format_number_locale() {
+        // US format
+        assert_eq!(
+            format_number_locale(
+                "1234567.89",
+                NumberInputFormat::Thousand,
+                NumberInputLocale::US
+            ),
+            "1,234,567.89"
+        );
+
+        // EU format (swap separators)
+        assert_eq!(
+            format_number_locale(
+                "1234567.89",
+                NumberInputFormat::Thousand,
+                NumberInputLocale::EU
+            ),
+            "1.234.567,89"
+        );
+
+        // Swiss format
+        assert_eq!(
+            format_number_locale(
+                "1234567.89",
+                NumberInputFormat::Thousand,
+                NumberInputLocale::Swiss
+            ),
+            "1'234'567.89"
+        );
+
+        // Indian format
+        assert_eq!(
+            format_number_locale(
+                "1234567",
+                NumberInputFormat::Thousand,
+                NumberInputLocale::Indian
+            ),
+            "12,34,567"
+        );
     }
 }
 
