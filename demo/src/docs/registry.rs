@@ -214,6 +214,20 @@ fn number_input_doc() -> ComponentDoc {
                 required: false,
             },
             PropDoc {
+                name: "shift_step",
+                prop_type: "Option<String>",
+                default: Some("10x step"),
+                description: "Step size when Shift key is held (default: 10x step)",
+                required: false,
+            },
+            PropDoc {
+                name: "ctrl_step",
+                prop_type: "Option<String>",
+                default: Some("100x step"),
+                description: "Step size when Ctrl key is held (default: 100x step)",
+                required: false,
+            },
+            PropDoc {
                 name: "format_on_blur",
                 prop_type: "bool",
                 default: Some("false"),
@@ -300,25 +314,40 @@ fn number_input_doc() -> ComponentDoc {
                     </DemoBlock>
 
                     <h2 class="section-title">"Increment/Decrement Controls"</h2>
-                    <DemoBlock title="With +/- Controls">
+                    <DemoBlock title="With +/- Controls and Modifier Keys">
                         <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 400px;">
                             <NumberInput
                                 value=controls_value
                                 precision=NumberInputPrecision::I64
-                                label="With controls (use arrow keys or click +/-)"
+                                label="Step Modifiers (click +/- or use keys)"
                                 show_controls=true
-                                step="10"
-                                shift_step="100"
+                                step="1"
+                                shift_step="10"
+                                ctrl_step="100"
                                 allow_mouse_wheel=true
-                                description="Arrow keys: ±10, Shift+Arrow: ±100, Mouse wheel supported"
+                                description="Click/Arrow: ±1, Shift: ±10, Ctrl: ±100"
                             />
                             <NumberInput
                                 precision=NumberInputPrecision::Decimal(2)
-                                label="Decimal stepping"
+                                label="Decimal stepping with modifiers"
                                 placeholder="0.00"
                                 show_controls=true
                                 step="0.01"
-                                shift_step="1"
+                                shift_step="0.10"
+                                ctrl_step="1.00"
+                                description="Normal: ±0.01, Shift: ±0.10, Ctrl: ±1.00"
+                            />
+                            <NumberInput
+                                precision=NumberInputPrecision::U64
+                                label="Large value stepping"
+                                placeholder="0"
+                                show_controls=true
+                                step="1000"
+                                shift_step="10000"
+                                ctrl_step="100000"
+                                format_on_blur=true
+                                format=NumberInputFormat::Thousand
+                                description="Normal: ±1K, Shift: ±10K, Ctrl: ±100K"
                             />
                         </div>
                     </DemoBlock>
