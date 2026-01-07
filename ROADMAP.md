@@ -164,23 +164,67 @@ Build an interactive component documentation site and close gaps with Mantine UI
 
 ---
 
-## Phase 3B: Advanced Precision Features
+## Phase 3B: Gap Analysis & Precision Display ✅ COMPLETED
 
-**Target**: Q2 2026
+**Status**: Complete
+**Completed**: January 2026
 **Version**: 0.5.0
 
 ### Objectives
 
-Enhance NumberInput with professional-grade features for production applications.
+Close component gaps with Mantine UI library and add precision display features to NumberInput.
 
 ### Deliverables
 
-#### Auto-Formatting
-- [ ] Thousand separators on blur (1,234,567)
-- [ ] Scientific notation formatting (1.23e8)
-- [ ] Engineering notation (123.4e6)
-- [ ] Custom format strings
-- [ ] Locale-aware formatting (European: 1.234.567,89)
+#### Gap Analysis Components (Mantine Parity)
+- [x] **Slider** - Single value selection with customizable marks
+- [x] **RangeSlider** - Range selection with two draggable thumbs
+- [x] **SegmentedControl** - Radio-like segmented button group
+- [x] **FileInput** - File selection with drag-and-drop support
+- [x] **PinInput** - PIN/OTP code entry with auto-focus
+- [x] **Pagination** - Page navigation with customizable boundaries
+
+#### NumberInput Display Features
+- [x] Thousand separators (1,234,567)
+- [x] Scientific notation formatting (1.23e8)
+- [x] Engineering notation (123.4e6) - exponents divisible by 3
+- [x] Locale-aware formatting (US, EU, Swiss, Indian)
+- [x] Precision indicators (shows type and significant digit limits)
+- [x] Overflow warning (approaching precision limits)
+- [x] Auto-scientific notation threshold for large values
+- [x] ARIA labels for precision indicators
+
+### API Example
+
+```rust
+<NumberInput
+    precision=NumberInputPrecision::Decimal(14)
+
+    // Formatting
+    format=NumberInputFormat::Engineering
+    locale=NumberInputLocale::EU
+
+    // Visual indicators
+    show_precision_indicator=true
+    show_overflow_warning=true
+    auto_scientific_threshold=Some(1_000_000_000)
+/>
+```
+
+---
+
+## Phase 4: Scientific Input Components
+
+**Target**: Q2-Q3 2026
+**Version**: 0.6.0
+
+### Objectives
+
+Build specialized input components for scientific computing and complete NumberInput's advanced precision controls. Inspired by [Jupyter Widgets](https://ipywidgets.readthedocs.io/), [Mathematica Manipulate](https://reference.wolfram.com/language/ref/Manipulate.html), and [PyQtGraph](https://www.pyqtgraph.org/).
+
+### NumberInput Advanced Controls
+
+Complete the precision-aware interactive controls for NumberInput.
 
 #### Increment/Decrement Controls
 - [ ] +/- buttons with precision-aware stepping
@@ -195,54 +239,21 @@ Enhance NumberInput with professional-grade features for production applications
 - [ ] Context menu for format conversion
 - [ ] Undo/redo for value changes
 
-#### Visual Enhancements
-- [ ] Precision indicators (e.g., "14 decimal places")
-- [ ] Real-time validation feedback
-- [ ] Overflow warning (approaching limits)
-- [ ] Scientific notation auto-switch for large values
-
-#### Accessibility
-- [ ] Screen reader precision announcements
-- [ ] ARIA labels for precision indicators
-- [ ] Keyboard-only operation
-- [ ] High-contrast mode support
-
-### API Additions
-
 ```rust
 <NumberInput
     precision=NumberInputPrecision::Decimal(14)
-
-    // Auto-formatting
-    format_on_blur=true
-    format=NumberInputFormat::Thousand
-    locale="en-US"
 
     // Increment controls
     show_controls=true
     step="0.01"
     shift_step="0.1"
+    ctrl_step="1.0"
 
     // Enhanced input
     allow_paste_format_detection=true
     convert_scientific_on_paste=true
-
-    // Visual
-    show_precision_indicator=true
-    show_overflow_warning=true
 />
 ```
-
----
-
-## Phase 4: Scientific Input Components
-
-**Target**: Q2 2026
-**Version**: 0.5.0
-
-### Objectives
-
-Build specialized input components for scientific computing, inspired by [Jupyter Widgets](https://ipywidgets.readthedocs.io/), [Mathematica Manipulate](https://reference.wolfram.com/language/ref/Manipulate.html), and [PyQtGraph](https://www.pyqtgraph.org/).
 
 ### Core Scientific Inputs
 
@@ -441,8 +452,8 @@ Build specialized input components for scientific computing, inspired by [Jupyte
 
 ## Phase 5: Mathematical Expression & Data Entry
 
-**Target**: Q3-Q4 2026
-**Version**: 0.6.0
+**Target**: Q4 2026
+**Version**: 0.7.0
 
 ### Objectives
 
@@ -623,7 +634,7 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 ## Phase 6: Visualization & Analysis
 
 **Target**: 2027
-**Version**: 0.7.0
+**Version**: 0.8.0
 
 ### Components
 
@@ -650,7 +661,7 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 ## Phase 7: Node-Based Network UI
 
 **Target**: 2027
-**Version**: 0.8.0
+**Version**: 0.9.0
 
 ### Objectives
 
@@ -815,6 +826,306 @@ graph.from_json(json);
 
 ---
 
+## Phase 8: Theme System & Custom Themes
+
+**Target**: 2027+
+**Version**: 1.0.0
+
+### Objectives
+
+Expand Mingot's theming capabilities with production-ready themes and a flexible theme creation system. Some themes will be designed in Figma and translated to Mingot's theme system.
+
+### Deliverables
+
+#### Built-in Themes
+- [ ] **Mingot Default** - Current theme, refined and polished
+- [ ] **Mingot Dark** - Dark mode variant of default
+- [ ] **Industrial** - Industrial Algebra brand theme
+- [ ] **Scientific** - Clean, academic aesthetic for research applications
+- [ ] **Financial** - Professional theme for fintech applications
+- [ ] **TBD (Figma)** - Custom themes designed in Figma
+
+#### Theme System Enhancements
+- [ ] Theme switching without page reload
+- [ ] CSS custom property extraction
+- [ ] Theme inheritance (extend existing themes)
+- [ ] Component-level theme overrides
+- [ ] Theme validation and type safety
+
+#### Figma Integration Workflow
+- [ ] Figma design tokens export format
+- [ ] Theme generator from Figma variables
+- [ ] Documentation for Figma-to-Mingot workflow
+- [ ] Example Figma component library
+
+#### Theme API
+```rust
+// Define a custom theme
+let my_theme = Theme::new()
+    .extend(themes::MINGOT_DARK)
+    .colors(ColorScheme {
+        primary: "#6366f1",
+        secondary: "#8b5cf6",
+        accent: "#22d3ee",
+        ..Default::default()
+    })
+    .typography(Typography {
+        font_family: "'JetBrains Mono', monospace",
+        ..Default::default()
+    })
+    .radius(Radius::rounded())  // All rounded corners
+    .shadows(Shadows::subtle()); // Subtle shadow preset
+
+// Use in app
+view! {
+    <ThemeProvider theme=my_theme>
+        <App />
+    </ThemeProvider>
+}
+```
+
+#### Theme Presets
+```rust
+// Quick theme presets
+<ThemeProvider theme=themes::SCIENTIFIC />
+<ThemeProvider theme=themes::FINANCIAL />
+<ThemeProvider theme=themes::INDUSTRIAL />
+
+// Dynamic theming
+let user_theme = create_signal(themes::MINGOT_DEFAULT);
+<ThemeProvider theme=user_theme />
+```
+
+### Design Goals
+
+- **Consistency**: All 50+ components respect theme values
+- **Accessibility**: All themes meet WCAG 2.1 AA contrast requirements
+- **Performance**: Theme switching is instantaneous (CSS variables)
+- **Customization**: Override any theme value at any level
+- **Documentation**: Each theme documented with usage guidelines
+
+---
+
+## Phase 9: VFX Extension (WGSL Shaders)
+
+**Target**: 2027+
+**Version**: 1.1.0
+
+### Objectives
+
+Add a visual effects framework to Mingot leveraging WGSL (WebGPU Shading Language) shaders for high-performance, GPU-accelerated visual effects. Inspired by effects seen on sites like Mercury Bank (plasma-shader buttons) and creative web experiences.
+
+### Vision
+
+Transform standard UI components into dynamic, visually stunning elements without sacrificing performance or accessibility. The VFX extension will be opt-in, ensuring zero overhead for applications that don't need visual effects.
+
+### Core Architecture
+
+#### ShaderCanvas
+```rust
+<ShaderCanvas
+    shader=shaders::PLASMA
+    uniforms=ShaderUniforms {
+        time: time_signal,
+        mouse: mouse_position,
+        color1: "#6366f1",
+        color2: "#22d3ee",
+    }
+    fallback=view! { <div class="gradient-fallback" /> }
+/>
+```
+
+**Features**:
+- WebGPU-first with WebGL2 fallback
+- Automatic feature detection
+- Graceful degradation for unsupported browsers
+- CSS fallback for accessibility/reduced-motion
+
+#### VFXButton
+```rust
+<VFXButton
+    effect=ButtonEffect::Plasma
+    intensity=0.8
+    on_hover=ButtonEffect::Glow
+    on_click=ButtonEffect::Ripple
+>
+    "Get Started"
+</VFXButton>
+```
+
+**Built-in Effects**:
+- **Plasma** - Animated plasma/gradient flow (Mercury Bank style)
+- **Glow** - Soft, pulsing glow effect
+- **Ripple** - Material Design-inspired ripple on click
+- **Shimmer** - Loading/skeleton shimmer effect
+- **Aurora** - Northern lights color flow
+- **Noise** - Procedural noise textures
+- **Holographic** - Iridescent/holographic sheen
+
+### Built-in Shaders
+
+#### Background Effects
+```rust
+<VFXBackground effect=BackgroundEffect::Gradient {
+    colors: vec!["#1a1a2e", "#16213e", "#0f3460"],
+    animation: GradientAnimation::Flow { speed: 0.5 },
+} />
+
+<VFXBackground effect=BackgroundEffect::Particles {
+    count: 100,
+    color: "#ffffff",
+    connections: true,
+} />
+
+<VFXBackground effect=BackgroundEffect::Waves {
+    amplitude: 20.0,
+    frequency: 0.02,
+    color: "#3b82f6",
+} />
+```
+
+#### Component Effects
+```rust
+// Glow effect on any component
+<VFXWrapper effect=Effect::Glow { color: "#6366f1", intensity: 0.6 }>
+    <Card>...</Card>
+</VFXWrapper>
+
+// Hover-triggered effects
+<VFXWrapper
+    on_hover=Effect::Scale { amount: 1.05 }
+    on_hover=Effect::Glow { color: "auto", intensity: 0.4 }
+>
+    <Button>Hover Me</Button>
+</VFXWrapper>
+```
+
+### Custom Shader Support
+
+```rust
+// Define custom WGSL shader
+const MY_SHADER: &str = r#"
+    @fragment
+    fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+        let time = uniforms.time;
+        let color = vec3<f32>(
+            sin(uv.x * 10.0 + time) * 0.5 + 0.5,
+            cos(uv.y * 10.0 + time) * 0.5 + 0.5,
+            sin((uv.x + uv.y) * 10.0 + time) * 0.5 + 0.5
+        );
+        return vec4<f32>(color, 1.0);
+    }
+"#;
+
+<ShaderCanvas
+    shader=CustomShader::new(MY_SHADER)
+    uniforms=uniforms
+/>
+```
+
+### Performance & Accessibility
+
+#### Performance Guarantees
+- **Zero CPU overhead**: All effects run on GPU
+- **Lazy initialization**: Shaders compiled on first use
+- **LOD system**: Reduce effect quality on lower-end devices
+- **Battery-aware**: Reduce effects when on battery power
+- **Frame budget**: Effects throttle to maintain 60fps
+
+#### Accessibility
+```rust
+<VFXButton
+    effect=ButtonEffect::Plasma
+    reduced_motion_fallback=ButtonEffect::None  // Respects prefers-reduced-motion
+    aria_label="Submit form"
+>
+    "Submit"
+</VFXButton>
+```
+
+- **prefers-reduced-motion**: All effects respect user preference
+- **Fallback styles**: CSS-only fallbacks for screen readers
+- **Focus indicators**: VFX never obscures focus states
+- **Color contrast**: Effects don't reduce text contrast below WCAG AA
+
+### Integration with Existing Components
+
+```rust
+// Enable VFX on existing Mingot buttons
+<Button
+    variant=ButtonVariant::Filled
+    vfx=Some(ButtonEffect::Plasma)  // Optional VFX enhancement
+>
+    "Enhanced Button"
+</Button>
+
+// VFX-enhanced loader
+<Loader variant=LoaderVariant::Oval vfx=LoaderEffect::Glow />
+
+// Shader-based skeleton
+<Skeleton vfx=SkeletonEffect::Holographic />
+```
+
+### Shader Library
+
+#### Included Shaders
+| Shader | Description | Use Case |
+|--------|-------------|----------|
+| `plasma` | Flowing gradient plasma | Hero buttons, CTAs |
+| `aurora` | Northern lights effect | Backgrounds |
+| `noise` | Perlin/Simplex noise | Textures, backgrounds |
+| `voronoi` | Cell-based patterns | Abstract backgrounds |
+| `wave` | Sine wave distortion | Water effects |
+| `glow` | Soft bloom/glow | Highlights, focus states |
+| `particles` | GPU particle system | Celebrations, backgrounds |
+| `holographic` | Iridescent sheen | Premium feel |
+| `fire` | Procedural flames | Dramatic effects |
+| `electric` | Lightning/electricity | Energy, power themes |
+
+#### Shader Composition
+```rust
+// Combine multiple effects
+<ShaderCanvas
+    shaders=vec![
+        shaders::NOISE.with_opacity(0.3),
+        shaders::PLASMA.with_blend(BlendMode::Overlay),
+    ]
+/>
+```
+
+### Feature Flag
+
+```toml
+[dependencies]
+mingot = { version = "1.1", features = ["vfx"] }
+```
+
+- VFX is opt-in via feature flag
+- Zero binary size impact when disabled
+- No WebGPU dependency unless feature enabled
+
+### Browser Support
+
+| Browser | Support Level |
+|---------|--------------|
+| Chrome 113+ | Full WebGPU |
+| Edge 113+ | Full WebGPU |
+| Firefox 115+ | WebGPU (flag) |
+| Safari 17+ | WebGPU |
+| Older browsers | WebGL2 fallback |
+| No GPU | CSS fallback |
+
+### Use Cases
+
+1. **Marketing Sites**: Eye-catching hero sections, animated CTAs
+2. **Creative Applications**: Design tools, creative software
+3. **Gaming UIs**: Rich, dynamic interfaces
+4. **Premium Products**: Luxury feel, high-end aesthetics
+5. **Data Visualization**: GPU-accelerated charts and graphs
+6. **Scientific Visualization**: Real-time simulation displays
+
+---
+
 ## Long-Term Vision (2027+)
 
 ### Research Collaborations
@@ -946,8 +1257,8 @@ The community is invited to shape Mingot's future:
 
 ---
 
-**Last Updated**: December 2025
-**Next Review**: March 2026
+**Last Updated**: January 2026
+**Next Review**: April 2026
 
 ---
 
