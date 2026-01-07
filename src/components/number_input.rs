@@ -742,6 +742,9 @@ pub fn NumberInput(
     /// Step size when Shift is held (default: 10x step)
     #[prop(optional, into)]
     shift_step: Option<String>,
+    /// Step size when Ctrl is held (default: 100x step)
+    #[prop(optional, into)]
+    ctrl_step: Option<String>,
     /// Whether to allow mouse wheel to change value
     #[prop(default = false)]
     allow_mouse_wheel: bool,
@@ -839,31 +842,43 @@ pub fn NumberInput(
         let step_num: f64 = step_value.parse().unwrap_or(1.0);
         format!("{}", step_num * 10.0)
     });
+    let ctrl_step_value = ctrl_step.unwrap_or_else(|| {
+        // Default ctrl step is 100x the step
+        let step_num: f64 = step_value.parse().unwrap_or(1.0);
+        format!("{}", step_num * 100.0)
+    });
 
     // Clone values for use in multiple closures
     let min_for_increment = min_value.clone();
     let max_for_increment = max_value.clone();
     let step_for_increment = step_value.clone();
     let shift_step_for_increment = shift_step_value.clone();
+    let ctrl_step_for_increment = ctrl_step_value.clone();
 
     let min_for_wheel = min_value.clone();
     let max_for_wheel = max_value.clone();
     let step_for_wheel = step_value.clone();
     let shift_step_for_wheel = shift_step_value.clone();
+    let ctrl_step_for_wheel = ctrl_step_value.clone();
 
     let min_for_keyboard = min_value.clone();
     let max_for_keyboard = max_value.clone();
     let step_for_keyboard = step_value.clone();
     let shift_step_for_keyboard = shift_step_value.clone();
+    let ctrl_step_for_keyboard = ctrl_step_value.clone();
 
     // Increment/decrement handler
-    let handle_step = move |is_increment: bool, use_shift_step: bool| {
+    // use_shift: Shift key held (10x step)
+    // use_ctrl: Ctrl key held (100x step)
+    let handle_step = move |is_increment: bool, use_shift: bool, use_ctrl: bool| {
         if disabled.get() {
             return;
         }
 
         let current = number_value.get();
-        let step_to_use = if use_shift_step {
+        let step_to_use = if use_ctrl {
+            &ctrl_step_for_increment
+        } else if use_shift {
             &shift_step_for_increment
         } else {
             &step_for_increment
@@ -889,15 +904,15 @@ pub fn NumberInput(
         }
     };
 
-    // Create clones for button handlers
+    // Create clones for button handlers - detect Shift/Ctrl from mouse event
     let handle_increment = {
         let handle_step = handle_step.clone();
-        move |_| handle_step(true, false)
+        move |ev: ev::MouseEvent| handle_step(true, ev.shift_key(), ev.ctrl_key())
     };
 
     let handle_decrement = {
         let handle_step = handle_step.clone();
-        move |_| handle_step(false, false)
+        move |ev: ev::MouseEvent| handle_step(false, ev.shift_key(), ev.ctrl_key())
     };
 
     // Validation function based on precision
@@ -974,12 +989,15 @@ pub fn NumberInput(
 
         let key = ev.key();
         let use_shift = ev.shift_key();
+        let use_ctrl = ev.ctrl_key();
 
         match key.as_str() {
             "ArrowUp" => {
                 ev.prevent_default();
                 let current = number_value.get();
-                let step_to_use = if use_shift {
+                let step_to_use = if use_ctrl {
+                    &ctrl_step_for_keyboard
+                } else if use_shift {
                     &shift_step_for_keyboard
                 } else {
                     &step_for_keyboard
@@ -1007,7 +1025,9 @@ pub fn NumberInput(
             "ArrowDown" => {
                 ev.prevent_default();
                 let current = number_value.get();
-                let step_to_use = if use_shift {
+                let step_to_use = if use_ctrl {
+                    &ctrl_step_for_keyboard
+                } else if use_shift {
                     &shift_step_for_keyboard
                 } else {
                     &step_for_keyboard
@@ -1066,10 +1086,13 @@ pub fn NumberInput(
         ev.prevent_default();
 
         let use_shift = ev.shift_key();
+        let use_ctrl = ev.ctrl_key();
         let is_increment = ev.delta_y() < 0.0; // Scroll up = increment
 
         let current = number_value.get();
-        let step_to_use = if use_shift {
+        let step_to_use = if use_ctrl {
+            &ctrl_step_for_wheel
+        } else if use_shift {
             &shift_step_for_wheel
         } else {
             &step_for_wheel
@@ -1671,6 +1694,46 @@ mod tests {
         // Input with separators should work
         let result = increment_value("1,000", "1", NumberInputPrecision::U64, true, None, None);
         assert_eq!(result, "1001");
+    }
+
+    #[test]
+    fn test_increment_with_large_step() {
+        // Test 10x step (Shift behavior)
+        let result = increment_value("100", "10", NumberInputPrecision::U64, true, None, None);
+        assert_eq!(result, "110");
+
+        // Test 100x step (Ctrl behavior)
+        let result = increment_value("100", "100", NumberInputPrecision::U64, true, None, None);
+        assert_eq!(result, "200");
+
+        // Test decrement with large step
+        let result = increment_value("1000", "100", NumberInputPrecision::U64, false, None, None);
+        assert_eq!(result, "900");
+    }
+
+    #[test]
+    fn test_increment_decimal_with_large_step() {
+        // Test 10x step with decimals
+        let result = increment_value(
+            "1.50",
+            "1.0",
+            NumberInputPrecision::Decimal(2),
+            true,
+            None,
+            None,
+        );
+        assert_eq!(result, "2.50");
+
+        // Test 100x step with decimals
+        let result = increment_value(
+            "1.50",
+            "10.0",
+            NumberInputPrecision::Decimal(2),
+            true,
+            None,
+            None,
+        );
+        assert_eq!(result, "11.50");
     }
 
     #[test]
