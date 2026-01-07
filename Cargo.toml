@@ -4,7 +4,7 @@ resolver = "2"
 
 [package]
 name = "mingot"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 authors = ["Industrial Algebra <noreply@industrial-algebra.org>"]
 description = "Leptos UI library for applications demanding mathematical precision - u64+ integers, arbitrary-precision decimals, zero precision loss"
@@ -20,7 +20,7 @@ crate-type = ["cdylib", "rlib"]
 leptos = { version = "0.8.12", features = ["csr"] }
 leptos_meta = "0.8.5"
 leptos_router = "0.8.9"
-web-sys = { version = "0.3", features = ["HtmlElement", "Window", "Document", "CssStyleDeclaration"] }
+web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Window", "Document", "CssStyleDeclaration", "DomRect", "Element", "File", "FileList", "DataTransfer", "ClipboardEvent"] }
 wasm-bindgen = "0.2"
 
 # Optional: High-precision decimal arithmetic

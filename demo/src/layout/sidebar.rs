@@ -120,6 +120,11 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: None,
                 },
                 NavItem {
+                    label: "Pagination",
+                    href: "/navigation/pagination",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "Tabs",
                     href: "/navigation/tabs",
                     badge: None,
@@ -133,6 +138,11 @@ pub fn get_navigation() -> Vec<NavSection> {
                     label: "Checkbox",
                     href: "/form/checkbox",
                     badge: None,
+                },
+                NavItem {
+                    label: "FileInput",
+                    href: "/form/file-input",
+                    badge: Some("New"),
                 },
                 NavItem {
                     label: "Input",
@@ -150,14 +160,34 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: None,
                 },
                 NavItem {
+                    label: "PinInput",
+                    href: "/form/pin-input",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "Radio",
                     href: "/form/radio",
                     badge: None,
                 },
                 NavItem {
+                    label: "RangeSlider",
+                    href: "/form/range-slider",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "SegmentedControl",
+                    href: "/form/segmented-control",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "Select",
                     href: "/form/select",
                     badge: None,
+                },
+                NavItem {
+                    label: "Slider",
+                    href: "/form/slider",
+                    badge: Some("New"),
                 },
                 NavItem {
                     label: "Switch",
