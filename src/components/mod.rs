@@ -28,6 +28,7 @@ pub mod tabs;
 // Form components
 pub mod angle_input;
 pub mod checkbox;
+pub mod complex_number_input;
 pub mod file_input;
 pub mod fraction_input;
 pub mod input;
@@ -41,6 +42,8 @@ pub mod select;
 pub mod slider;
 pub mod switch;
 pub mod textarea;
+pub mod uncertainty_input;
+pub mod unit_input;
 
 // Overlay components
 pub mod drawer;
@@ -81,6 +84,7 @@ pub use burger::*;
 pub use button::*;
 pub use card::*;
 pub use checkbox::*;
+pub use complex_number_input::*;
 pub use container::*;
 pub use divider::*;
 pub use drawer::*;
@@ -121,3 +125,5 @@ pub use tabs::*;
 pub use text::*;
 pub use textarea::*;
 pub use tooltip::*;
+pub use uncertainty_input::*;
+pub use unit_input::*;
