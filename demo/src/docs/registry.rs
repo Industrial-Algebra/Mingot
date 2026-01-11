@@ -48,6 +48,11 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         // Form
         "input" => Some(input_doc()),
         "number-input" => Some(number_input_doc()),
+        "angle-input" => Some(angle_input_doc()),
+        "fraction-input" => Some(fraction_input_doc()),
+        "unit-input" => Some(unit_input_doc()),
+        "complex-number-input" => Some(complex_number_input_doc()),
+        "uncertainty-input" => Some(uncertainty_input_doc()),
         "checkbox" => Some(checkbox_doc()),
         "file-input" => Some(file_input_doc()),
         "password-input" => Some(password_input_doc()),
@@ -3143,6 +3148,543 @@ fn pagination_doc() -> ComponentDoc {
                                 with_edges=true
                                 siblings=2
                                 on_change=Callback::new(move |p| edge_page.set(p))
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn angle_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "AngleInput",
+        import_name: "AngleInput, AngleUnit, AngleNormalization, DMS",
+        description: "A specialized input for angle values with support for degrees, radians, gradians, turns, and DMS (degrees-minutes-seconds) formats.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<Signal<f64>>",
+                default: None,
+                description: "Current angle value in degrees (controlled)",
+                required: false,
+            },
+            PropDoc {
+                name: "default_value",
+                prop_type: "f64",
+                default: Some("0.0"),
+                description: "Default angle value in degrees",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<f64>>",
+                default: None,
+                description: "Callback when angle value changes",
+                required: false,
+            },
+            PropDoc {
+                name: "unit",
+                prop_type: "AngleUnit",
+                default: Some("Degrees"),
+                description: "Display unit: Degrees, Radians, Gradians, Turns, or DMS",
+                required: false,
+            },
+            PropDoc {
+                name: "normalization",
+                prop_type: "AngleNormalization",
+                default: Some("None"),
+                description: "Angle normalization: None, ZeroTo360, or NegativeTo180",
+                required: false,
+            },
+            PropDoc {
+                name: "show_unit_selector",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show dropdown to switch between units",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "u32",
+                default: Some("4"),
+                description: "Number of decimal places to display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            let angle1 = RwSignal::new(45.0_f64);
+            let angle2 = RwSignal::new(std::f64::consts::PI);
+            let angle3 = RwSignal::new(45.5_f64);
+            let angle4 = RwSignal::new(450.0_f64);
+            view! {
+                <DemoBlock title="Angle Input">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Degrees (default)"</Text>
+                            <AngleInput
+                                value=angle1
+                                on_change=Callback::new(move |v| angle1.set(v))
+                                label="Rotation Angle".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Radians display"</Text>
+                            <AngleInput
+                                value=angle2
+                                unit=AngleUnit::Radians
+                                label="Phase Angle".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"DMS format"</Text>
+                            <AngleInput
+                                value=angle3
+                                unit=AngleUnit::DMS
+                                label="Geographic Coordinate".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"With normalization (0-360)"</Text>
+                            <AngleInput
+                                value=angle4
+                                normalization=AngleNormalization::ZeroTo360
+                                label="Compass Heading".to_string()
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn fraction_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "FractionInput",
+        import_name: "FractionInput, Fraction, FractionDisplayFormat",
+        description: "A specialized input for exact rational numbers with automatic simplification and multiple display formats.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<Signal<Fraction>>",
+                default: None,
+                description: "Current fraction value (controlled)",
+                required: false,
+            },
+            PropDoc {
+                name: "default_value",
+                prop_type: "Fraction",
+                default: Some("Fraction::new(0, 1)"),
+                description: "Default fraction value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Fraction>>",
+                default: None,
+                description: "Callback when fraction value changes",
+                required: false,
+            },
+            PropDoc {
+                name: "format",
+                prop_type: "FractionDisplayFormat",
+                default: Some("Fraction"),
+                description: "Display format: Fraction (3/4), MixedNumber (1 1/2), or Decimal (0.75)",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_format_switch",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show buttons to switch between display formats",
+                required: false,
+            },
+            PropDoc {
+                name: "auto_simplify",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Automatically simplify fractions (e.g., 2/4 → 1/2)",
+                required: false,
+            },
+            PropDoc {
+                name: "decimal_places",
+                prop_type: "u32",
+                default: Some("4"),
+                description: "Decimal precision for decimal format display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            let frac1 = RwSignal::new(Fraction::new(3, 4));
+            let frac2 = RwSignal::new(Fraction::new(7, 4));
+            let frac3 = RwSignal::new(Fraction::new(6, 8));
+            view! {
+                <DemoBlock title="Fraction Input">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Simple fraction"</Text>
+                            <FractionInput
+                                value=frac1
+                                label="Fraction".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Mixed number display"</Text>
+                            <FractionInput
+                                value=frac2
+                                display_format=FractionDisplayFormat::MixedNumber
+                                label="Mixed Number".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Auto-simplification"</Text>
+                            <FractionInput
+                                value=frac3
+                                label="Enter 6/8 to see simplification".to_string()
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn unit_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "UnitInput",
+        import_name: "UnitInput, Unit, UnitValue, UnitCategory, length, mass, time, temperature, data",
+        description: "A specialized input for values with physical units, supporting automatic unit conversion.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<UnitValue>>",
+                default: None,
+                description: "Current value with unit (controlled)",
+                required: false,
+            },
+            PropDoc {
+                name: "units",
+                prop_type: "Vec<Unit>",
+                default: None,
+                description: "Available units for this input",
+                required: true,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<UnitValue>>",
+                default: None,
+                description: "Callback when value or unit changes",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_unit_switch",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Allow switching between units via dropdown",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "u32",
+                default: Some("4"),
+                description: "Number of decimal places to display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Unit Input">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Length units"</Text>
+                            <UnitInput
+                                units=length::all()
+                                label="Distance".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Mass units"</Text>
+                            <UnitInput
+                                units=mass::all()
+                                label="Weight".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Temperature (with offset conversion)"</Text>
+                            <UnitInput
+                                units=temperature::all()
+                                label="Temperature".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Data size"</Text>
+                            <UnitInput
+                                units=data::all()
+                                label="File Size".to_string()
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn complex_number_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "ComplexNumberInput",
+        import_name: "ComplexNumberInput, ComplexNumber, ComplexFormat, PolarAngleUnit",
+        description: "A specialized input for complex numbers with support for rectangular (a+bi), polar (r∠θ), and exponential forms.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<Signal<ComplexNumber>>",
+                default: None,
+                description: "Current complex number value (controlled)",
+                required: false,
+            },
+            PropDoc {
+                name: "default_value",
+                prop_type: "ComplexNumber",
+                default: Some("ComplexNumber::default()"),
+                description: "Default complex number value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<ComplexNumber>>",
+                default: None,
+                description: "Callback when complex number changes",
+                required: false,
+            },
+            PropDoc {
+                name: "format",
+                prop_type: "ComplexFormat",
+                default: Some("Rectangular"),
+                description: "Display format: Rectangular (a+bi), Polar (r∠θ), or Exponential",
+                required: false,
+            },
+            PropDoc {
+                name: "angle_unit",
+                prop_type: "PolarAngleUnit",
+                default: Some("Degrees"),
+                description: "Angle unit for polar form: Degrees or Radians",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_format_switch",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show buttons to switch between formats",
+                required: false,
+            },
+            PropDoc {
+                name: "decimal_places",
+                prop_type: "u32",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Complex Number Input">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Rectangular form (a + bi)"</Text>
+                            <ComplexNumberInput
+                                default_value=ComplexNumber::new(3.0, 4.0)
+                                label="Complex Z".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Polar form (r∠θ)"</Text>
+                            <ComplexNumberInput
+                                default_value=ComplexNumber::from_polar(5.0, std::f64::consts::FRAC_PI_4)
+                                format=ComplexFormat::Polar
+                                label="Phasor".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Pure imaginary"</Text>
+                            <ComplexNumberInput
+                                default_value=ComplexNumber::new(0.0, 1.0)
+                                label="Unit Imaginary".to_string()
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn uncertainty_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "UncertaintyInput",
+        import_name: "UncertaintyInput, UncertainValue, UncertaintyFormat, UncertaintyType",
+        description: "A specialized input for values with measurement uncertainty, supporting symmetric (±) and asymmetric (+/-) uncertainty bounds.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<Signal<UncertainValue>>",
+                default: None,
+                description: "Current uncertain value (controlled)",
+                required: false,
+            },
+            PropDoc {
+                name: "default_value",
+                prop_type: "UncertainValue",
+                default: Some("UncertainValue::default()"),
+                description: "Default uncertain value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<UncertainValue>>",
+                default: None,
+                description: "Callback when value changes",
+                required: false,
+            },
+            PropDoc {
+                name: "format",
+                prop_type: "UncertaintyFormat",
+                default: Some("Absolute"),
+                description: "Display format: Absolute (value ± x), Relative (± x%), or Scientific",
+                required: false,
+            },
+            PropDoc {
+                name: "uncertainty_type",
+                prop_type: "UncertaintyType",
+                default: Some("Symmetric"),
+                description: "Uncertainty type: Symmetric (±) or Asymmetric (+/-)",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_type_switch",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Allow switching between symmetric and asymmetric",
+                required: false,
+            },
+            PropDoc {
+                name: "decimal_places",
+                prop_type: "u32",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "show_info",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show additional info (bounds, relative uncertainty)",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <DemoBlock title="Uncertainty Input">
+                    <Stack spacing="lg">
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Symmetric uncertainty (±)"</Text>
+                            <UncertaintyInput
+                                default_value=UncertainValue::symmetric(100.0, 5.0)
+                                label="Measurement".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Asymmetric uncertainty (+/-)"</Text>
+                            <UncertaintyInput
+                                default_value=UncertainValue::asymmetric(50.0, 3.0, 2.0)
+                                uncertainty_type=UncertaintyType::Asymmetric
+                                label="Asymmetric Error".to_string()
+                            />
+                        </div>
+                        <div>
+                            <Text size=TextSize::Sm color="dimmed">"Percentage display"</Text>
+                            <UncertaintyInput
+                                default_value=UncertainValue::from_percentage(1000.0, 2.5)
+                                format=UncertaintyFormat::Relative
+                                label="With Relative Error".to_string()
                             />
                         </div>
                     </Stack>

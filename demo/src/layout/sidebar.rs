@@ -155,6 +155,31 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: Some("Precision"),
                 },
                 NavItem {
+                    label: "AngleInput",
+                    href: "/form/angle-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "FractionInput",
+                    href: "/form/fraction-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "UnitInput",
+                    href: "/form/unit-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "ComplexNumberInput",
+                    href: "/form/complex-number-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "UncertaintyInput",
+                    href: "/form/uncertainty-input",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "PasswordInput",
                     href: "/form/password-input",
                     badge: None,
