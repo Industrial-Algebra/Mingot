@@ -26,6 +26,7 @@ pub mod pagination;
 pub mod tabs;
 
 // Form components
+pub mod angle_input;
 pub mod checkbox;
 pub mod file_input;
 pub mod input;
@@ -69,6 +70,7 @@ pub mod error_page;
 pub use accordion::*;
 pub use action_icon::*;
 pub use alert::*;
+pub use angle_input::*;
 pub use appshell::*;
 pub use avatar::*;
 pub use badge::*;
