@@ -456,6 +456,141 @@ fn check_overflow_warning(
     None
 }
 
+/// Detect if a string is in scientific notation
+fn is_scientific_notation(input: &str) -> bool {
+    let lower = input.to_lowercase();
+    lower.contains('e') && {
+        // Must have digits before and after 'e'
+        if let Some(e_pos) = lower.find('e') {
+            let before = &lower[..e_pos];
+            let after = &lower[e_pos + 1..];
+            !before.is_empty()
+                && before.chars().any(|c| c.is_ascii_digit())
+                && !after.is_empty()
+                && (after.starts_with('+')
+                    || after.starts_with('-')
+                    || after.chars().next().is_some_and(|c| c.is_ascii_digit()))
+        } else {
+            false
+        }
+    }
+}
+
+/// Convert scientific notation to decimal representation
+/// e.g., "1.23e8" -> "123000000", "1.5e-3" -> "0.0015"
+fn convert_scientific_to_decimal(input: &str, max_decimals: Option<u32>) -> Option<String> {
+    let lower = input.to_lowercase().replace(' ', "");
+    let e_pos = lower.find('e')?;
+
+    let mantissa_str = &lower[..e_pos];
+    let exponent_str = &lower[e_pos + 1..];
+
+    // Parse mantissa
+    let mantissa: f64 = mantissa_str.parse().ok()?;
+
+    // Parse exponent (handle optional + sign)
+    let exponent: i32 = exponent_str.trim_start_matches('+').parse().ok()?;
+
+    // Calculate the actual value
+    let value = mantissa * 10f64.powi(exponent);
+
+    // Format without scientific notation
+    if exponent >= 0 && value.fract() == 0.0 {
+        // Integer result
+        Some(format!("{:.0}", value))
+    } else {
+        // Determine decimal places needed
+        let decimals = if let Some(max) = max_decimals {
+            max as usize
+        } else {
+            // Calculate based on mantissa decimal places and exponent
+            let mantissa_decimals = mantissa_str
+                .find('.')
+                .map(|pos| mantissa_str.len() - pos - 1)
+                .unwrap_or(0);
+            if exponent < 0 {
+                (mantissa_decimals as i32 - exponent) as usize
+            } else {
+                mantissa_decimals.saturating_sub(exponent as usize)
+            }
+        };
+
+        let formatted = format!("{:.prec$}", value, prec = decimals);
+        // Trim trailing zeros after decimal point if needed
+        let trimmed = if formatted.contains('.') {
+            formatted.trim_end_matches('0').trim_end_matches('.')
+        } else {
+            &formatted
+        };
+        Some(trimmed.to_string())
+    }
+}
+
+/// Detect the format of a pasted number and return metadata
+#[derive(Debug, Clone, PartialEq)]
+pub enum DetectedFormat {
+    Standard,
+    ThousandSeparated,
+    Scientific,
+    Engineering,
+    Currency(String),
+    Percentage,
+}
+
+/// Detect the format of input text
+/// Note: Currently used in tests, will be used for context menu format conversion
+#[allow(dead_code)]
+fn detect_paste_format(input: &str) -> DetectedFormat {
+    let trimmed = input.trim();
+
+    // Check for currency
+    if trimmed.starts_with(['$', '€', '£', '¥', '₹'])
+        || trimmed.contains("USD")
+        || trimmed.contains("EUR")
+        || trimmed.contains("GBP")
+    {
+        let symbol = if trimmed.starts_with('$') || trimmed.contains("USD") {
+            "USD"
+        } else if trimmed.starts_with('€') || trimmed.contains("EUR") {
+            "EUR"
+        } else if trimmed.starts_with('£') || trimmed.contains("GBP") {
+            "GBP"
+        } else if trimmed.starts_with('¥') {
+            "JPY"
+        } else {
+            "INR"
+        };
+        return DetectedFormat::Currency(symbol.to_string());
+    }
+
+    // Check for percentage
+    if trimmed.ends_with('%') {
+        return DetectedFormat::Percentage;
+    }
+
+    // Check for scientific notation
+    if is_scientific_notation(trimmed) {
+        // Engineering notation has exponents divisible by 3
+        let lower = trimmed.to_lowercase();
+        if let Some(e_pos) = lower.find('e') {
+            let exp_str = &lower[e_pos + 1..];
+            if let Ok(exp) = exp_str.trim_start_matches('+').parse::<i32>() {
+                if exp % 3 == 0 {
+                    return DetectedFormat::Engineering;
+                }
+            }
+        }
+        return DetectedFormat::Scientific;
+    }
+
+    // Check for thousand separators
+    if trimmed.contains(',') || trimmed.contains('\'') || trimmed.contains(' ') {
+        return DetectedFormat::ThousandSeparated;
+    }
+
+    DetectedFormat::Standard
+}
+
 /// Normalize a pasted number by detecting and handling various formats
 /// Handles: thousand separators, alternate decimal separators, currency symbols, whitespace
 fn normalize_pasted_number(input: &str, decimal_separator: char) -> String {
@@ -471,8 +606,11 @@ fn normalize_pasted_number(input: &str, decimal_separator: char) -> String {
         .trim()
         .to_string();
 
+    // Remove percentage sign
+    let without_percent = without_currency.trim_end_matches('%').trim().to_string();
+
     // Remove thousand separators (commas, spaces, apostrophes, underscores)
-    let without_thousands = without_currency.replace([',', ' ', '\'', '_'], "");
+    let without_thousands = without_percent.replace([',', ' ', '\'', '_'], "");
 
     // Handle alternate decimal separators
     // If the user's decimal separator is not '.', replace it
@@ -480,6 +618,23 @@ fn normalize_pasted_number(input: &str, decimal_separator: char) -> String {
         without_thousands.replace(decimal_separator, ".")
     } else {
         without_thousands
+    }
+}
+
+/// Enhanced paste normalization with scientific notation conversion
+fn normalize_pasted_number_enhanced(
+    input: &str,
+    decimal_separator: char,
+    convert_scientific: bool,
+    max_decimals: Option<u32>,
+) -> String {
+    let basic_normalized = normalize_pasted_number(input, decimal_separator);
+
+    // Convert scientific notation if enabled and detected
+    if convert_scientific && is_scientific_notation(&basic_normalized) {
+        convert_scientific_to_decimal(&basic_normalized, max_decimals).unwrap_or(basic_normalized)
+    } else {
+        basic_normalized
     }
 }
 
@@ -781,6 +936,20 @@ pub fn NumberInput(
     #[prop(default = 0.9)]
     overflow_warning_threshold: f64,
 
+    // Enhanced input handling
+    /// Whether to detect and convert pasted number formats automatically
+    #[prop(default = true)]
+    allow_paste_format_detection: bool,
+    /// Whether to convert scientific notation on paste to decimal (e.g., 1.23e8 -> 123000000)
+    #[prop(default = false)]
+    convert_scientific_on_paste: bool,
+    /// Enable undo/redo with Ctrl+Z/Ctrl+Y
+    #[prop(default = true)]
+    enable_undo_redo: bool,
+    /// Maximum undo history size
+    #[prop(default = 50)]
+    undo_history_size: usize,
+
     // Validation options
     #[prop(optional)] allow_negative: bool,
     #[prop(optional)] allow_decimal: bool,
@@ -833,6 +1002,86 @@ pub fn NumberInput(
 
     let number_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
 
+    // Undo/redo state management
+    let undo_stack: RwSignal<Vec<String>> = RwSignal::new(Vec::new());
+    let redo_stack: RwSignal<Vec<String>> = RwSignal::new(Vec::new());
+
+    // Helper to push current value to undo stack before changes
+    let push_undo = move |old_value: String| {
+        if enable_undo_redo {
+            undo_stack.update(|stack| {
+                // Don't push duplicates
+                if stack.last() != Some(&old_value) {
+                    stack.push(old_value);
+                    // Limit stack size
+                    if stack.len() > undo_history_size {
+                        stack.remove(0);
+                    }
+                }
+            });
+            // Clear redo stack on new change
+            redo_stack.set(Vec::new());
+        }
+    };
+
+    // Undo handler
+    let handle_undo = move || {
+        if !enable_undo_redo {
+            return false;
+        }
+        let mut undone = false;
+        undo_stack.update(|stack| {
+            if let Some(prev_value) = stack.pop() {
+                // Push current to redo
+                redo_stack.update(|redo| {
+                    redo.push(number_value.get());
+                });
+                number_value.set(prev_value.clone());
+                undone = true;
+
+                if let Some(callback) = on_change {
+                    callback.run(prev_value.clone());
+                }
+                if let Some(callback) = on_valid_change {
+                    callback.run(Ok(prev_value));
+                }
+            }
+        });
+        undone
+    };
+
+    // Redo handler
+    let handle_redo = move || {
+        if !enable_undo_redo {
+            return false;
+        }
+        let mut redone = false;
+        redo_stack.update(|stack| {
+            if let Some(next_value) = stack.pop() {
+                // Push current to undo
+                undo_stack.update(|undo| {
+                    undo.push(number_value.get());
+                });
+                number_value.set(next_value.clone());
+                redone = true;
+
+                if let Some(callback) = on_change {
+                    callback.run(next_value.clone());
+                }
+                if let Some(callback) = on_valid_change {
+                    callback.run(Ok(next_value));
+                }
+            }
+        });
+        redone
+    };
+
+    // Get max decimals from precision for scientific conversion
+    let max_decimals_for_paste = match precision {
+        NumberInputPrecision::Decimal(n) => Some(n),
+        _ => None,
+    };
+
     // Store min/max as owned strings for use in closures
     let min_value = min.clone();
     let max_value = max.clone();
@@ -876,6 +1125,10 @@ pub fn NumberInput(
         }
 
         let current = number_value.get();
+
+        // Push to undo stack before changing
+        push_undo(current.clone());
+
         let step_to_use = if use_ctrl {
             &ctrl_step_for_increment
         } else if use_shift {
@@ -981,7 +1234,7 @@ pub fn NumberInput(
         }
     };
 
-    // Keyboard handler for arrow up/down
+    // Keyboard handler for arrow up/down and undo/redo
     let handle_keydown = move |ev: ev::KeyboardEvent| {
         if disabled.get() {
             return;
@@ -989,12 +1242,30 @@ pub fn NumberInput(
 
         let key = ev.key();
         let use_shift = ev.shift_key();
-        let use_ctrl = ev.ctrl_key();
+        let use_ctrl = ev.ctrl_key() || ev.meta_key(); // Support Cmd on Mac
 
         match key.as_str() {
+            // Undo: Ctrl+Z (or Cmd+Z on Mac)
+            "z" | "Z" if use_ctrl && !use_shift => {
+                ev.prevent_default();
+                handle_undo();
+            }
+            // Redo: Ctrl+Y or Ctrl+Shift+Z (or Cmd equivalents on Mac)
+            "y" | "Y" if use_ctrl => {
+                ev.prevent_default();
+                handle_redo();
+            }
+            "z" | "Z" if use_ctrl && use_shift => {
+                ev.prevent_default();
+                handle_redo();
+            }
             "ArrowUp" => {
                 ev.prevent_default();
                 let current = number_value.get();
+
+                // Push to undo stack before changing
+                push_undo(current.clone());
+
                 let step_to_use = if use_ctrl {
                     &ctrl_step_for_keyboard
                 } else if use_shift {
@@ -1025,6 +1296,10 @@ pub fn NumberInput(
             "ArrowDown" => {
                 ev.prevent_default();
                 let current = number_value.get();
+
+                // Push to undo stack before changing
+                push_undo(current.clone());
+
                 let step_to_use = if use_ctrl {
                     &ctrl_step_for_keyboard
                 } else if use_shift {
@@ -1090,6 +1365,10 @@ pub fn NumberInput(
         let is_increment = ev.delta_y() < 0.0; // Scroll up = increment
 
         let current = number_value.get();
+
+        // Push to undo stack before changing
+        push_undo(current.clone());
+
         let step_to_use = if use_ctrl {
             &ctrl_step_for_wheel
         } else if use_shift {
@@ -1201,8 +1480,20 @@ pub fn NumberInput(
             if let Ok(pasted_text) = clipboard_data.get_data("text/plain") {
                 ev.prevent_default();
 
-                // Normalize the pasted value
-                let cleaned = normalize_pasted_number(&pasted_text, decimal_separator);
+                // Push current value to undo stack before changing
+                push_undo(number_value.get());
+
+                // Use enhanced normalization if format detection is enabled
+                let cleaned = if allow_paste_format_detection {
+                    normalize_pasted_number_enhanced(
+                        &pasted_text,
+                        decimal_separator,
+                        convert_scientific_on_paste,
+                        max_decimals_for_paste,
+                    )
+                } else {
+                    normalize_pasted_number(&pasted_text, decimal_separator)
+                };
 
                 // Filter to valid characters
                 let filtered: String = cleaned
@@ -1945,6 +2236,157 @@ mod tests {
             ),
             "12,34,567"
         );
+    }
+
+    #[test]
+    fn test_is_scientific_notation() {
+        // Valid scientific notation
+        assert!(is_scientific_notation("1.23e8"));
+        assert!(is_scientific_notation("1.23E8"));
+        assert!(is_scientific_notation("1.23e+8"));
+        assert!(is_scientific_notation("1.23e-8"));
+        assert!(is_scientific_notation("123E10"));
+        assert!(is_scientific_notation("-1.5e3"));
+
+        // Not scientific notation
+        assert!(!is_scientific_notation("123.45"));
+        assert!(!is_scientific_notation("hello"));
+        assert!(!is_scientific_notation("e8")); // No mantissa
+        assert!(!is_scientific_notation("1.23e")); // No exponent
+    }
+
+    #[test]
+    fn test_convert_scientific_to_decimal() {
+        // Positive exponents
+        assert_eq!(
+            convert_scientific_to_decimal("1.23e8", None),
+            Some("123000000".to_string())
+        );
+        assert_eq!(
+            convert_scientific_to_decimal("1e3", None),
+            Some("1000".to_string())
+        );
+        assert_eq!(
+            convert_scientific_to_decimal("2.5e2", None),
+            Some("250".to_string())
+        );
+
+        // Negative exponents
+        assert_eq!(
+            convert_scientific_to_decimal("1.5e-3", None),
+            Some("0.0015".to_string())
+        );
+        assert_eq!(
+            convert_scientific_to_decimal("1e-2", None),
+            Some("0.01".to_string())
+        );
+
+        // With explicit + sign
+        assert_eq!(
+            convert_scientific_to_decimal("1.5e+3", None),
+            Some("1500".to_string())
+        );
+
+        // With max decimals constraint
+        assert_eq!(
+            convert_scientific_to_decimal("1.23456e-2", Some(4)),
+            Some("0.0123".to_string())
+        );
+
+        // Invalid input
+        assert_eq!(convert_scientific_to_decimal("abc", None), None);
+    }
+
+    #[test]
+    fn test_detect_paste_format() {
+        // Currency formats
+        assert!(matches!(
+            detect_paste_format("$1,234.56"),
+            DetectedFormat::Currency(s) if s == "USD"
+        ));
+        assert!(matches!(
+            detect_paste_format("€1.234,56"),
+            DetectedFormat::Currency(s) if s == "EUR"
+        ));
+        assert!(matches!(
+            detect_paste_format("£1,000"),
+            DetectedFormat::Currency(s) if s == "GBP"
+        ));
+
+        // Percentage
+        assert_eq!(detect_paste_format("50%"), DetectedFormat::Percentage);
+        assert_eq!(detect_paste_format("12.5%"), DetectedFormat::Percentage);
+
+        // Scientific notation
+        assert_eq!(detect_paste_format("1.23e8"), DetectedFormat::Scientific);
+        assert_eq!(detect_paste_format("1.5e-4"), DetectedFormat::Scientific);
+
+        // Engineering notation (exponent divisible by 3)
+        assert_eq!(detect_paste_format("1.5e6"), DetectedFormat::Engineering);
+        assert_eq!(detect_paste_format("2.3e-3"), DetectedFormat::Engineering);
+
+        // Thousand separated
+        assert_eq!(
+            detect_paste_format("1,234,567"),
+            DetectedFormat::ThousandSeparated
+        );
+        assert_eq!(
+            detect_paste_format("1'234'567"),
+            DetectedFormat::ThousandSeparated
+        );
+
+        // Standard
+        assert_eq!(detect_paste_format("12345"), DetectedFormat::Standard);
+        assert_eq!(detect_paste_format("123.45"), DetectedFormat::Standard);
+    }
+
+    #[test]
+    fn test_normalize_pasted_number_enhanced_basic() {
+        // Without scientific conversion
+        assert_eq!(
+            normalize_pasted_number_enhanced("$1,234.56", '.', false, None),
+            "1234.56"
+        );
+
+        // With scientific conversion enabled but no scientific notation
+        assert_eq!(
+            normalize_pasted_number_enhanced("1,234.56", '.', true, None),
+            "1234.56"
+        );
+    }
+
+    #[test]
+    fn test_normalize_pasted_number_enhanced_scientific() {
+        // Scientific notation NOT converted when disabled
+        assert_eq!(
+            normalize_pasted_number_enhanced("1.23e8", '.', false, None),
+            "1.23e8"
+        );
+
+        // Scientific notation converted when enabled
+        assert_eq!(
+            normalize_pasted_number_enhanced("1.23e8", '.', true, None),
+            "123000000"
+        );
+
+        // With negative exponent
+        assert_eq!(
+            normalize_pasted_number_enhanced("1.5e-3", '.', true, None),
+            "0.0015"
+        );
+
+        // With max decimals
+        assert_eq!(
+            normalize_pasted_number_enhanced("1.23456e-2", '.', true, Some(4)),
+            "0.0123"
+        );
+    }
+
+    #[test]
+    fn test_normalize_pasted_number_percentage() {
+        // Percentage sign should be stripped
+        assert_eq!(normalize_pasted_number("50%", '.'), "50");
+        assert_eq!(normalize_pasted_number("12.5%", '.'), "12.5");
     }
 }
 
