@@ -1,6 +1,5 @@
 use leptos::prelude::*;
-use leptos_router::components::A;
-use leptos_router::hooks::use_location;
+use leptos_router::hooks::{use_location, use_navigate};
 
 #[derive(Clone)]
 pub struct NavSection {
@@ -366,6 +365,7 @@ pub fn get_navigation() -> Vec<NavSection> {
 #[component]
 pub fn Sidebar() -> impl IntoView {
     let location = use_location();
+    let navigate = use_navigate();
     let sections = get_navigation();
 
     view! {
@@ -378,16 +378,20 @@ pub fn Sidebar() -> impl IntoView {
                             {section.items.into_iter().map(|item| {
                                 let href = item.href;
                                 let is_active = move || location.pathname.get() == href;
+                                let navigate = navigate.clone();
 
                                 view! {
-                                    <A
-                                        href=href
-                                        attr:class=move || {
+                                    <button
+                                        type="button"
+                                        class=move || {
                                             if is_active() {
                                                 "nav-link active"
                                             } else {
                                                 "nav-link"
                                             }
+                                        }
+                                        on:click=move |_| {
+                                            navigate(href, Default::default());
                                         }
                                     >
                                         {item.label}
@@ -396,7 +400,7 @@ pub fn Sidebar() -> impl IntoView {
                                                 {badge}
                                             </span>
                                         })}
-                                    </A>
+                                    </button>
                                 }
                             }).collect_view()}
                         </div>

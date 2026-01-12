@@ -4119,22 +4119,104 @@ fn tensor_input_doc() -> ComponentDoc {
         demo: || {
             use mingot::prelude::*;
 
-            let tensor = RwSignal::new(Tensor::zeros(vec![2, 3, 4]));
+            // Rank 2: Simple 2D tensor (matrix-like, no slice navigation)
+            let matrix_data: Vec<f64> = (1..=12).map(|x| x as f64).collect();
+            let tensor_2d = RwSignal::new(Tensor::from_data(matrix_data, vec![3, 4]).unwrap());
+
+            // Rank 3: 3D tensor with slice navigation (e.g., RGB image channels or time series)
+            let tensor_3d_data: Vec<f64> = (0..24).map(|x| x as f64).collect();
+            let tensor_3d = RwSignal::new(Tensor::from_data(tensor_3d_data, vec![2, 3, 4]).unwrap());
+
+            // Rank 4: 4D tensor with two slice dimensions (e.g., batch of images, video frames)
+            let tensor_4d_data: Vec<f64> = (0..36).map(|x| x as f64).collect();
+            let tensor_4d = RwSignal::new(Tensor::from_data(tensor_4d_data, vec![2, 2, 3, 3]).unwrap());
+
+            // Rank 5: Higher-dimensional tensor (e.g., batch of video clips)
+            let tensor_5d_data: Vec<f64> = (0..48).map(|x| x as f64 * 0.1).collect();
+            let tensor_5d = RwSignal::new(Tensor::from_data(tensor_5d_data, vec![2, 2, 2, 2, 3]).unwrap());
 
             view! {
-                <DemoBlock title="Tensor Input" code=r#"let tensor = RwSignal::new(Tensor::zeros(vec![2, 3, 4]));
+                <Stack spacing="xl">
+                    <DemoBlock title="Rank 2: Matrix-like Tensor" code=r#"// Simple 3×4 tensor - displays directly without slice navigation
+let data: Vec<f64> = (1..=12).map(|x| x as f64).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![3, 4]).unwrap());
 
 <TensorInput
     value=tensor
+    label="2D Tensor (3 × 4)"
     show_stats=true
 />"#>
-                    <Stack spacing="md">
                         <TensorInput
-                            value=tensor
+                            value=tensor_2d
+                            label="2D Tensor (3 × 4)"
                             show_stats=true
                         />
-                    </Stack>
-                </DemoBlock>
+                    </DemoBlock>
+
+                    <DemoBlock title="Rank 3: Sliceable 3D Tensor" code=r#"// 2×3×4 tensor - navigate through 2 slices using dim[0]
+let data: Vec<f64> = (0..24).map(|x| x as f64).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 3, 4]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_3d
+                            label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Rank 4: Multi-dimensional Navigation" code=r#"// 2×2×3×3 tensor - two slice dimensions to navigate
+// Could represent: batch × channels × height × width
+let data: Vec<f64> = (0..36).map(|x| x as f64).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 3, 3]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_4d
+                            label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Rank 5: High-dimensional Tensor" code=r#"// 2×2×2×2×3 tensor - three slice dimensions
+// Could represent: batch × time × channels × height × width
+let data: Vec<f64> = (0..48).map(|x| x as f64 * 0.1).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 2, 2, 3]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="5D Tensor (2 × 2 × 2 × 2 × 3)"
+    precision=2
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_5d
+                            label="5D Tensor (2 × 2 × 2 × 2 × 3)"
+                            precision=2
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Without Statistics" code=r#"<TensorInput
+    shape=vec![2, 3]
+    show_stats=false
+    label="Minimal display (no stats)"
+/>"#>
+                        <TensorInput
+                            shape=vec![2, 3]
+                            show_stats=false
+                            label="Minimal display (no stats)"
+                        />
+                    </DemoBlock>
+                </Stack>
             }
             .into_any()
         },

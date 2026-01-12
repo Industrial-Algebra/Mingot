@@ -604,11 +604,13 @@ pub fn TensorInput(
                             let idx = r * cols + c;
                             let val = data.get(idx).copied().unwrap_or(0.0);
                             let val_str = RwSignal::new(format_number(val));
+                            let tab_index = (idx + 1) as i32;
 
                             cells.push(view! {
                                 <input
                                     type="text"
                                     style=cell_styles
+                                    tabindex=tab_index
                                     prop:value=move || val_str.get()
                                     disabled=disabled
                                     on:input=move |ev| {

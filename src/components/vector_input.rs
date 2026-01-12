@@ -366,28 +366,6 @@ pub fn VectorInput(
     // Internal state
     let internal_vector = value.unwrap_or_else(|| RwSignal::new(Vector::zeros(dimensions)));
 
-    // Component input signals
-    let component_inputs: RwSignal<Vec<RwSignal<String>>> = RwSignal::new(Vec::new());
-
-    // Initialize inputs from vector
-    let init_inputs = move || {
-        let vec = internal_vector.get();
-        let inputs: Vec<RwSignal<String>> = (0..vec.dimensions())
-            .map(|i| {
-                let val = vec.get(i).unwrap_or(0.0);
-                RwSignal::new(format_number(val))
-            })
-            .collect();
-        component_inputs.set(inputs);
-    };
-
-    // Initialize on first render
-    Effect::new(move |_| {
-        if component_inputs.get().is_empty() {
-            init_inputs();
-        }
-    });
-
     // Update vector when component changes
     let update_component = move |index: usize, value: String| {
         if let Ok(num) = value.parse::<f64>() {
@@ -426,7 +404,6 @@ pub fn VectorInput(
         let mut new_components = vec.components.clone();
         new_components.push(0.0);
         internal_vector.set(Vector::new(new_components));
-        init_inputs();
     };
 
     // Remove dimension
@@ -436,7 +413,6 @@ pub fn VectorInput(
             let mut new_components = vec.components.clone();
             new_components.pop();
             internal_vector.set(Vector::new(new_components));
-            init_inputs();
         }
     };
 
@@ -477,19 +453,52 @@ pub fn VectorInput(
     let vector_container_styles = move || {
         StyleBuilder::new()
             .add("display", "flex")
-            .add("align-items", "center")
+            .add("align-items", "stretch")
             .add("gap", "0.25rem")
             .build()
     };
 
-    let bracket_styles = move || {
+    let left_bracket_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        let border = format!("2px solid {}", scheme_colors.text);
+        let is_angle = notation == VectorNotation::AngleBrackets;
         StyleBuilder::new()
-            .add("font-size", "1.5rem")
-            .add("font-weight", "100")
-            .add("color", scheme_colors.text.clone())
-            .add("line-height", "1")
+            .add("display", "flex")
+            .add("align-items", "center")
+            .add("width", if is_angle { "0" } else { "6px" })
+            .add_if(!is_angle, "border-left", border.clone())
+            .add_if(!is_angle, "border-top", border.clone())
+            .add_if(!is_angle, "border-bottom", border.clone())
+            .add_if(
+                notation == VectorNotation::Parentheses,
+                "border-radius",
+                "50% 0 0 50%",
+            )
+            .add_if(is_angle, "font-size", "1.5rem")
+            .add_if(is_angle, "color", scheme_colors.text.clone())
+            .build()
+    };
+
+    let right_bracket_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        let border = format!("2px solid {}", scheme_colors.text);
+        let is_angle = notation == VectorNotation::AngleBrackets;
+        StyleBuilder::new()
+            .add("display", "flex")
+            .add("align-items", "center")
+            .add("width", if is_angle { "0" } else { "6px" })
+            .add_if(!is_angle, "border-right", border.clone())
+            .add_if(!is_angle, "border-top", border.clone())
+            .add_if(!is_angle, "border-bottom", border.clone())
+            .add_if(
+                notation == VectorNotation::Parentheses,
+                "border-radius",
+                "0 50% 50% 0",
+            )
+            .add_if(is_angle, "font-size", "1.5rem")
+            .add_if(is_angle, "color", scheme_colors.text.clone())
             .build()
     };
 
@@ -629,13 +638,19 @@ pub fn VectorInput(
             })}
 
             <div style=vector_container_styles>
-                <span style=bracket_styles>{notation.left()}</span>
+                <span style=left_bracket_styles>
+                    {(notation == VectorNotation::AngleBrackets).then(|| notation.left())}
+                </span>
 
                 <div style=components_container_styles>
                     {move || {
-                        let inputs = component_inputs.get();
-                        let len = inputs.len();
-                        inputs.into_iter().enumerate().map(|(i, input_signal)| {
+                        let vec = internal_vector.get();
+                        let len = vec.dimensions();
+                        let mut components = Vec::new();
+
+                        for i in 0..len {
+                            let val = vec.get(i).unwrap_or(0.0);
+                            let val_str = RwSignal::new(format_number(val));
                             let sep = if notation == VectorNotation::UnitVector {
                                 ""
                             } else if i < len - 1 {
@@ -644,7 +659,8 @@ pub fn VectorInput(
                                 ""
                             };
 
-                            view! {
+                            let tab_index = (i + 1) as i32;
+                            components.push(view! {
                                 <div style=component_group_styles>
                                     {(notation != VectorNotation::UnitVector).then(|| view! {
                                         <span style=component_label_styles>{get_label(i)}</span>
@@ -652,12 +668,13 @@ pub fn VectorInput(
                                     <input
                                         type="text"
                                         style=input_styles
-                                        prop:value=move || input_signal.get()
+                                        tabindex=tab_index
+                                        prop:value=move || val_str.get()
                                         disabled=disabled
                                         on:input=move |ev| {
-                                            let val = event_target_value(&ev);
-                                            input_signal.set(val.clone());
-                                            update_component(i, val);
+                                            let new_val = event_target_value(&ev);
+                                            val_str.set(new_val.clone());
+                                            update_component(i, new_val);
                                         }
                                         on:keydown=move |ev| {
                                             handle_keydown(i, ev);
@@ -667,12 +684,15 @@ pub fn VectorInput(
                                         <span style=component_label_styles>{sep}</span>
                                     })}
                                 </div>
-                            }
-                        }).collect_view()
+                            });
+                        }
+                        components.collect_view()
                     }}
                 </div>
 
-                <span style=bracket_styles>{notation.right()}</span>
+                <span style=right_bracket_styles>
+                    {(notation == VectorNotation::AngleBrackets).then(|| notation.right())}
+                </span>
             </div>
 
             {allow_resize.then(|| {

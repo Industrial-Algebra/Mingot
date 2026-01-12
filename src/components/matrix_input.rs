@@ -425,32 +425,6 @@ pub fn MatrixInput(
     // Internal state
     let internal_matrix = value.unwrap_or_else(|| RwSignal::new(Matrix::zeros(rows, cols)));
 
-    // Input signals for each cell (we'll recreate these when matrix size changes)
-    let cell_inputs: RwSignal<Vec<Vec<RwSignal<String>>>> = RwSignal::new(Vec::new());
-
-    // Initialize cell inputs from matrix
-    let init_cells = move || {
-        let matrix = internal_matrix.get();
-        let cells: Vec<Vec<RwSignal<String>>> = (0..matrix.rows())
-            .map(|r| {
-                (0..matrix.cols())
-                    .map(|c| {
-                        let val = matrix.get(r, c).unwrap_or(0.0);
-                        RwSignal::new(format_number(val))
-                    })
-                    .collect()
-            })
-            .collect();
-        cell_inputs.set(cells);
-    };
-
-    // Initialize on first render
-    Effect::new(move |_| {
-        if cell_inputs.get().is_empty() {
-            init_cells();
-        }
-    });
-
     // Currently focused cell
     let focused_cell: RwSignal<Option<(usize, usize)>> = RwSignal::new(None);
 
@@ -466,45 +440,10 @@ pub fn MatrixInput(
         }
     };
 
-    // Handle keyboard navigation
-    let handle_keydown = move |row: usize, col: usize, ev: ev::KeyboardEvent| {
-        let matrix = internal_matrix.get();
-        let (new_row, new_col) = match ev.key().as_str() {
-            "ArrowUp" if row > 0 => (row - 1, col),
-            "ArrowDown" if row < matrix.rows() - 1 => (row + 1, col),
-            "ArrowLeft" if col > 0 => (row, col - 1),
-            "ArrowRight" if col < matrix.cols() - 1 => (row, col + 1),
-            "Tab" if !ev.shift_key() => {
-                ev.prevent_default();
-                if col < matrix.cols() - 1 {
-                    (row, col + 1)
-                } else if row < matrix.rows() - 1 {
-                    (row + 1, 0)
-                } else {
-                    (row, col)
-                }
-            }
-            "Tab" if ev.shift_key() => {
-                ev.prevent_default();
-                if col > 0 {
-                    (row, col - 1)
-                } else if row > 0 {
-                    (row - 1, matrix.cols() - 1)
-                } else {
-                    (row, col)
-                }
-            }
-            "Enter" => {
-                if row < matrix.rows() - 1 {
-                    (row + 1, col)
-                } else {
-                    (row, col)
-                }
-            }
-            _ => return,
-        };
-
-        focused_cell.set(Some((new_row, new_col)));
+    // Handle keyboard navigation (arrow keys only - Tab handled by tabindex)
+    let handle_keydown = move |_row: usize, _col: usize, _ev: ev::KeyboardEvent| {
+        // Arrow key navigation could be added here if needed
+        // For now, Tab navigation is handled by tabindex attribute
     };
 
     // Add row
@@ -512,7 +451,6 @@ pub fn MatrixInput(
         let mut matrix = internal_matrix.get();
         matrix.add_row(matrix.rows());
         internal_matrix.set(matrix);
-        init_cells();
     };
 
     // Add column
@@ -520,7 +458,6 @@ pub fn MatrixInput(
         let mut matrix = internal_matrix.get();
         matrix.add_col(matrix.cols());
         internal_matrix.set(matrix);
-        init_cells();
     };
 
     // Remove row
@@ -529,7 +466,6 @@ pub fn MatrixInput(
         if matrix.rows() > 1 {
             matrix.remove_row(matrix.rows() - 1);
             internal_matrix.set(matrix);
-            init_cells();
         }
     };
 
@@ -539,7 +475,6 @@ pub fn MatrixInput(
         if matrix.cols() > 1 {
             matrix.remove_col(matrix.cols() - 1);
             internal_matrix.set(matrix);
-            init_cells();
         }
     };
 
@@ -569,19 +504,56 @@ pub fn MatrixInput(
     let matrix_container_styles = move || {
         StyleBuilder::new()
             .add("display", "flex")
-            .add("align-items", "center")
+            .add("align-items", "stretch")
             .add("gap", "0.25rem")
             .build()
     };
 
-    let bracket_styles = move || {
+    let left_bracket_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        let border = format!("2px solid {}", scheme_colors.text);
         StyleBuilder::new()
-            .add("font-size", "2rem")
-            .add("font-weight", "100")
-            .add("color", scheme_colors.text.clone())
-            .add("line-height", "1")
+            .add("display", "flex")
+            .add("align-items", "center")
+            .add("width", "6px")
+            .add("border-left", border.clone())
+            .add("border-top", border.clone())
+            .add("border-bottom", border.clone())
+            .add_if(
+                notation == MatrixNotation::DoubleBars,
+                "box-shadow",
+                format!("-4px 0 0 0 {}", scheme_colors.text),
+            )
+            .add_if(
+                notation == MatrixNotation::Parentheses,
+                "border-radius",
+                "50% 0 0 50%",
+            )
+            .build()
+    };
+
+    let right_bracket_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        let border = format!("2px solid {}", scheme_colors.text);
+        StyleBuilder::new()
+            .add("display", "flex")
+            .add("align-items", "center")
+            .add("width", "6px")
+            .add("border-right", border.clone())
+            .add("border-top", border.clone())
+            .add("border-bottom", border.clone())
+            .add_if(
+                notation == MatrixNotation::DoubleBars,
+                "box-shadow",
+                format!("4px 0 0 0 {}", scheme_colors.text),
+            )
+            .add_if(
+                notation == MatrixNotation::Parentheses,
+                "border-radius",
+                "0 50% 50% 0",
+            )
             .build()
     };
 
@@ -694,23 +666,30 @@ pub fn MatrixInput(
             })}
 
             <div style=matrix_container_styles>
-                <span style=bracket_styles>{notation.left()}</span>
+                <span style=left_bracket_styles></span>
 
                 <div style=grid_styles>
                     {move || {
-                        let cells = cell_inputs.get();
-                        cells.into_iter().enumerate().map(|(r, row)| {
-                            row.into_iter().enumerate().map(|(c, cell_signal)| {
-                                view! {
+                        let matrix = internal_matrix.get();
+                        let cols = matrix.cols();
+                        let mut cells = Vec::new();
+                        for r in 0..matrix.rows() {
+                            for c in 0..cols {
+                                let val = matrix.get(r, c).unwrap_or(0.0);
+                                let val_str = RwSignal::new(format_number(val));
+                                let tab_index = (r * cols + c + 1) as i32;
+
+                                cells.push(view! {
                                     <input
                                         type="text"
                                         style=cell_styles
-                                        prop:value=move || cell_signal.get()
+                                        tabindex=tab_index
+                                        prop:value=move || val_str.get()
                                         disabled=disabled
                                         on:input=move |ev| {
-                                            let val = event_target_value(&ev);
-                                            cell_signal.set(val.clone());
-                                            update_cell(r, c, val);
+                                            let new_val = event_target_value(&ev);
+                                            val_str.set(new_val.clone());
+                                            update_cell(r, c, new_val);
                                         }
                                         on:focus=move |_| {
                                             focused_cell.set(Some((r, c)));
@@ -719,13 +698,14 @@ pub fn MatrixInput(
                                             handle_keydown(r, c, ev);
                                         }
                                     />
-                                }
-                            }).collect_view()
-                        }).collect_view()
+                                });
+                            }
+                        }
+                        cells.collect_view()
                     }}
                 </div>
 
-                <span style=bracket_styles>{notation.right()}</span>
+                <span style=right_bracket_styles></span>
             </div>
 
             {allow_resize.then(|| {
