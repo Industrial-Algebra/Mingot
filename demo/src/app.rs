@@ -52,6 +52,9 @@ pub fn App() -> impl IntoView {
                         <Route path=path!("/form/unit-input") view=move || view! { <ComponentPage slug="unit-input" /> } />
                         <Route path=path!("/form/complex-number-input") view=move || view! { <ComponentPage slug="complex-number-input" /> } />
                         <Route path=path!("/form/uncertainty-input") view=move || view! { <ComponentPage slug="uncertainty-input" /> } />
+                        <Route path=path!("/form/interval-input") view=move || view! { <ComponentPage slug="interval-input" /> } />
+                        <Route path=path!("/form/coordinate-input") view=move || view! { <ComponentPage slug="coordinate-input" /> } />
+                        <Route path=path!("/form/point-locator") view=move || view! { <ComponentPage slug="point-locator" /> } />
                         <Route path=path!("/form/password-input") view=move || view! { <ComponentPage slug="password-input" /> } />
                         <Route path=path!("/form/pin-input") view=move || view! { <ComponentPage slug="pin-input" /> } />
                         <Route path=path!("/form/radio") view=move || view! { <ComponentPage slug="radio" /> } />

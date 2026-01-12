@@ -180,6 +180,21 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: Some("New"),
                 },
                 NavItem {
+                    label: "IntervalInput",
+                    href: "/form/interval-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "CoordinateInput",
+                    href: "/form/coordinate-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "PointLocator",
+                    href: "/form/point-locator",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "PasswordInput",
                     href: "/form/password-input",
                     badge: None,

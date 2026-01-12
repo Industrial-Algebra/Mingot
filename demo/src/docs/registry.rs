@@ -53,6 +53,9 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         "unit-input" => Some(unit_input_doc()),
         "complex-number-input" => Some(complex_number_input_doc()),
         "uncertainty-input" => Some(uncertainty_input_doc()),
+        "interval-input" => Some(interval_input_doc()),
+        "coordinate-input" => Some(coordinate_input_doc()),
+        "point-locator" => Some(point_locator_doc()),
         "checkbox" => Some(checkbox_doc()),
         "file-input" => Some(file_input_doc()),
         "password-input" => Some(password_input_doc()),
@@ -3687,6 +3690,178 @@ fn uncertainty_input_doc() -> ComponentDoc {
                                 label="With Relative Error".to_string()
                             />
                         </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn interval_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "IntervalInput",
+        description:
+            "Mathematical interval input with support for open, closed, and half-open intervals.",
+        import_name: "IntervalInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Interval>>",
+                default: None,
+                description: "The current interval value",
+                required: false,
+            },
+            PropDoc {
+                name: "bounds",
+                prop_type: "IntervalBounds",
+                default: Some("Closed"),
+                description: "Default bounds type (Closed, Open, HalfOpenLeft, HalfOpenRight)",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_infinity",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to allow infinite bounds",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            view! {
+                <DemoBlock title="IntervalInput" code=r#"<IntervalInput label="Select Range" />"#>
+                    <Stack spacing="md">
+                        <IntervalInput label="Range".to_string() />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn coordinate_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "CoordinateInput",
+        description: "Multi-dimensional coordinate input supporting Cartesian, Polar, Cylindrical, and Spherical systems.",
+        import_name: "CoordinateInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Coordinates>>",
+                default: None,
+                description: "The current coordinate value",
+                required: false,
+            },
+            PropDoc {
+                name: "system",
+                prop_type: "CoordinateSystem",
+                default: Some("Cartesian3D"),
+                description: "Coordinate system (Cartesian2D, Cartesian3D, Polar, Cylindrical, Spherical)",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_conversion",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Allow switching between coordinate systems",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the input",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            view! {
+                <DemoBlock title="CoordinateInput" code=r#"<CoordinateInput system=CoordinateSystem::Cartesian3D />"#>
+                    <Stack spacing="md">
+                        <CoordinateInput
+                            system=CoordinateSystem::Cartesian3D
+                            label="3D Point".to_string()
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn point_locator_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "PointLocator",
+        description: "Visual point positioning with drag-and-drop interface, grid snapping, and coordinate display.",
+        import_name: "PointLocator",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Point2D>>",
+                default: None,
+                description: "The current point value",
+                required: false,
+            },
+            PropDoc {
+                name: "bounds",
+                prop_type: "Bounds",
+                default: Some("(-10, 10, -10, 10)"),
+                description: "Coordinate bounds",
+                required: false,
+            },
+            PropDoc {
+                name: "snap_to_grid",
+                prop_type: "Option<f64>",
+                default: None,
+                description: "Grid snap size",
+                required: false,
+            },
+            PropDoc {
+                name: "width",
+                prop_type: "u32",
+                default: Some("300"),
+                description: "Canvas width in pixels",
+                required: false,
+            },
+            PropDoc {
+                name: "height",
+                prop_type: "u32",
+                default: Some("300"),
+                description: "Canvas height in pixels",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text above the canvas",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            view! {
+                <DemoBlock title="PointLocator" code=r#"<PointLocator bounds=Bounds::symmetric(5.0) snap_to_grid=1.0 />"#>
+                    <Stack spacing="md">
+                        <PointLocator
+                            bounds=Bounds::symmetric(5.0)
+                            snap_to_grid=1.0
+                            label="Point".to_string()
+                        />
                     </Stack>
                 </DemoBlock>
             }
