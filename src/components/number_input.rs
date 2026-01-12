@@ -456,6 +456,115 @@ fn check_overflow_warning(
     None
 }
 
+/// Information about a selected portion of a number
+#[derive(Clone, Debug, PartialEq)]
+pub struct SelectionInfo {
+    pub selected_text: String,
+    pub position_info: String,
+    pub numeric_value: Option<f64>,
+    pub significant_digits: usize,
+    pub magnitude: Option<String>,
+}
+
+impl SelectionInfo {
+    /// Analyze the selected text within the context of the full value
+    pub fn analyze(selected: &str, full_value: &str, start: usize, end: usize) -> Self {
+        let cleaned_selected = selected.replace([',', '_', ' '], "");
+        let cleaned_full = full_value.replace([',', '_', ' '], "");
+
+        // Determine position info - check scientific notation first (has priority)
+        let position_info = if cleaned_full.to_lowercase().contains('e') {
+            let e_pos = full_value
+                .to_lowercase()
+                .find('e')
+                .unwrap_or(full_value.len());
+            if end <= e_pos {
+                "Mantissa".to_string()
+            } else if start >= e_pos {
+                "Exponent".to_string()
+            } else {
+                "Spans exponent".to_string()
+            }
+        } else if let Some(_dot_pos) = cleaned_full.find('.') {
+            // Adjust dot_pos to account for removed separators
+            let actual_dot_pos = full_value.find('.').unwrap_or(full_value.len());
+            if end <= actual_dot_pos {
+                "Integer part".to_string()
+            } else if start > actual_dot_pos {
+                "Decimal part".to_string()
+            } else {
+                "Spans decimal point".to_string()
+            }
+        } else {
+            "Integer value".to_string()
+        };
+
+        // Try to parse as numeric value
+        let numeric_value = cleaned_selected.parse::<f64>().ok();
+
+        // Count significant digits in selection
+        let significant_digits = count_significant_digits(&cleaned_selected);
+
+        // Determine magnitude if it's a valid number
+        let magnitude = numeric_value.map(|v| {
+            let abs_v = v.abs();
+            if abs_v == 0.0 {
+                "Zero".to_string()
+            } else if abs_v >= 1e12 {
+                "Trillions".to_string()
+            } else if abs_v >= 1e9 {
+                "Billions".to_string()
+            } else if abs_v >= 1e6 {
+                "Millions".to_string()
+            } else if abs_v >= 1e3 {
+                "Thousands".to_string()
+            } else if abs_v >= 1.0 {
+                "Units".to_string()
+            } else if abs_v >= 1e-3 {
+                "Thousandths".to_string()
+            } else if abs_v >= 1e-6 {
+                "Millionths".to_string()
+            } else if abs_v >= 1e-9 {
+                "Billionths".to_string()
+            } else {
+                format!("~10^{:.0}", abs_v.log10())
+            }
+        });
+
+        SelectionInfo {
+            selected_text: selected.to_string(),
+            position_info,
+            numeric_value,
+            significant_digits,
+            magnitude,
+        }
+    }
+}
+
+/// Format conversion options for context menu
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum FormatConversion {
+    ToStandard,
+    ToThousand,
+    ToScientific,
+    ToEngineering,
+    CopyValue,
+    CopyFormatted,
+}
+
+impl FormatConversion {
+    pub fn label(&self) -> &'static str {
+        match self {
+            FormatConversion::ToStandard => "Standard (123456)",
+            FormatConversion::ToThousand => "With separators (123,456)",
+            FormatConversion::ToScientific => "Scientific (1.23e5)",
+            FormatConversion::ToEngineering => "Engineering (123e3)",
+            FormatConversion::CopyValue => "Copy raw value",
+            FormatConversion::CopyFormatted => "Copy formatted",
+        }
+    }
+}
+
 /// Detect if a string is in scientific notation
 fn is_scientific_notation(input: &str) -> bool {
     let lower = input.to_lowercase();
@@ -936,6 +1045,14 @@ pub fn NumberInput(
     #[prop(default = 0.9)]
     overflow_warning_threshold: f64,
 
+    // Selection and context menu features
+    /// Whether to show selection precision indicator when text is selected
+    #[prop(default = false)]
+    show_selection_info: bool,
+    /// Whether to show context menu on right-click with format conversion options
+    #[prop(default = false)]
+    show_context_menu: bool,
+
     // Enhanced input handling
     /// Whether to detect and convert pasted number formats automatically
     #[prop(default = true)]
@@ -1005,6 +1122,13 @@ pub fn NumberInput(
     // Undo/redo state management
     let undo_stack: RwSignal<Vec<String>> = RwSignal::new(Vec::new());
     let redo_stack: RwSignal<Vec<String>> = RwSignal::new(Vec::new());
+
+    // Selection info state
+    let selection_info: RwSignal<Option<SelectionInfo>> = RwSignal::new(None);
+
+    // Context menu state
+    let context_menu_visible = RwSignal::new(false);
+    let context_menu_position: RwSignal<(i32, i32)> = RwSignal::new((0, 0));
 
     // Helper to push current value to undo stack before changes
     let push_undo = move |old_value: String| {
@@ -1524,6 +1648,90 @@ pub fn NumberInput(
         }
     };
 
+    // Selection change handler - updates selection info popup
+    let handle_select = move |ev: ev::Event| {
+        if !show_selection_info {
+            return;
+        }
+
+        let target = ev.target();
+        if let Some(target) = target {
+            if let Ok(input) = target.dyn_into::<web_sys::HtmlInputElement>() {
+                let start = input.selection_start().ok().flatten().unwrap_or(0) as usize;
+                let end = input.selection_end().ok().flatten().unwrap_or(0) as usize;
+
+                if start != end {
+                    let value = number_value.get();
+                    if end <= value.len() {
+                        let selected = &value[start..end];
+                        let info = SelectionInfo::analyze(selected, &value, start, end);
+                        selection_info.set(Some(info));
+                    }
+                } else {
+                    selection_info.set(None);
+                }
+            }
+        }
+    };
+
+    // Context menu handler
+    let handle_contextmenu = move |ev: ev::MouseEvent| {
+        if !show_context_menu {
+            return;
+        }
+
+        ev.prevent_default();
+        context_menu_position.set((ev.client_x(), ev.client_y()));
+        context_menu_visible.set(true);
+    };
+
+    // Close context menu when clicking outside
+    let close_context_menu = move || {
+        context_menu_visible.set(false);
+    };
+
+    // Handle format conversion from context menu
+    let handle_format_conversion = move |conversion: FormatConversion| {
+        let current = number_value.get();
+        let cleaned = current.replace([',', '_', ' ', '\''], "");
+
+        match conversion {
+            FormatConversion::ToStandard => {
+                let formatted = format_number(&cleaned, NumberInputFormat::Standard, ',');
+                number_value.set(formatted);
+            }
+            FormatConversion::ToThousand => {
+                let formatted =
+                    format_number(&cleaned, NumberInputFormat::Thousand, thousand_separator);
+                number_value.set(formatted);
+            }
+            FormatConversion::ToScientific => {
+                let formatted = format_number(&cleaned, NumberInputFormat::Scientific, ',');
+                number_value.set(formatted);
+            }
+            FormatConversion::ToEngineering => {
+                let formatted = format_number(&cleaned, NumberInputFormat::Engineering, ',');
+                number_value.set(formatted);
+            }
+            FormatConversion::CopyValue => {
+                // Copy raw value to clipboard
+                if let Some(window) = web_sys::window() {
+                    let clipboard = window.navigator().clipboard();
+                    let _ = clipboard.write_text(&cleaned);
+                }
+            }
+            FormatConversion::CopyFormatted => {
+                // Copy formatted value to clipboard
+                if let Some(window) = web_sys::window() {
+                    let clipboard = window.navigator().clipboard();
+                    let _ = clipboard.write_text(&current);
+                }
+            }
+        }
+
+        close_context_menu();
+    };
+
     let label_styles = move || {
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
@@ -1557,6 +1765,80 @@ pub fn NumberInput(
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())
         )
+    };
+
+    // Selection info popup styles
+    let selection_info_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        StyleBuilder::new()
+            .add("position", "absolute")
+            .add("bottom", "100%")
+            .add("left", "0")
+            .add("margin-bottom", "0.5rem")
+            .add("padding", "0.5rem 0.75rem")
+            .add("background", scheme_colors.background.clone())
+            .add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            )
+            .add("border-radius", theme_val.radius.sm)
+            .add("box-shadow", "0 2px 8px rgba(0,0,0,0.15)")
+            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("color", scheme_colors.text.clone())
+            .add("z-index", "1000")
+            .add("white-space", "nowrap")
+            .build()
+    };
+
+    // Context menu styles
+    let context_menu_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        let (x, y) = context_menu_position.get();
+        StyleBuilder::new()
+            .add("position", "fixed")
+            .add("left", format!("{}px", x))
+            .add("top", format!("{}px", y))
+            .add("background", scheme_colors.background.clone())
+            .add(
+                "border",
+                format!("1px solid {}", scheme_colors.border.clone()),
+            )
+            .add("border-radius", theme_val.radius.sm)
+            .add("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
+            .add("z-index", "10000")
+            .add("min-width", "180px")
+            .add("padding", "0.25rem 0")
+            .build()
+    };
+
+    // Context menu item styles
+    let context_menu_item_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        StyleBuilder::new()
+            .add("display", "block")
+            .add("width", "100%")
+            .add("padding", "0.5rem 0.75rem")
+            .add("background", "transparent")
+            .add("border", "none")
+            .add("text-align", "left")
+            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("color", scheme_colors.text.clone())
+            .add("cursor", "pointer")
+            .build()
+    };
+
+    // Context menu separator styles
+    let context_menu_separator_styles = move || {
+        let theme_val = theme.get();
+        let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
+        StyleBuilder::new()
+            .add("height", "1px")
+            .add("background", scheme_colors.border.clone())
+            .add("margin", "0.25rem 0")
+            .build()
     };
 
     // Control button container styles
@@ -1782,7 +2064,31 @@ pub fn NumberInput(
                     on:focus=handle_focus
                     on:blur=handle_blur
                     on:paste=handle_paste
+                    on:select=handle_select
+                    on:contextmenu=handle_contextmenu
                 />
+
+                // Selection info popup
+                {move || selection_info.get().map(|info| {
+                    view! {
+                        <div
+                            class="mingot-number-input-selection-info"
+                            style=selection_info_styles
+                        >
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">
+                                {format!("\"{}\"", info.selected_text)}
+                            </div>
+                            <div>{info.position_info}</div>
+                            <div>{format!("{} significant digits", info.significant_digits)}</div>
+                            {info.magnitude.map(|m| view! {
+                                <div>{format!("Magnitude: {}", m)}</div>
+                            })}
+                            {info.numeric_value.map(|v| view! {
+                                <div style="font-family: monospace;">{format!("Value: {}", v)}</div>
+                            })}
+                        </div>
+                    }
+                })}
 
                 // Increment/decrement controls
                 {show_controls.then(|| {
@@ -1893,6 +2199,61 @@ pub fn NumberInput(
 
             {error.map(|e| view! {
                 <div style=error_styles>{e}</div>
+            })}
+
+            // Context menu for format conversion
+            {move || context_menu_visible.get().then(|| {
+                let conversions = vec![
+                    FormatConversion::ToStandard,
+                    FormatConversion::ToThousand,
+                    FormatConversion::ToScientific,
+                    FormatConversion::ToEngineering,
+                ];
+                let copy_options = vec![
+                    FormatConversion::CopyValue,
+                    FormatConversion::CopyFormatted,
+                ];
+
+                view! {
+                    // Backdrop to close menu on click outside
+                    <div
+                        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
+                        on:click=move |_| close_context_menu()
+                    ></div>
+
+                    <div
+                        class="mingot-number-input-context-menu"
+                        style=context_menu_styles
+                    >
+                        {conversions.into_iter().map(|conv| {
+                            let handle_click = handle_format_conversion;
+                            view! {
+                                <button
+                                    type="button"
+                                    style=context_menu_item_styles
+                                    on:click=move |_| handle_click(conv)
+                                >
+                                    {conv.label()}
+                                </button>
+                            }
+                        }).collect_view()}
+
+                        <div style=context_menu_separator_styles></div>
+
+                        {copy_options.into_iter().map(|conv| {
+                            let handle_click = handle_format_conversion;
+                            view! {
+                                <button
+                                    type="button"
+                                    style=context_menu_item_styles
+                                    on:click=move |_| handle_click(conv)
+                                >
+                                    {conv.label()}
+                                </button>
+                            }
+                        }).collect_view()}
+                    </div>
+                }
             })}
         </div>
     }
@@ -2387,6 +2748,74 @@ mod tests {
         // Percentage sign should be stripped
         assert_eq!(normalize_pasted_number("50%", '.'), "50");
         assert_eq!(normalize_pasted_number("12.5%", '.'), "12.5");
+    }
+
+    #[test]
+    fn test_selection_info_integer_part() {
+        let info = SelectionInfo::analyze("123", "123.456", 0, 3);
+        assert_eq!(info.selected_text, "123");
+        assert_eq!(info.position_info, "Integer part");
+        assert_eq!(info.numeric_value, Some(123.0));
+        assert_eq!(info.significant_digits, 3);
+    }
+
+    #[test]
+    fn test_selection_info_decimal_part() {
+        let info = SelectionInfo::analyze("456", "123.456", 4, 7);
+        assert_eq!(info.selected_text, "456");
+        assert_eq!(info.position_info, "Decimal part");
+        assert_eq!(info.numeric_value, Some(456.0));
+    }
+
+    #[test]
+    fn test_selection_info_spans_decimal() {
+        let info = SelectionInfo::analyze("3.4", "123.456", 2, 5);
+        assert_eq!(info.selected_text, "3.4");
+        assert_eq!(info.position_info, "Spans decimal point");
+        assert_eq!(info.numeric_value, Some(3.4));
+    }
+
+    #[test]
+    fn test_selection_info_magnitude() {
+        let info = SelectionInfo::analyze("1000000", "1000000", 0, 7);
+        assert_eq!(info.magnitude, Some("Millions".to_string()));
+
+        let info = SelectionInfo::analyze("1000", "1000", 0, 4);
+        assert_eq!(info.magnitude, Some("Thousands".to_string()));
+
+        let info = SelectionInfo::analyze("0.001", "0.001", 0, 5);
+        assert_eq!(info.magnitude, Some("Thousandths".to_string()));
+    }
+
+    #[test]
+    fn test_selection_info_scientific_mantissa() {
+        let info = SelectionInfo::analyze("1.23", "1.23e8", 0, 4);
+        assert_eq!(info.position_info, "Mantissa");
+    }
+
+    #[test]
+    fn test_selection_info_scientific_exponent() {
+        let info = SelectionInfo::analyze("e8", "1.23e8", 4, 6);
+        assert_eq!(info.position_info, "Exponent");
+    }
+
+    #[test]
+    fn test_format_conversion_labels() {
+        assert_eq!(FormatConversion::ToStandard.label(), "Standard (123456)");
+        assert_eq!(
+            FormatConversion::ToThousand.label(),
+            "With separators (123,456)"
+        );
+        assert_eq!(
+            FormatConversion::ToScientific.label(),
+            "Scientific (1.23e5)"
+        );
+        assert_eq!(
+            FormatConversion::ToEngineering.label(),
+            "Engineering (123e3)"
+        );
+        assert_eq!(FormatConversion::CopyValue.label(), "Copy raw value");
+        assert_eq!(FormatConversion::CopyFormatted.label(), "Copy formatted");
     }
 }
 
