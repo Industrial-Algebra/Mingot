@@ -210,6 +210,16 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: Some("New"),
                 },
                 NavItem {
+                    label: "SymbolPalette",
+                    href: "/form/symbol-palette",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "FormulaInput",
+                    href: "/form/formula-input",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "PasswordInput",
                     href: "/form/password-input",
                     badge: None,

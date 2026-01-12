@@ -59,6 +59,8 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         "matrix-input" => Some(matrix_input_doc()),
         "vector-input" => Some(vector_input_doc()),
         "tensor-input" => Some(tensor_input_doc()),
+        "symbol-palette" => Some(symbol_palette_doc()),
+        "formula-input" => Some(formula_input_doc()),
         "checkbox" => Some(checkbox_doc()),
         "file-input" => Some(file_input_doc()),
         "password-input" => Some(password_input_doc()),
@@ -4214,6 +4216,286 @@ let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 2, 2, 3]).unwrap()
                             shape=vec![2, 3]
                             show_stats=false
                             label="Minimal display (no stats)"
+                        />
+                    </DemoBlock>
+                </Stack>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn symbol_palette_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "SymbolPalette",
+        description: "A searchable, categorized picker for mathematical symbols including Greek letters, operators, set theory, logic, arrows, and relations.",
+        import_name: "SymbolPalette",
+        props: vec![
+            PropDoc {
+                name: "categories",
+                prop_type: "Option<Vec<SymbolCategory>>",
+                default: Some("all categories"),
+                description: "Categories of symbols to display",
+                required: false,
+            },
+            PropDoc {
+                name: "on_select",
+                prop_type: "Option<Callback<Symbol>>",
+                default: None,
+                description: "Callback when a symbol is selected",
+                required: false,
+            },
+            PropDoc {
+                name: "searchable",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show the search box",
+                required: false,
+            },
+            PropDoc {
+                name: "show_tabs",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show category tabs",
+                required: false,
+            },
+            PropDoc {
+                name: "columns",
+                prop_type: "usize",
+                default: Some("8"),
+                description: "Number of columns in the symbol grid",
+                required: false,
+            },
+            PropDoc {
+                name: "show_tooltip",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show symbol name on hover",
+                required: false,
+            },
+            PropDoc {
+                name: "show_latex",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Include LaTeX code in tooltip",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label for the palette",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let selected_symbol = RwSignal::new(None::<Symbol>);
+
+            view! {
+                <Stack spacing="xl">
+                    <DemoBlock title="Full Symbol Palette" code=r#"let selected = RwSignal::new(None::<Symbol>);
+
+<SymbolPalette
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
+    label="Mathematical Symbols"
+/>
+
+// Display selected symbol
+{move || selected.get().map(|s| view! {
+    <Text>
+        {format!("Selected: {} ({}) - LaTeX: {}",
+            s.char, s.name, s.latex.unwrap_or("N/A"))}
+    </Text>
+})}"#>
+                        <Stack spacing="md">
+                            <SymbolPalette
+                                on_select=Callback::new(move |sym: Symbol| {
+                                    selected_symbol.set(Some(sym));
+                                })
+                                label="Mathematical Symbols"
+                            />
+                            {move || selected_symbol.get().map(|s| view! {
+                                <Text>
+                                    {format!("Selected: {} ({}) - LaTeX: {}",
+                                        s.char, s.name, s.latex.unwrap_or("N/A"))}
+                                </Text>
+                            })}
+                        </Stack>
+                    </DemoBlock>
+
+                    <DemoBlock title="Greek Letters Only" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Greek]
+    show_tabs=false
+    label="Greek Alphabet"
+    columns=12
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Greek]
+                            show_tabs=false
+                            label="Greek Alphabet"
+                            columns=12
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Operators and Relations" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
+    label="Operators & Relations"
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
+                            label="Operators & Relations"
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Logic and Set Theory" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
+    label="Logic & Set Theory"
+    columns=6
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
+                            label="Logic & Set Theory"
+                            columns=6
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Compact (No Search)" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Arrows]
+    searchable=false
+    show_tabs=false
+    label="Arrows"
+    columns=10
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Arrows]
+                            searchable=false
+                            show_tabs=false
+                            label="Arrows"
+                            columns=10
+                        />
+                    </DemoBlock>
+                </Stack>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn formula_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "FormulaInput",
+        description: "Mathematical expression input with parsing, variable support, and function recognition. Supports standard math functions (sin, cos, exp, ln, sqrt, etc.) and evaluates expressions in real-time.",
+        import_name: "FormulaInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<String>>",
+                default: None,
+                description: "Controlled formula string value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<FormulaResult>>",
+                default: None,
+                description: "Callback with parsed expression, variables, and evaluated result",
+                required: false,
+            },
+            PropDoc {
+                name: "variables",
+                prop_type: "Option<Signal<HashMap<String, f64>>>",
+                default: None,
+                description: "Variable values for evaluation",
+                required: false,
+            },
+            PropDoc {
+                name: "show_parsed",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Show the parsed expression tree",
+                required: false,
+            },
+            PropDoc {
+                name: "show_result",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show evaluation result",
+                required: false,
+            },
+            PropDoc {
+                name: "show_variables",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Show detected variables",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            view! {
+                <Stack spacing="xl">
+                    <DemoBlock title="Basic Formula Input" code=r#"<FormulaInput
+    label="Enter a formula"
+    placeholder="e.g., sin(pi/2) + sqrt(16)"
+    show_result=true
+/>"#>
+                        <FormulaInput
+                            label="Enter a formula"
+                            placeholder="e.g., sin(pi/2) + sqrt(16)"
+                            show_result=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Show Variables" code=r#"<FormulaInput
+    label="Formula with variables"
+    placeholder="e.g., x^2 + y"
+    show_variables=true
+    show_result=false
+/>"#>
+                        <FormulaInput
+                            label="Formula with variables"
+                            placeholder="e.g., x^2 + y"
+                            show_variables=true
+                            show_result=false
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Show Parsed Expression" code=r#"<FormulaInput
+    label="With parsed expression display"
+    show_parsed=true
+    show_result=false
+/>"#>
+                        <FormulaInput
+                            label="With parsed expression display"
+                            show_parsed=true
+                            show_result=false
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Supported Functions" code=r#"// Trigonometric: sin, cos, tan, asin, acos, atan
+// Hyperbolic: sinh, cosh, tanh
+// Exponential: exp, ln, log10, log2
+// Power/Root: sqrt, cbrt, abs
+// Rounding: floor, ceil, round
+// Special: sign, factorial
+// Constants: pi, e, tau
+
+// Try: sin(pi/4), exp(1), sqrt(2)^2, factorial(5), ln(e)"#>
+                        <FormulaInput
+                            label="Try the examples above"
+                            show_result=true
                         />
                     </DemoBlock>
                 </Stack>
