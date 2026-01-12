@@ -195,6 +195,21 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: Some("New"),
                 },
                 NavItem {
+                    label: "MatrixInput",
+                    href: "/form/matrix-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "VectorInput",
+                    href: "/form/vector-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "TensorInput",
+                    href: "/form/tensor-input",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "PasswordInput",
                     href: "/form/password-input",
                     badge: None,

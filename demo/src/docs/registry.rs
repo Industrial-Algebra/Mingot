@@ -56,6 +56,9 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         "interval-input" => Some(interval_input_doc()),
         "coordinate-input" => Some(coordinate_input_doc()),
         "point-locator" => Some(point_locator_doc()),
+        "matrix-input" => Some(matrix_input_doc()),
+        "vector-input" => Some(vector_input_doc()),
+        "tensor-input" => Some(tensor_input_doc()),
         "checkbox" => Some(checkbox_doc()),
         "file-input" => Some(file_input_doc()),
         "password-input" => Some(password_input_doc()),
@@ -3861,6 +3864,274 @@ fn point_locator_doc() -> ComponentDoc {
                             bounds=Bounds::symmetric(5.0)
                             snap_to_grid=1.0
                             label="Point".to_string()
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn matrix_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "MatrixInput",
+        description: "Spreadsheet-style matrix entry with built-in operations like determinant, trace, and transpose.",
+        import_name: "MatrixInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Matrix>>",
+                default: None,
+                description: "Controlled matrix value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Matrix>>",
+                default: None,
+                description: "Called when matrix values change",
+                required: false,
+            },
+            PropDoc {
+                name: "rows",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Initial number of rows",
+                required: false,
+            },
+            PropDoc {
+                name: "cols",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Initial number of columns",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_resize",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show row/column manipulation buttons",
+                required: false,
+            },
+            PropDoc {
+                name: "show_operations",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show determinant/trace/norm preview",
+                required: false,
+            },
+            PropDoc {
+                name: "notation",
+                prop_type: "MatrixNotation",
+                default: Some("MatrixNotation::Brackets"),
+                description: "Display notation style (Brackets, Parentheses, Bars, DoubleBars)",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let matrix = RwSignal::new(Matrix::identity(3));
+
+            view! {
+                <DemoBlock title="Matrix Input" code=r#"let matrix = RwSignal::new(Matrix::identity(3));
+
+<MatrixInput
+    value=matrix
+    show_operations=true
+    allow_resize=true
+/>"#>
+                    <Stack spacing="md">
+                        <MatrixInput
+                            value=matrix
+                            show_operations=true
+                            allow_resize=true
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn vector_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "VectorInput",
+        description: "Mathematical vector entry with multiple notations, magnitude display, and vector operations.",
+        import_name: "VectorInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Vector>>",
+                default: None,
+                description: "Controlled vector value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Vector>>",
+                default: None,
+                description: "Called when vector values change",
+                required: false,
+            },
+            PropDoc {
+                name: "dimensions",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Number of vector components",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_resize",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to allow dimension changes",
+                required: false,
+            },
+            PropDoc {
+                name: "notation",
+                prop_type: "VectorNotation",
+                default: Some("VectorNotation::Column"),
+                description: "Display notation (Row, Column, AngleBrackets, Parentheses, UnitVector)",
+                required: false,
+            },
+            PropDoc {
+                name: "show_magnitude",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show magnitude and direction display",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let vector = RwSignal::new(Vector::new(vec![1.0, 2.0, 3.0]));
+
+            view! {
+                <DemoBlock title="Vector Input" code=r#"let vector = RwSignal::new(Vector::new(vec![1.0, 2.0, 3.0]));
+
+<VectorInput
+    value=vector
+    notation=VectorNotation::Column
+    show_magnitude=true
+/>"#>
+                    <Stack spacing="md">
+                        <VectorInput
+                            value=vector
+                            notation=VectorNotation::Column
+                            show_magnitude=true
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn tensor_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "TensorInput",
+        description: "Multi-dimensional tensor entry with slice navigation, reshape operations, and statistics display.",
+        import_name: "TensorInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Tensor>>",
+                default: None,
+                description: "Controlled tensor value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Tensor>>",
+                default: None,
+                description: "Called when tensor values change",
+                required: false,
+            },
+            PropDoc {
+                name: "shape",
+                prop_type: "Option<Vec<usize>>",
+                default: None,
+                description: "Initial tensor shape",
+                required: false,
+            },
+            PropDoc {
+                name: "show_stats",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show min/max/mean statistics",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "Signal<bool>",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let tensor = RwSignal::new(Tensor::zeros(vec![2, 3, 4]));
+
+            view! {
+                <DemoBlock title="Tensor Input" code=r#"let tensor = RwSignal::new(Tensor::zeros(vec![2, 3, 4]));
+
+<TensorInput
+    value=tensor
+    show_stats=true
+/>"#>
+                    <Stack spacing="md">
+                        <TensorInput
+                            value=tensor
+                            show_stats=true
                         />
                     </Stack>
                 </DemoBlock>
