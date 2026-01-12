@@ -232,12 +232,12 @@ Complete the precision-aware interactive controls for NumberInput.
 - [x] Configurable step size (e.g., step="0.0001")
 - [x] Keyboard shortcuts (Arrow up/down)
 - [x] Modifier keys (Shift = 10x, Ctrl = 100x)
-- [ ] Mouse wheel support (deferred to Phase 5)
+- [x] Mouse wheel support (completed in v0.7.0)
 
 #### Enhanced Input Handling
 - [x] Copy/paste with automatic format detection
-- [ ] Drag-to-select precision indicators (deferred to Phase 5)
-- [ ] Context menu for format conversion (deferred to Phase 5)
+- [x] Drag-to-select precision indicators (completed in v0.7.0)
+- [x] Context menu for format conversion (completed in v0.7.0)
 - [x] Undo/redo for value changes
 
 ```rust
@@ -264,9 +264,9 @@ Complete the precision-aware interactive controls for NumberInput.
 - [x] **UnitInput** - Physical units with conversion (Length, Mass, Time, Temperature, Data)
 - [x] **ComplexNumberInput** - Rectangular and polar form support
 - [x] **UncertaintyInput** - Value ± error with multiple display formats
-- [ ] **IntervalInput** - Deferred to Phase 5
-- [ ] **CoordinateInput** - Deferred to Phase 5
-- [ ] **PointLocator** - Deferred to Phase 5
+- [x] **IntervalInput** - Completed in v0.7.0
+- [x] **CoordinateInput** - Completed in v0.7.0
+- [x] **PointLocator** - Completed in v0.7.0
 
 #### UnitInput
 ```rust
@@ -472,22 +472,22 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 
 ---
 
-### v0.7.0: Deferred Scientific Inputs
+### v0.7.0: Deferred Scientific Inputs ✅ COMPLETED
 
 **Branch**: `feature/0.7.0-deferred-scientific-inputs`
-**Status**: In Progress
+**Status**: Complete
 
 Complete the deferred components from Phase 4.
 
 #### NumberInput Enhancements
-- [ ] Mouse wheel support for increment/decrement
-- [ ] Drag-to-select precision indicators
-- [ ] Context menu for format conversion
+- [x] Mouse wheel support for increment/decrement (`allow_mouse_wheel` prop)
+- [x] Drag-to-select precision indicators (`show_selection_info` prop with `SelectionInfo`)
+- [x] Context menu for format conversion (`show_context_menu` prop with `FormatConversion`)
 
 #### Coordinate & Geometry Inputs
-- [ ] **IntervalInput** - Min/max bounds with open/closed notation
-- [ ] **CoordinateInput** - 2D/3D Cartesian, Polar, Spherical, Cylindrical
-- [ ] **PointLocator** - Drag-and-drop point positioning on canvas
+- [x] **IntervalInput** - Min/max bounds with open/closed notation
+- [x] **CoordinateInput** - 2D/3D Cartesian, Polar, Spherical, Cylindrical
+- [x] **PointLocator** - Drag-and-drop point positioning on canvas
 
 ---
 
