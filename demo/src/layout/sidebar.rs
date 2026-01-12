@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 
 #[derive(Clone)]
@@ -379,9 +380,9 @@ pub fn Sidebar() -> impl IntoView {
                                 let is_active = move || location.pathname.get() == href;
 
                                 view! {
-                                    <a
+                                    <A
                                         href=href
-                                        class=move || {
+                                        attr:class=move || {
                                             if is_active() {
                                                 "nav-link active"
                                             } else {
@@ -395,7 +396,7 @@ pub fn Sidebar() -> impl IntoView {
                                                 {badge}
                                             </span>
                                         })}
-                                    </a>
+                                    </A>
                                 }
                             }).collect_view()}
                         </div>
