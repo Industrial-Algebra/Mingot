@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+use crate::components::PropsTable;
 use crate::docs::get_component_doc;
 
 /// Generic component documentation page
@@ -25,36 +26,7 @@ pub fn ComponentPage(slug: &'static str) -> impl IntoView {
 
                         // Props table
                         <h2 class="section-title" id="props">"Props"</h2>
-                        <table class="props-table">
-                            <thead>
-                                <tr>
-                                    <th>"Name"</th>
-                                    <th>"Type"</th>
-                                    <th>"Default"</th>
-                                    <th>"Description"</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {doc.props.iter().map(|prop| view! {
-                                    <tr>
-                                        <td>
-                                            <code>{prop.name}</code>
-                                            {prop.required.then(|| view! {
-                                                <span style="margin-left: 0.25rem; font-size: 0.625rem; padding: 0.0625rem 0.25rem; background: #fa5252; color: white; border-radius: 0.125rem;">
-                                                    "required"
-                                                </span>
-                                            })}
-                                        </td>
-                                        <td><code>{prop.prop_type}</code></td>
-                                        <td>
-                                            {prop.default.map(|d| view! { <code>{d}</code> }.into_any())
-                                                .unwrap_or_else(|| view! { <span style="color: #868e96;">"-"</span> }.into_any())}
-                                        </td>
-                                        <td>{prop.description}</td>
-                                    </tr>
-                                }).collect_view()}
-                            </tbody>
-                        </table>
+                        <PropsTable props=doc.props.clone() />
                     </div>
                 }.into_any(),
                 None => view! {

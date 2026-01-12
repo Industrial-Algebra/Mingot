@@ -91,11 +91,11 @@ Add Mingot to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mingot = "0.3.0"
+mingot = "0.6.0"
 leptos = "0.8"
 
 # Optional: Enable arbitrary-precision support with rust_decimal
-mingot = { version = "0.3.0", features = ["high-precision"] }
+mingot = { version = "0.6.0", features = ["high-precision"] }
 ```
 
 ## Quick Start
@@ -302,45 +302,40 @@ view! {
 
 Mingot's development is organized around enhancing precision capabilities while maintaining a complete component library.
 
-### Phase 1: Foundation ✅ (Current)
+### Phase 1: Foundation ✅
 - NumberInput with stdlib precision types (u64, u128, i64, i128, decimal)
 - Input filtering and validation
 - ParseError type system
 - Comprehensive test coverage
 
-### Phase 2: Amari Integration 🚧 (In Progress)
-- Optional `amari` dependency via feature flag
-- `NumberInputPrecision::Arbitrary` mode
-- Direct Amari type integration
-- Callbacks returning parsed `amari::Number`
+### Phase 2: Arbitrary Precision ✅
+- Optional `rust_decimal` dependency via feature flag
+- `NumberInputPrecision::Arbitrary` mode (128-bit, 28-29 significant digits)
+- Zero-cost abstraction when feature disabled
 
-### Phase 3: Advanced Precision Features
-- Auto-formatting on blur (thousand separators, scientific notation)
-- Increment/decrement controls with configurable step
-- Copy/paste with format detection
-- Keyboard shortcuts for precision input
-- Visual precision indicators
+### Phase 3: Demo Site & Display Features ✅
+- Interactive component documentation site
+- Thousand separators, scientific/engineering notation
+- Locale-aware formatting (US, EU, Swiss, Indian)
+- Precision indicators and overflow warnings
+- Gap analysis components (Slider, RangeSlider, SegmentedControl, FileInput, PinInput, Pagination)
 
-### Phase 4: Domain-Specific Components
-- **CurrencyInput**: Multi-currency support with exact decimal arithmetic
-- **ScientificInput**: Scientific notation with mantissa/exponent validation
-- **DateTimeInput**: Nanosecond-precision timestamps
-- **RangeInput**: High-precision range selection
-- **CalculatorInput**: Expression evaluation with arbitrary precision
+### Phase 4: Scientific Input Components ✅ (Current - v0.6.0)
+- **AngleInput**: Degrees, radians, gradians with visual preview
+- **FractionInput**: Numerator/denominator with auto-simplification
+- **UnitInput**: Physical units with conversion (length, mass, time, temperature, data)
+- **ComplexNumberInput**: Rectangular and polar forms
+- **UncertaintyInput**: Value ± error with multiple display formats
+- NumberInput increment controls with modifier keys (Shift=10x, Ctrl=100x)
+- Enhanced paste handling and undo/redo support
 
-### Phase 5: Advanced Mathematics
-- **MatrixInput**: Precision matrix entry and display
-- **VectorInput**: Geometric algebra integration
-- **GraphInput**: Precision coordinate systems
-- **FormulaInput**: Mathematical expression editor with symbolic math
+### Phase 5: Mathematical Expression & Data Entry
+- EquationEditor with LaTeX/MathML output
+- MatrixInput, VectorInput, TensorInput
+- Parameter manipulation (Mathematica-style)
 
-### Long-term Vision
-- First-class support for geometric algebra via Amari
-- Tropical algebra UI components
-- Automatic differentiation visualization
-- Integration with computational mathematics ecosystems
-
-See [ROADMAP.md](ROADMAP.md) for detailed timelines and feature specifications.
+### Phase 6+: Visualization, Node Graphs, Themes, VFX
+See [ROADMAP.md](ROADMAP.md) for detailed feature specifications.
 
 ## Architecture
 
@@ -377,11 +372,12 @@ cargo test --features high-precision
 ```
 
 Current test suite:
-- 59 passing tests
-- 6 NumberInput-specific precision tests
+- 195 passing tests
+- Comprehensive precision tests for NumberInput and scientific components
 - Overflow/underflow detection
 - Decimal place validation
 - Input filtering verification
+- Complex number, fraction, uncertainty, and unit conversion tests
 
 ## Contributing
 
