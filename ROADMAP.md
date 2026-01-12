@@ -463,14 +463,79 @@ Complete the precision-aware interactive controls for NumberInput.
 
 ## Phase 5: Mathematical Expression & Data Entry
 
-**Target**: Q4 2026
-**Version**: 0.7.0
+**Target**: Q1-Q2 2026
+**Versions**: 0.7.0 - 0.7.3
 
 ### Objectives
 
-Advanced mathematical input components inspired by [MathLive](https://cortexjs.io/mathlive/), [Mathematica](https://www.wolfram.com/language/core-areas/user-interfaces/), and scientific data tools.
+Advanced mathematical input components inspired by [MathLive](https://cortexjs.io/mathlive/), [Mathematica](https://www.wolfram.com/language/core-areas/user-interfaces/), and scientific data tools. This phase is broken into four milestone releases.
 
-### Equation & Formula Components
+---
+
+### v0.7.0: Deferred Scientific Inputs
+
+**Branch**: `feature/0.7.0-deferred-scientific-inputs`
+**Status**: In Progress
+
+Complete the deferred components from Phase 4.
+
+#### NumberInput Enhancements
+- [ ] Mouse wheel support for increment/decrement
+- [ ] Drag-to-select precision indicators
+- [ ] Context menu for format conversion
+
+#### Coordinate & Geometry Inputs
+- [ ] **IntervalInput** - Min/max bounds with open/closed notation
+- [ ] **CoordinateInput** - 2D/3D Cartesian, Polar, Spherical, Cylindrical
+- [ ] **PointLocator** - Drag-and-drop point positioning on canvas
+
+---
+
+### v0.7.1: Matrix & Linear Algebra Components
+
+**Branch**: `feature/0.7.1-matrix-linear-algebra`
+**Status**: Planned
+
+Linear algebra input components for mathematical applications.
+
+#### Deliverables
+- [ ] **MatrixInput** - Spreadsheet-style matrix entry with operations preview
+- [ ] **VectorInput** - Row/column vector entry with magnitude/direction display
+- [ ] **TensorInput** - Multi-dimensional array entry with shape manipulation
+
+---
+
+### v0.7.2: Parameter Manipulation Components
+
+**Branch**: `feature/0.7.2-parameter-manipulation`
+**Status**: Planned
+
+Mathematica-style parameter controls for interactive applications.
+
+#### Deliverables
+- [ ] **ParameterSlider** - High-precision slider with exact values
+- [ ] **ParameterGrid** - Multiple parameter sliders in grid layout
+- [ ] **ParameterTree** - Hierarchical parameter editing (PyQtGraph-style)
+
+---
+
+### v0.7.3: Equation & Formula Components
+
+**Branch**: `feature/0.7.3-equation-formula`
+**Status**: Planned
+
+Mathematical expression editing components.
+
+#### Deliverables
+- [ ] **EquationEditor** - Visual WYSIWYG math editing with LaTeX output
+- [ ] **FormulaInput** - Mathematical expression parser with symbolic variables
+- [ ] **SymbolPalette** - Greek letters, operators, and mathematical symbols picker
+
+---
+
+### Component Specifications
+
+#### Equation & Formula Components
 
 #### EquationEditor
 ```rust
