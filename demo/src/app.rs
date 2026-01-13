@@ -55,6 +55,12 @@ pub fn App() -> impl IntoView {
                         <Route path=path!("/form/interval-input") view=move || view! { <ComponentPage slug="interval-input" /> } />
                         <Route path=path!("/form/coordinate-input") view=move || view! { <ComponentPage slug="coordinate-input" /> } />
                         <Route path=path!("/form/point-locator") view=move || view! { <ComponentPage slug="point-locator" /> } />
+                        <Route path=path!("/form/matrix-input") view=move || view! { <ComponentPage slug="matrix-input" /> } />
+                        <Route path=path!("/form/vector-input") view=move || view! { <ComponentPage slug="vector-input" /> } />
+                        <Route path=path!("/form/tensor-input") view=move || view! { <ComponentPage slug="tensor-input" /> } />
+                        <Route path=path!("/form/symbol-palette") view=move || view! { <ComponentPage slug="symbol-palette" /> } />
+                        <Route path=path!("/form/formula-input") view=move || view! { <ComponentPage slug="formula-input" /> } />
+                        <Route path=path!("/form/equation-editor") view=move || view! { <ComponentPage slug="equation-editor" /> } />
                         <Route path=path!("/form/password-input") view=move || view! { <ComponentPage slug="password-input" /> } />
                         <Route path=path!("/form/pin-input") view=move || view! { <ComponentPage slug="pin-input" /> } />
                         <Route path=path!("/form/radio") view=move || view! { <ComponentPage slug="radio" /> } />

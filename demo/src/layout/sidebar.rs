@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use leptos_router::hooks::use_location;
+use leptos_router::hooks::{use_location, use_navigate};
 
 #[derive(Clone)]
 pub struct NavSection {
@@ -195,6 +195,36 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: Some("New"),
                 },
                 NavItem {
+                    label: "MatrixInput",
+                    href: "/form/matrix-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "VectorInput",
+                    href: "/form/vector-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "TensorInput",
+                    href: "/form/tensor-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "SymbolPalette",
+                    href: "/form/symbol-palette",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "FormulaInput",
+                    href: "/form/formula-input",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "EquationEditor",
+                    href: "/form/equation-editor",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "PasswordInput",
                     href: "/form/password-input",
                     badge: None,
@@ -350,6 +380,7 @@ pub fn get_navigation() -> Vec<NavSection> {
 #[component]
 pub fn Sidebar() -> impl IntoView {
     let location = use_location();
+    let navigate = use_navigate();
     let sections = get_navigation();
 
     view! {
@@ -362,16 +393,20 @@ pub fn Sidebar() -> impl IntoView {
                             {section.items.into_iter().map(|item| {
                                 let href = item.href;
                                 let is_active = move || location.pathname.get() == href;
+                                let navigate = navigate.clone();
 
                                 view! {
-                                    <a
-                                        href=href
+                                    <button
+                                        type="button"
                                         class=move || {
                                             if is_active() {
                                                 "nav-link active"
                                             } else {
                                                 "nav-link"
                                             }
+                                        }
+                                        on:click=move |_| {
+                                            navigate(href, Default::default());
                                         }
                                     >
                                         {item.label}
@@ -380,7 +415,7 @@ pub fn Sidebar() -> impl IntoView {
                                                 {badge}
                                             </span>
                                         })}
-                                    </a>
+                                    </button>
                                 }
                             }).collect_view()}
                         </div>
