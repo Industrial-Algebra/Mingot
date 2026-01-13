@@ -60,6 +60,7 @@ pub fn App() -> impl IntoView {
                         <Route path=path!("/form/tensor-input") view=move || view! { <ComponentPage slug="tensor-input" /> } />
                         <Route path=path!("/form/symbol-palette") view=move || view! { <ComponentPage slug="symbol-palette" /> } />
                         <Route path=path!("/form/formula-input") view=move || view! { <ComponentPage slug="formula-input" /> } />
+                        <Route path=path!("/form/equation-editor") view=move || view! { <ComponentPage slug="equation-editor" /> } />
                         <Route path=path!("/form/password-input") view=move || view! { <ComponentPage slug="password-input" /> } />
                         <Route path=path!("/form/pin-input") view=move || view! { <ComponentPage slug="pin-input" /> } />
                         <Route path=path!("/form/radio") view=move || view! { <ComponentPage slug="radio" /> } />

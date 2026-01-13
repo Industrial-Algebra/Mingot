@@ -220,6 +220,11 @@ pub fn get_navigation() -> Vec<NavSection> {
                     badge: Some("New"),
                 },
                 NavItem {
+                    label: "EquationEditor",
+                    href: "/form/equation-editor",
+                    badge: Some("New"),
+                },
+                NavItem {
                     label: "PasswordInput",
                     href: "/form/password-input",
                     badge: None,
