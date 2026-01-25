@@ -56,6 +56,12 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         "interval-input" => Some(interval_input_doc()),
         "coordinate-input" => Some(coordinate_input_doc()),
         "point-locator" => Some(point_locator_doc()),
+        "matrix-input" => Some(matrix_input_doc()),
+        "vector-input" => Some(vector_input_doc()),
+        "tensor-input" => Some(tensor_input_doc()),
+        "symbol-palette" => Some(symbol_palette_doc()),
+        "formula-input" => Some(formula_input_doc()),
+        "equation-editor" => Some(equation_editor_doc()),
         "checkbox" => Some(checkbox_doc()),
         "file-input" => Some(file_input_doc()),
         "password-input" => Some(password_input_doc()),
@@ -3864,6 +3870,820 @@ fn point_locator_doc() -> ComponentDoc {
                         />
                     </Stack>
                 </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn matrix_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "MatrixInput",
+        description: "Spreadsheet-style matrix entry with built-in operations like determinant, trace, and transpose.",
+        import_name: "MatrixInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Matrix>>",
+                default: None,
+                description: "Controlled matrix value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Matrix>>",
+                default: None,
+                description: "Called when matrix values change",
+                required: false,
+            },
+            PropDoc {
+                name: "rows",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Initial number of rows",
+                required: false,
+            },
+            PropDoc {
+                name: "cols",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Initial number of columns",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_resize",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show row/column manipulation buttons",
+                required: false,
+            },
+            PropDoc {
+                name: "show_operations",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show determinant/trace/norm preview",
+                required: false,
+            },
+            PropDoc {
+                name: "notation",
+                prop_type: "MatrixNotation",
+                default: Some("MatrixNotation::Brackets"),
+                description: "Display notation style (Brackets, Parentheses, Bars, DoubleBars)",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let matrix = RwSignal::new(Matrix::identity(3));
+
+            view! {
+                <DemoBlock title="Matrix Input" code=r#"let matrix = RwSignal::new(Matrix::identity(3));
+
+<MatrixInput
+    value=matrix
+    show_operations=true
+    allow_resize=true
+/>"#>
+                    <Stack spacing="md">
+                        <MatrixInput
+                            value=matrix
+                            show_operations=true
+                            allow_resize=true
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn vector_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "VectorInput",
+        description: "Mathematical vector entry with multiple notations, magnitude display, and vector operations.",
+        import_name: "VectorInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Vector>>",
+                default: None,
+                description: "Controlled vector value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Vector>>",
+                default: None,
+                description: "Called when vector values change",
+                required: false,
+            },
+            PropDoc {
+                name: "dimensions",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Number of vector components",
+                required: false,
+            },
+            PropDoc {
+                name: "allow_resize",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to allow dimension changes",
+                required: false,
+            },
+            PropDoc {
+                name: "notation",
+                prop_type: "VectorNotation",
+                default: Some("VectorNotation::Column"),
+                description: "Display notation (Row, Column, AngleBrackets, Parentheses, UnitVector)",
+                required: false,
+            },
+            PropDoc {
+                name: "show_magnitude",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show magnitude and direction display",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let vector = RwSignal::new(Vector::new(vec![1.0, 2.0, 3.0]));
+
+            view! {
+                <DemoBlock title="Vector Input" code=r#"let vector = RwSignal::new(Vector::new(vec![1.0, 2.0, 3.0]));
+
+<VectorInput
+    value=vector
+    notation=VectorNotation::Column
+    show_magnitude=true
+/>"#>
+                    <Stack spacing="md">
+                        <VectorInput
+                            value=vector
+                            notation=VectorNotation::Column
+                            show_magnitude=true
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn tensor_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "TensorInput",
+        description: "Multi-dimensional tensor entry with slice navigation, reshape operations, and statistics display.",
+        import_name: "TensorInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<Tensor>>",
+                default: None,
+                description: "Controlled tensor value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<Tensor>>",
+                default: None,
+                description: "Called when tensor values change",
+                required: false,
+            },
+            PropDoc {
+                name: "shape",
+                prop_type: "Option<Vec<usize>>",
+                default: None,
+                description: "Initial tensor shape",
+                required: false,
+            },
+            PropDoc {
+                name: "show_stats",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show min/max/mean statistics",
+                required: false,
+            },
+            PropDoc {
+                name: "precision",
+                prop_type: "usize",
+                default: Some("4"),
+                description: "Number of decimal places for display",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "Signal<bool>",
+                default: Some("false"),
+                description: "Whether the input is disabled",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            // Rank 2: Simple 2D tensor (matrix-like, no slice navigation)
+            let matrix_data: Vec<f64> = (1..=12).map(|x| x as f64).collect();
+            let tensor_2d = RwSignal::new(Tensor::from_data(matrix_data, vec![3, 4]).unwrap());
+
+            // Rank 3: 3D tensor with slice navigation (e.g., RGB image channels or time series)
+            let tensor_3d_data: Vec<f64> = (0..24).map(|x| x as f64).collect();
+            let tensor_3d = RwSignal::new(Tensor::from_data(tensor_3d_data, vec![2, 3, 4]).unwrap());
+
+            // Rank 4: 4D tensor with two slice dimensions (e.g., batch of images, video frames)
+            let tensor_4d_data: Vec<f64> = (0..36).map(|x| x as f64).collect();
+            let tensor_4d = RwSignal::new(Tensor::from_data(tensor_4d_data, vec![2, 2, 3, 3]).unwrap());
+
+            // Rank 5: Higher-dimensional tensor (e.g., batch of video clips)
+            let tensor_5d_data: Vec<f64> = (0..48).map(|x| x as f64 * 0.1).collect();
+            let tensor_5d = RwSignal::new(Tensor::from_data(tensor_5d_data, vec![2, 2, 2, 2, 3]).unwrap());
+
+            view! {
+                <Stack spacing="xl">
+                    <DemoBlock title="Rank 2: Matrix-like Tensor" code=r#"// Simple 3×4 tensor - displays directly without slice navigation
+let data: Vec<f64> = (1..=12).map(|x| x as f64).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![3, 4]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="2D Tensor (3 × 4)"
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_2d
+                            label="2D Tensor (3 × 4)"
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Rank 3: Sliceable 3D Tensor" code=r#"// 2×3×4 tensor - navigate through 2 slices using dim[0]
+let data: Vec<f64> = (0..24).map(|x| x as f64).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 3, 4]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_3d
+                            label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Rank 4: Multi-dimensional Navigation" code=r#"// 2×2×3×3 tensor - two slice dimensions to navigate
+// Could represent: batch × channels × height × width
+let data: Vec<f64> = (0..36).map(|x| x as f64).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 3, 3]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_4d
+                            label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Rank 5: High-dimensional Tensor" code=r#"// 2×2×2×2×3 tensor - three slice dimensions
+// Could represent: batch × time × channels × height × width
+let data: Vec<f64> = (0..48).map(|x| x as f64 * 0.1).collect();
+let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 2, 2, 3]).unwrap());
+
+<TensorInput
+    value=tensor
+    label="5D Tensor (2 × 2 × 2 × 2 × 3)"
+    precision=2
+    show_stats=true
+/>"#>
+                        <TensorInput
+                            value=tensor_5d
+                            label="5D Tensor (2 × 2 × 2 × 2 × 3)"
+                            precision=2
+                            show_stats=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Without Statistics" code=r#"<TensorInput
+    shape=vec![2, 3]
+    show_stats=false
+    label="Minimal display (no stats)"
+/>"#>
+                        <TensorInput
+                            shape=vec![2, 3]
+                            show_stats=false
+                            label="Minimal display (no stats)"
+                        />
+                    </DemoBlock>
+                </Stack>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn symbol_palette_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "SymbolPalette",
+        description: "A searchable, categorized picker for mathematical symbols including Greek letters, operators, set theory, logic, arrows, and relations.",
+        import_name: "SymbolPalette",
+        props: vec![
+            PropDoc {
+                name: "categories",
+                prop_type: "Option<Vec<SymbolCategory>>",
+                default: Some("all categories"),
+                description: "Categories of symbols to display",
+                required: false,
+            },
+            PropDoc {
+                name: "on_select",
+                prop_type: "Option<Callback<Symbol>>",
+                default: None,
+                description: "Callback when a symbol is selected",
+                required: false,
+            },
+            PropDoc {
+                name: "searchable",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show the search box",
+                required: false,
+            },
+            PropDoc {
+                name: "show_tabs",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show category tabs",
+                required: false,
+            },
+            PropDoc {
+                name: "columns",
+                prop_type: "usize",
+                default: Some("8"),
+                description: "Number of columns in the symbol grid",
+                required: false,
+            },
+            PropDoc {
+                name: "show_tooltip",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show symbol name on hover",
+                required: false,
+            },
+            PropDoc {
+                name: "show_latex",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Include LaTeX code in tooltip",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label for the palette",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            let selected_symbol = RwSignal::new(None::<Symbol>);
+
+            view! {
+                <Stack spacing="xl">
+                    <DemoBlock title="Full Symbol Palette" code=r#"let selected = RwSignal::new(None::<Symbol>);
+
+<SymbolPalette
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
+    label="Mathematical Symbols"
+/>
+
+// Display selected symbol
+{move || selected.get().map(|s| view! {
+    <Text>
+        {format!("Selected: {} ({}) - LaTeX: {}",
+            s.char, s.name, s.latex.unwrap_or("N/A"))}
+    </Text>
+})}"#>
+                        <Stack spacing="md">
+                            <SymbolPalette
+                                on_select=Callback::new(move |sym: Symbol| {
+                                    selected_symbol.set(Some(sym));
+                                })
+                                label="Mathematical Symbols"
+                            />
+                            {move || selected_symbol.get().map(|s| view! {
+                                <Text>
+                                    {format!("Selected: {} ({}) - LaTeX: {}",
+                                        s.char, s.name, s.latex.unwrap_or("N/A"))}
+                                </Text>
+                            })}
+                        </Stack>
+                    </DemoBlock>
+
+                    <DemoBlock title="Greek Letters Only" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Greek]
+    show_tabs=false
+    label="Greek Alphabet"
+    columns=12
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Greek]
+                            show_tabs=false
+                            label="Greek Alphabet"
+                            columns=12
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Operators and Relations" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
+    label="Operators & Relations"
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
+                            label="Operators & Relations"
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Logic and Set Theory" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
+    label="Logic & Set Theory"
+    columns=6
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
+                            label="Logic & Set Theory"
+                            columns=6
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Compact (No Search)" code=r#"<SymbolPalette
+    categories=vec![SymbolCategory::Arrows]
+    searchable=false
+    show_tabs=false
+    label="Arrows"
+    columns=10
+/>"#>
+                        <SymbolPalette
+                            categories=vec![SymbolCategory::Arrows]
+                            searchable=false
+                            show_tabs=false
+                            label="Arrows"
+                            columns=10
+                        />
+                    </DemoBlock>
+                </Stack>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn formula_input_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "FormulaInput",
+        description: "Mathematical expression input with parsing, variable support, and function recognition. Supports standard math functions (sin, cos, exp, ln, sqrt, etc.) and evaluates expressions in real-time.",
+        import_name: "FormulaInput",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Option<RwSignal<String>>",
+                default: None,
+                description: "Controlled formula string value",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<FormulaResult>>",
+                default: None,
+                description: "Callback with parsed expression, variables, and evaluated result",
+                required: false,
+            },
+            PropDoc {
+                name: "variables",
+                prop_type: "Option<Signal<HashMap<String, f64>>>",
+                default: None,
+                description: "Variable values for evaluation",
+                required: false,
+            },
+            PropDoc {
+                name: "show_parsed",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Show the parsed expression tree",
+                required: false,
+            },
+            PropDoc {
+                name: "show_result",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show evaluation result",
+                required: false,
+            },
+            PropDoc {
+                name: "show_variables",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Show detected variables",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label text",
+                required: false,
+            },
+        ],
+        demo: || {
+            use mingot::prelude::*;
+
+            view! {
+                <Stack spacing="xl">
+                    <DemoBlock title="Basic Formula Input" code=r#"<FormulaInput
+    label="Enter a formula"
+    placeholder="e.g., sin(pi/2) + sqrt(16)"
+    show_result=true
+/>"#>
+                        <FormulaInput
+                            label="Enter a formula"
+                            placeholder="e.g., sin(pi/2) + sqrt(16)"
+                            show_result=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Show Variables" code=r#"<FormulaInput
+    label="Formula with variables"
+    placeholder="e.g., x^2 + y"
+    show_variables=true
+    show_result=false
+/>"#>
+                        <FormulaInput
+                            label="Formula with variables"
+                            placeholder="e.g., x^2 + y"
+                            show_variables=true
+                            show_result=false
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Show Parsed Expression" code=r#"<FormulaInput
+    label="With parsed expression display"
+    show_parsed=true
+    show_result=false
+/>"#>
+                        <FormulaInput
+                            label="With parsed expression display"
+                            show_parsed=true
+                            show_result=false
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Supported Functions" code=r#"// Trigonometric: sin, cos, tan, asin, acos, atan
+// Hyperbolic: sinh, cosh, tanh
+// Exponential: exp, ln, log10, log2
+// Power/Root: sqrt, cbrt, abs
+// Rounding: floor, ceil, round
+// Special: sign, factorial
+// Constants: pi, e, tau
+
+// Try: sin(pi/4), exp(1), sqrt(2)^2, factorial(5), ln(e)"#>
+                        <FormulaInput
+                            label="Try the examples above"
+                            show_result=true
+                        />
+                    </DemoBlock>
+                </Stack>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn equation_editor_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "EquationEditor",
+        import_name: "EquationEditor",
+        description: "A WYSIWYG mathematical equation editor designed for geometric algebra expressions with support for Amari library operations.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "RwSignal<EquationNode>",
+                default: Some("Placeholder"),
+                description: "Current equation value as an AST node",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Callback<EquationNode>",
+                default: None,
+                description: "Callback when equation changes",
+                required: false,
+            },
+            PropDoc {
+                name: "show_toolbar",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Show the operation toolbar",
+                required: false,
+            },
+            PropDoc {
+                name: "show_latex",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Show LaTeX output below the equation",
+                required: false,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "EquationEditorSize",
+                default: Some("Md"),
+                description: "Editor size (Sm, Md, Lg)",
+                required: false,
+            },
+            PropDoc {
+                name: "basis_type",
+                prop_type: "BasisType",
+                default: Some("Standard"),
+                description: "Basis type for vector insertion (Standard, Conformal, Spacetime)",
+                required: false,
+            },
+            PropDoc {
+                name: "max_dimensions",
+                prop_type: "usize",
+                default: Some("3"),
+                description: "Maximum dimensions for basis vectors",
+                required: false,
+            },
+            PropDoc {
+                name: "disabled",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Disable the editor",
+                required: false,
+            },
+            PropDoc {
+                name: "read_only",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Read-only display mode",
+                required: false,
+            },
+            PropDoc {
+                name: "placeholder",
+                prop_type: "String",
+                default: Some("\"Enter expression...\""),
+                description: "Placeholder text when empty",
+                required: false,
+            },
+        ],
+        demo: || {
+            view! {
+                <Stack spacing="lg">
+                    <DemoBlock title="Basic Equation Editor" code=r#"<EquationEditor
+    show_latex=true
+/>"#>
+                        <EquationEditor
+                            show_latex=true
+                        />
+                    </DemoBlock>
+
+                    <DemoBlock title="Geometric Algebra Operations" code=r#"// The editor supports geometric algebra operations:
+// - Geometric product (*)
+// - Wedge product (^)
+// - Inner product (.)
+// - Left contraction
+// - Right contraction
+// - Scalar product
+
+<EquationEditor show_toolbar=true />"#>
+                        <Text size=TextSize::Sm color="dimmed">
+                            "Use the Products toolbar to insert GA operations. Type a value and press Enter, then click an operation."
+                        </Text>
+                        <EquationEditor />
+                    </DemoBlock>
+
+                    <DemoBlock title="Unary Operations" code=r#"// Unary operations available:
+// - Reverse (dagger)
+// - Hodge dual (star)
+// - Grade involution
+// - Clifford conjugate
+// - Normalize, Inverse, Magnitude
+// - Exponential (for rotor generation)
+
+<EquationEditor show_toolbar=true />"#>
+                        <Text size=TextSize::Sm color="dimmed">
+                            "Select the Unary tab to access operations like reverse, dual, and exponential."
+                        </Text>
+                        <EquationEditor />
+                    </DemoBlock>
+
+                    <DemoBlock title="Calculus Operations" code=r#"// Vector calculus operators:
+// - Gradient (nabla)
+// - Divergence (nabla dot)
+// - Curl (nabla wedge)
+// - Laplacian (nabla squared)
+// - Partial derivative
+
+<EquationEditor show_toolbar=true />"#>
+                        <Text size=TextSize::Sm color="dimmed">
+                            "Select the Calculus tab for differential operators from geometric calculus."
+                        </Text>
+                        <EquationEditor />
+                    </DemoBlock>
+
+                    <DemoBlock title="Basis Vectors" code=r#"// Supports different basis types:
+// - Standard: e0, e1, e2, e3...
+// - Conformal: e0, e1, e2, e3, e_inf
+// - Spacetime: gamma0, gamma1, gamma2, gamma3
+
+<EquationEditor basis_type=BasisType::Standard max_dimensions=4 />"#>
+                        <Text size=TextSize::Sm color="dimmed">
+                            "Select the Basis tab to insert basis vectors."
+                        </Text>
+                        <EquationEditor max_dimensions=4 />
+                    </DemoBlock>
+
+                    <DemoBlock title="Size Variants" code=r#"<EquationEditor size=EquationEditorSize::Sm />
+<EquationEditor size=EquationEditorSize::Md />
+<EquationEditor size=EquationEditorSize::Lg />"#>
+                        <Stack spacing="md">
+                            <div>
+                                <Text size=TextSize::Xs color="dimmed">"Small"</Text>
+                                <EquationEditor size=EquationEditorSize::Sm show_toolbar=false />
+                            </div>
+                            <div>
+                                <Text size=TextSize::Xs color="dimmed">"Medium (default)"</Text>
+                                <EquationEditor size=EquationEditorSize::Md show_toolbar=false />
+                            </div>
+                            <div>
+                                <Text size=TextSize::Xs color="dimmed">"Large"</Text>
+                                <EquationEditor size=EquationEditorSize::Lg show_toolbar=false />
+                            </div>
+                        </Stack>
+                    </DemoBlock>
+
+                    <DemoBlock title="Read-only Display" code=r#"// Create an equation programmatically
+let equation = EquationNode::BinaryOp {
+    op: GeometricOp::WedgeProduct,
+    left: Box::new(EquationNode::Variable("a".to_string())),
+    right: Box::new(EquationNode::Variable("b".to_string())),
+};
+
+<EquationEditor value=equation read_only=true show_latex=true />"#>
+                        <EquationEditor
+                            read_only=true
+                            show_latex=true
+                            show_toolbar=false
+                        />
+                    </DemoBlock>
+                </Stack>
             }
             .into_any()
         },
