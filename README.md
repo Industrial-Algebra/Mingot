@@ -91,11 +91,11 @@ Add Mingot to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mingot = "0.7.3"
+mingot = "0.6.1"
 leptos = "0.8"
 
 # Optional: Enable arbitrary-precision support with rust_decimal
-mingot = { version = "0.6.0", features = ["high-precision"] }
+mingot = { version = "0.6.1", features = ["high-precision"] }
 ```
 
 ## Quick Start
