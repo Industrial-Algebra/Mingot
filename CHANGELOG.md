@@ -5,6 +5,89 @@ All notable changes to Mingot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-02-14
+
+### Added
+
+#### Parameter Manipulation Components (Phase 5 Complete)
+- **ParameterSlider** - High-precision slider with string-based values
+  - Linear and logarithmic scale support
+  - Configurable marks with labels
+  - Keyboard navigation with modifier key multipliers (Shift=10x, Ctrl=100x)
+  - Integrated value input for precise entry
+  - All NumberInputPrecision types supported
+- **ParameterGrid** - Multiple parameter sliders in organized layout
+  - Preset save/load functionality
+  - Parameter grouping with collapsible sections
+  - Vertical, horizontal, and grid layout modes
+  - Real-time value synchronization
+- **ParameterTree** - PyQtGraph-style hierarchical parameter editor
+  - Type-aware editors (string, number, bool, color, enum, action)
+  - Expand/collapse groups with search filtering
+  - Keyboard navigation and accessibility support
+  - Value serialization via `tree_to_values()` helper
+
+### Fixed
+
+#### Demo Site
+- Demo preview containers now full-width for slider components
+- Dark mode backgrounds for sidebar nav-links
+- Dark mode backgrounds for AngleInput, FractionInput, UnitInput, ComplexNumberInput, UncertaintyInput
+- "Show code" button now uses Mingot Button component
+- SymbolPalette demos now all show selection feedback
+- Radio component label no longer jumps when selected
+- ParameterTree demo shows visual feedback for actions
+- Popover demo no longer double-toggles on click
+- Import statement styling in component documentation pages
+
+---
+
+## [0.6.0] - 2026-01-20
+
+### Added
+
+#### Scientific Input Components (Phase 4 Complete)
+- **AngleInput** - Degrees, radians, gradians with visual arc preview
+- **FractionInput** - Numerator/denominator with auto-simplification
+- **UnitInput** - Physical units with conversion (Length, Mass, Time, Temperature, Data)
+- **ComplexNumberInput** - Rectangular and polar form support
+- **UncertaintyInput** - Value ± error with multiple display formats
+- **IntervalInput** - Min/max bounds with open/closed notation
+- **CoordinateInput** - 2D/3D Cartesian, Polar, Spherical, Cylindrical
+- **PointLocator** - Drag-and-drop point positioning on canvas
+
+#### NumberInput Advanced Controls
+- Increment/decrement buttons with precision-aware stepping
+- Mouse wheel support (`allow_mouse_wheel` prop)
+- Copy/paste with automatic format detection
+- Drag-to-select precision indicators
+- Context menu for format conversion
+- Undo/redo for value changes
+
+---
+
+## [0.5.0] - 2026-01-15
+
+### Added
+
+#### Gap Analysis Components (Mantine Parity)
+- **Slider** - Single value selection with customizable marks
+- **RangeSlider** - Range selection with two draggable thumbs
+- **SegmentedControl** - Radio-like segmented button group
+- **FileInput** - File selection with drag-and-drop support
+- **PinInput** - PIN/OTP code entry with auto-focus
+- **Pagination** - Page navigation with customizable boundaries
+
+#### NumberInput Display Features
+- Thousand separators (1,234,567)
+- Scientific notation formatting (1.23e8)
+- Engineering notation (123.4e6) - exponents divisible by 3
+- Locale-aware formatting (US, EU, Swiss, Indian)
+- Precision indicators showing type and significant digit limits
+- Overflow warning when approaching precision limits
+
+---
+
 ## [0.4.0] - 2026-01-05
 
 ### Added

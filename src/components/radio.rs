@@ -107,10 +107,15 @@ pub fn Radio(
         let display = if is_checked.get() { "block" } else { "none" };
         format!(
             "display: {}; \
+             position: absolute; \
+             top: 50%; \
+             left: 50%; \
+             transform: translate(-50%, -50%); \
              width: 50%; \
              height: 50%; \
              border-radius: 50%; \
-             background-color: {};",
+             background-color: {}; \
+             pointer-events: none;",
             display, check_color
         )
     };
@@ -174,20 +179,33 @@ pub fn Radio(
 
     let class_str = format!("mingot-radio {}", class.unwrap_or_default());
 
+    let radio_wrapper_styles = format!(
+        "position: relative; \
+         display: inline-flex; \
+         align-items: center; \
+         justify-content: center; \
+         width: {}; \
+         height: {}; \
+         flex-shrink: 0;",
+        radio_size, radio_size
+    );
+
     view! {
         <div class="mingot-radio-container">
             <label style=wrapper_styles>
-                <input
-                    type="radio"
-                    class=class_str
-                    style=radio_styles
-                    checked=move || is_checked.get()
-                    disabled=disabled
-                    name=name.unwrap_or_default()
-                    value=value
-                    on:change=handle_change
-                />
-                <span class="mingot-radio-dot" style=dot_styles></span>
+                <div style=radio_wrapper_styles>
+                    <input
+                        type="radio"
+                        class=class_str
+                        style=radio_styles
+                        checked=move || is_checked.get()
+                        disabled=disabled
+                        name=name.unwrap_or_default()
+                        value=value
+                        on:change=handle_change
+                    />
+                    <span class="mingot-radio-dot" style=dot_styles></span>
+                </div>
 
                 {if label.is_some() || description.is_some() {
                     view! {

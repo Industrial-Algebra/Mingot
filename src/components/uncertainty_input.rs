@@ -489,12 +489,7 @@ pub fn UncertaintyInput(
             .add("height", height)
             .add("border", format!("1px solid {}", border_color))
             .add("border-radius", theme_val.radius.sm.to_owned())
-            .add(
-                "background-color",
-                scheme_colors
-                    .get_color("white", 0)
-                    .unwrap_or_else(|| "#ffffff".to_string()),
-            )
+            .add("background-color", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
             .add("outline", "none")
             .add("transition", "border-color 0.15s, box-shadow 0.15s")

@@ -70,6 +70,9 @@ pub fn App() -> impl IntoView {
                         <Route path=path!("/form/slider") view=move || view! { <ComponentPage slug="slider" /> } />
                         <Route path=path!("/form/switch") view=move || view! { <ComponentPage slug="switch" /> } />
                         <Route path=path!("/form/textarea") view=move || view! { <ComponentPage slug="textarea" /> } />
+                        <Route path=path!("/form/parameter-slider") view=move || view! { <ComponentPage slug="parameter-slider" /> } />
+                        <Route path=path!("/form/parameter-grid") view=move || view! { <ComponentPage slug="parameter-grid" /> } />
+                        <Route path=path!("/form/parameter-tree") view=move || view! { <ComponentPage slug="parameter-tree" /> } />
 
                         // Overlay components
                         <Route path=path!("/overlay/drawer") view=move || view! { <ComponentPage slug="drawer" /> } />

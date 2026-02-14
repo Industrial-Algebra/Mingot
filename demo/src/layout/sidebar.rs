@@ -269,6 +269,21 @@ pub fn get_navigation() -> Vec<NavSection> {
                     href: "/form/textarea",
                     badge: None,
                 },
+                NavItem {
+                    label: "ParameterSlider",
+                    href: "/form/parameter-slider",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "ParameterGrid",
+                    href: "/form/parameter-grid",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "ParameterTree",
+                    href: "/form/parameter-tree",
+                    badge: Some("New"),
+                },
             ],
         },
         NavSection {

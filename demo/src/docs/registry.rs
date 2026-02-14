@@ -73,6 +73,9 @@ pub fn get_component_doc(slug: &str) -> Option<ComponentDoc> {
         "segmented-control" => Some(segmented_control_doc()),
         "switch" => Some(switch_doc()),
         "textarea" => Some(textarea_doc()),
+        "parameter-slider" => Some(parameter_slider_doc()),
+        "parameter-grid" => Some(parameter_grid_doc()),
+        "parameter-tree" => Some(parameter_tree_doc()),
         // Overlay
         "drawer" => Some(drawer_doc()),
         "loading-overlay" => Some(loading_overlay_doc()),
@@ -1655,6 +1658,304 @@ fn textarea_doc() -> ComponentDoc {
     }
 }
 
+fn parameter_slider_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "ParameterSlider",
+        import_name: "ParameterSlider, ParameterSliderSize, ParameterSliderScale",
+        description: "A high-precision parameter slider with exact decimal values. Inspired by Mathematica's Manipulate controls.",
+        props: vec![
+            PropDoc {
+                name: "value",
+                prop_type: "Signal<String>",
+                default: None,
+                description: "Current value as a string for precision preservation",
+                required: true,
+            },
+            PropDoc {
+                name: "min",
+                prop_type: "String",
+                default: None,
+                description: "Minimum value",
+                required: true,
+            },
+            PropDoc {
+                name: "max",
+                prop_type: "String",
+                default: None,
+                description: "Maximum value",
+                required: true,
+            },
+            PropDoc {
+                name: "step",
+                prop_type: "String",
+                default: Some("\"1\""),
+                description: "Step increment",
+                required: false,
+            },
+            PropDoc {
+                name: "scale",
+                prop_type: "ParameterSliderScale",
+                default: Some("Linear"),
+                description: "Scale type (Linear or Logarithmic)",
+                required: false,
+            },
+            PropDoc {
+                name: "show_input",
+                prop_type: "bool",
+                default: Some("false"),
+                description: "Whether to show an input field alongside the slider",
+                required: false,
+            },
+            PropDoc {
+                name: "label",
+                prop_type: "Option<String>",
+                default: None,
+                description: "Label displayed above the slider",
+                required: false,
+            },
+        ],
+        demo: || {
+            let amplitude = RwSignal::new("5.0".to_string());
+            let frequency = RwSignal::new("1.0".to_string());
+            let log_value = RwSignal::new("100.0".to_string());
+
+            view! {
+                <DemoBlock title="Basic ParameterSlider">
+                    <Stack spacing="lg">
+                        <ParameterSlider
+                            value=Signal::derive(move || amplitude.get())
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            label="Amplitude"
+                            show_input=true
+                            on_change=Callback::new(move |v: String| amplitude.set(v))
+                        />
+                        <ParameterSlider
+                            value=Signal::derive(move || frequency.get())
+                            min="0.1"
+                            max="10"
+                            step="0.1"
+                            label="Frequency"
+                            show_input=true
+                            on_change=Callback::new(move |v: String| frequency.set(v))
+                        />
+                        <ParameterSlider
+                            value=Signal::derive(move || log_value.get())
+                            min="1"
+                            max="10000"
+                            step="1"
+                            scale=ParameterSliderScale::Logarithmic
+                            label="Logarithmic Scale"
+                            show_input=true
+                            on_change=Callback::new(move |v: String| log_value.set(v))
+                        />
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn parameter_grid_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "ParameterGrid",
+        import_name: "ParameterGrid, ParameterDef, ParameterPreset",
+        description: "A grid of parameter sliders for manipulating multiple values, inspired by Mathematica's Manipulate controls.",
+        props: vec![
+            PropDoc {
+                name: "parameters",
+                prop_type: "Signal<Vec<ParameterDef>>",
+                default: None,
+                description: "Parameter definitions",
+                required: true,
+            },
+            PropDoc {
+                name: "layout",
+                prop_type: "ParameterGridLayout",
+                default: Some("Vertical"),
+                description: "Layout direction (Vertical, Horizontal, or Grid)",
+                required: false,
+            },
+            PropDoc {
+                name: "show_inputs",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show input fields",
+                required: false,
+            },
+            PropDoc {
+                name: "show_reset",
+                prop_type: "bool",
+                default: Some("true"),
+                description: "Whether to show reset button",
+                required: false,
+            },
+            PropDoc {
+                name: "presets",
+                prop_type: "Option<Vec<ParameterPreset>>",
+                default: None,
+                description: "Available presets for quick configuration",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<HashMap<String, String>>>",
+                default: None,
+                description: "Callback when any parameter changes",
+                required: false,
+            },
+        ],
+        demo: || {
+            let params = RwSignal::new(vec![
+                ParameterDef::new("amplitude", "Amplitude")
+                    .range("0", "10")
+                    .step("0.1")
+                    .default("5")
+                    .display_precision(1),
+                ParameterDef::new("frequency", "Frequency")
+                    .range("0.1", "100")
+                    .step("0.1")
+                    .default("1")
+                    .logarithmic()
+                    .display_precision(2),
+                ParameterDef::new("phase", "Phase")
+                    .range("0", "6.28")
+                    .step("0.01")
+                    .default("0")
+                    .display_precision(2),
+            ]);
+
+            view! {
+                <DemoBlock title="ParameterGrid - Wave Parameters">
+                    <ParameterGrid
+                        parameters=Signal::derive(move || params.get())
+                        show_inputs=true
+                        show_reset=true
+                    />
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
+fn parameter_tree_doc() -> ComponentDoc {
+    ComponentDoc {
+        name: "ParameterTree",
+        import_name: "ParameterTree, ParameterNode, ParameterValue",
+        description: "A hierarchical parameter tree editor inspired by PyQtGraph's ParameterTree.",
+        props: vec![
+            PropDoc {
+                name: "root",
+                prop_type: "Signal<ParameterNode>",
+                default: None,
+                description: "Root parameter node",
+                required: true,
+            },
+            PropDoc {
+                name: "size",
+                prop_type: "Option<ParameterTreeSize>",
+                default: Some("Md"),
+                description: "Size variant",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<(String, String)>>",
+                default: None,
+                description: "Callback when a value changes (path, new_value)",
+                required: false,
+            },
+            PropDoc {
+                name: "on_action",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Callback when an action button is clicked",
+                required: false,
+            },
+        ],
+        demo: || {
+            let root = RwSignal::new(
+                ParameterNode::group("root", "Configuration")
+                    .with_child(
+                        ParameterNode::group("display", "Display Settings")
+                            .with_child(ParameterNode::bool("show_grid", "Show Grid", true))
+                            .with_child(ParameterNode::color(
+                                "background",
+                                "Background Color",
+                                "#1a1a2e",
+                            ))
+                            .with_child(ParameterNode::enumeration(
+                                "theme",
+                                "Theme",
+                                "Dark",
+                                vec!["Light".to_string(), "Dark".to_string(), "Auto".to_string()],
+                            )),
+                    )
+                    .with_child(
+                        ParameterNode::group("simulation", "Simulation")
+                            .with_child(
+                                ParameterNode::number("timestep", "Time Step", "0.001")
+                                    .with_range("0.0001", "0.1")
+                                    .with_step("0.0001"),
+                            )
+                            .with_child(
+                                ParameterNode::number("iterations", "Iterations", "1000")
+                                    .with_range("1", "10000")
+                                    .with_step("1"),
+                            )
+                            .with_child(ParameterNode::bool("auto_run", "Auto Run", false)),
+                    )
+                    .with_child(
+                        ParameterNode::group("actions", "Actions")
+                            .with_child(ParameterNode::action("reset", "Reset", "Reset All"))
+                            .with_child(ParameterNode::action("export", "Export", "Export Config")),
+                    ),
+            );
+
+            let last_action = RwSignal::new(String::new());
+            let last_change = RwSignal::new(String::new());
+
+            view! {
+                <DemoBlock title="ParameterTree - PyQtGraph Style">
+                    <Stack spacing="md">
+                        {move || {
+                            let action = last_action.get();
+                            (!action.is_empty()).then(|| view! {
+                                <Alert color=AlertColor::Info>
+                                    {format!("Action triggered: {}", action)}
+                                </Alert>
+                            })
+                        }}
+                        {move || {
+                            let change = last_change.get();
+                            (!change.is_empty()).then(|| view! {
+                                <Alert color=AlertColor::Success>
+                                    {format!("Value changed: {}", change)}
+                                </Alert>
+                            })
+                        }}
+                        <div style="max-width: 500px;">
+                            <ParameterTree
+                                root=Signal::derive(move || root.get())
+                                on_change=Callback::new(move |(path, value): (String, String)| {
+                                    last_change.set(format!("{} = {}", path, value));
+                                })
+                                on_action=Callback::new(move |path: String| {
+                                    last_action.set(path);
+                                })
+                            />
+                        </div>
+                    </Stack>
+                </DemoBlock>
+            }
+            .into_any()
+        },
+    }
+}
+
 // ============================================================================
 // Overlay Components
 // ============================================================================
@@ -1879,12 +2180,11 @@ fn popover_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let opened = RwSignal::new(false);
             view! {
                 <DemoBlock title="Popover">
-                    <Popover opened=opened>
+                    <Popover>
                         <PopoverTarget>
-                            <Button on_click=Callback::new(move |_| opened.update(|o| *o = !*o))>
+                            <Button>
                                 "Toggle Popover"
                             </Button>
                         </PopoverTarget>
@@ -2731,6 +3031,7 @@ fn slider_doc() -> ComponentDoc {
         ],
         demo: || {
             let slider_value = RwSignal::new(50.0);
+            let marks_value = RwSignal::new(25.0);
 
             view! {
                 <DemoBlock title="Slider">
@@ -2747,15 +3048,17 @@ fn slider_doc() -> ComponentDoc {
                         </div>
                         <div>
                             <Slider
-                                value=Signal::derive(move || 25.0)
+                                value=marks_value
                                 min=0.0
                                 max=100.0
                                 label="With marks"
+                                show_value=true
                                 marks=vec![
                                     SliderMark::with_label(0.0, "0%"),
                                     SliderMark::with_label(50.0, "50%"),
                                     SliderMark::with_label(100.0, "100%"),
                                 ]
+                                on_change=Callback::new(move |v| marks_value.set(v))
                             />
                         </div>
                     </Stack>
@@ -4296,6 +4599,16 @@ fn symbol_palette_doc() -> ComponentDoc {
 
             view! {
                 <Stack spacing="xl">
+                    // Display selected symbol from any palette
+                    {move || selected_symbol.get().map(|s| view! {
+                        <Paper style="padding: 1rem; background: var(--surface);">
+                            <Text>
+                                {format!("Selected: {} ({}) - LaTeX: {}",
+                                    s.char, s.name, s.latex.unwrap_or("N/A"))}
+                            </Text>
+                        </Paper>
+                    })}
+
                     <DemoBlock title="Full Symbol Palette" code=r#"let selected = RwSignal::new(None::<Symbol>);
 
 <SymbolPalette
@@ -4303,29 +4616,13 @@ fn symbol_palette_doc() -> ComponentDoc {
         selected.set(Some(sym));
     })
     label="Mathematical Symbols"
-/>
-
-// Display selected symbol
-{move || selected.get().map(|s| view! {
-    <Text>
-        {format!("Selected: {} ({}) - LaTeX: {}",
-            s.char, s.name, s.latex.unwrap_or("N/A"))}
-    </Text>
-})}"#>
-                        <Stack spacing="md">
-                            <SymbolPalette
-                                on_select=Callback::new(move |sym: Symbol| {
-                                    selected_symbol.set(Some(sym));
-                                })
-                                label="Mathematical Symbols"
-                            />
-                            {move || selected_symbol.get().map(|s| view! {
-                                <Text>
-                                    {format!("Selected: {} ({}) - LaTeX: {}",
-                                        s.char, s.name, s.latex.unwrap_or("N/A"))}
-                                </Text>
-                            })}
-                        </Stack>
+/>"#>
+                        <SymbolPalette
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
+                            label="Mathematical Symbols"
+                        />
                     </DemoBlock>
 
                     <DemoBlock title="Greek Letters Only" code=r#"<SymbolPalette
@@ -4333,22 +4630,34 @@ fn symbol_palette_doc() -> ComponentDoc {
     show_tabs=false
     label="Greek Alphabet"
     columns=12
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Greek]
                             show_tabs=false
                             label="Greek Alphabet"
                             columns=12
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
 
                     <DemoBlock title="Operators and Relations" code=r#"<SymbolPalette
     categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
     label="Operators & Relations"
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
                             label="Operators & Relations"
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
 
@@ -4356,11 +4665,17 @@ fn symbol_palette_doc() -> ComponentDoc {
     categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
     label="Logic & Set Theory"
     columns=6
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
                             label="Logic & Set Theory"
                             columns=6
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
 
@@ -4370,6 +4685,9 @@ fn symbol_palette_doc() -> ComponentDoc {
     show_tabs=false
     label="Arrows"
     columns=10
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Arrows]
@@ -4377,6 +4695,9 @@ fn symbol_palette_doc() -> ComponentDoc {
                             show_tabs=false
                             label="Arrows"
                             columns=10
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
                 </Stack>
