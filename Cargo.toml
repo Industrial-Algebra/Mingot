@@ -4,7 +4,7 @@ resolver = "2"
 
 [package]
 name = "mingot"
-version = "0.7.3"
+version = "0.6.1"
 edition = "2021"
 authors = ["Industrial Algebra <noreply@industrial-algebra.org>"]
 description = "Leptos UI library for applications demanding mathematical precision - u64+ integers, arbitrary-precision decimals, zero precision loss"

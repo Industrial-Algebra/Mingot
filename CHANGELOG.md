@@ -5,7 +5,7 @@ All notable changes to Mingot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.3] - 2026-01-26
+## [0.6.1] - 2026-02-14
 
 ### Added
 
@@ -27,12 +27,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Keyboard navigation and accessibility support
   - Value serialization via `tree_to_values()` helper
 
-#### Demo Site Improvements
-- Demo preview containers now full-width for slider components
-- Added documentation pages for all three parameter components
+### Fixed
 
-### Changed
-- All parameter components integrate with existing precision infrastructure
+#### Demo Site
+- Demo preview containers now full-width for slider components
+- Dark mode backgrounds for sidebar nav-links
+- Dark mode backgrounds for AngleInput, FractionInput, UnitInput, ComplexNumberInput, UncertaintyInput
+- "Show code" button now uses Mingot Button component
+- SymbolPalette demos now all show selection feedback
+- Radio component label no longer jumps when selected
+- ParameterTree demo shows visual feedback for actions
+- Popover demo no longer double-toggles on click
+- Import statement styling in component documentation pages
 
 ---
 
