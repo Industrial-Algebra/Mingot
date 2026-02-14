@@ -4579,6 +4579,16 @@ fn symbol_palette_doc() -> ComponentDoc {
 
             view! {
                 <Stack spacing="xl">
+                    // Display selected symbol from any palette
+                    {move || selected_symbol.get().map(|s| view! {
+                        <Paper style="padding: 1rem; background: var(--surface);">
+                            <Text>
+                                {format!("Selected: {} ({}) - LaTeX: {}",
+                                    s.char, s.name, s.latex.unwrap_or("N/A"))}
+                            </Text>
+                        </Paper>
+                    })}
+
                     <DemoBlock title="Full Symbol Palette" code=r#"let selected = RwSignal::new(None::<Symbol>);
 
 <SymbolPalette
@@ -4586,29 +4596,13 @@ fn symbol_palette_doc() -> ComponentDoc {
         selected.set(Some(sym));
     })
     label="Mathematical Symbols"
-/>
-
-// Display selected symbol
-{move || selected.get().map(|s| view! {
-    <Text>
-        {format!("Selected: {} ({}) - LaTeX: {}",
-            s.char, s.name, s.latex.unwrap_or("N/A"))}
-    </Text>
-})}"#>
-                        <Stack spacing="md">
-                            <SymbolPalette
-                                on_select=Callback::new(move |sym: Symbol| {
-                                    selected_symbol.set(Some(sym));
-                                })
-                                label="Mathematical Symbols"
-                            />
-                            {move || selected_symbol.get().map(|s| view! {
-                                <Text>
-                                    {format!("Selected: {} ({}) - LaTeX: {}",
-                                        s.char, s.name, s.latex.unwrap_or("N/A"))}
-                                </Text>
-                            })}
-                        </Stack>
+/>"#>
+                        <SymbolPalette
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
+                            label="Mathematical Symbols"
+                        />
                     </DemoBlock>
 
                     <DemoBlock title="Greek Letters Only" code=r#"<SymbolPalette
@@ -4616,22 +4610,34 @@ fn symbol_palette_doc() -> ComponentDoc {
     show_tabs=false
     label="Greek Alphabet"
     columns=12
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Greek]
                             show_tabs=false
                             label="Greek Alphabet"
                             columns=12
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
 
                     <DemoBlock title="Operators and Relations" code=r#"<SymbolPalette
     categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
     label="Operators & Relations"
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Operators, SymbolCategory::Relations]
                             label="Operators & Relations"
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
 
@@ -4639,11 +4645,17 @@ fn symbol_palette_doc() -> ComponentDoc {
     categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
     label="Logic & Set Theory"
     columns=6
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Logic, SymbolCategory::SetTheory]
                             label="Logic & Set Theory"
                             columns=6
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
 
@@ -4653,6 +4665,9 @@ fn symbol_palette_doc() -> ComponentDoc {
     show_tabs=false
     label="Arrows"
     columns=10
+    on_select=Callback::new(move |sym: Symbol| {
+        selected.set(Some(sym));
+    })
 />"#>
                         <SymbolPalette
                             categories=vec![SymbolCategory::Arrows]
@@ -4660,6 +4675,9 @@ fn symbol_palette_doc() -> ComponentDoc {
                             show_tabs=false
                             label="Arrows"
                             columns=10
+                            on_select=Callback::new(move |sym: Symbol| {
+                                selected_symbol.set(Some(sym));
+                            })
                         />
                     </DemoBlock>
                 </Stack>
