@@ -2180,12 +2180,11 @@ fn popover_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let opened = RwSignal::new(false);
             view! {
                 <DemoBlock title="Popover">
-                    <Popover opened=opened>
+                    <Popover>
                         <PopoverTarget>
-                            <Button on_click=Callback::new(move |_| opened.update(|o| *o = !*o))>
+                            <Button>
                                 "Toggle Popover"
                             </Button>
                         </PopoverTarget>
