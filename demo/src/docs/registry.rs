@@ -1915,19 +1915,40 @@ fn parameter_tree_doc() -> ComponentDoc {
                     ),
             );
 
+            let last_action = RwSignal::new(String::new());
+            let last_change = RwSignal::new(String::new());
+
             view! {
                 <DemoBlock title="ParameterTree - PyQtGraph Style">
-                    <div style="max-width: 500px;">
-                        <ParameterTree
-                            root=Signal::derive(move || root.get())
-                            on_change=Callback::new(move |(path, value): (String, String)| {
-                                leptos::logging::log!("Changed: {} = {}", path, value);
+                    <Stack spacing="md">
+                        {move || {
+                            let action = last_action.get();
+                            (!action.is_empty()).then(|| view! {
+                                <Alert color=AlertColor::Info>
+                                    {format!("Action triggered: {}", action)}
+                                </Alert>
                             })
-                            on_action=Callback::new(move |path: String| {
-                                leptos::logging::log!("Action: {}", path);
+                        }}
+                        {move || {
+                            let change = last_change.get();
+                            (!change.is_empty()).then(|| view! {
+                                <Alert color=AlertColor::Success>
+                                    {format!("Value changed: {}", change)}
+                                </Alert>
                             })
-                        />
-                    </div>
+                        }}
+                        <div style="max-width: 500px;">
+                            <ParameterTree
+                                root=Signal::derive(move || root.get())
+                                on_change=Callback::new(move |(path, value): (String, String)| {
+                                    last_change.set(format!("{} = {}", path, value));
+                                })
+                                on_action=Callback::new(move |path: String| {
+                                    last_action.set(path);
+                                })
+                            />
+                        </div>
+                    </Stack>
                 </DemoBlock>
             }
             .into_any()
