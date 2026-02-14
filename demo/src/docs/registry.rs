@@ -3011,6 +3011,7 @@ fn slider_doc() -> ComponentDoc {
         ],
         demo: || {
             let slider_value = RwSignal::new(50.0);
+            let marks_value = RwSignal::new(25.0);
 
             view! {
                 <DemoBlock title="Slider">
@@ -3027,15 +3028,17 @@ fn slider_doc() -> ComponentDoc {
                         </div>
                         <div>
                             <Slider
-                                value=Signal::derive(move || 25.0)
+                                value=marks_value
                                 min=0.0
                                 max=100.0
                                 label="With marks"
+                                show_value=true
                                 marks=vec![
                                     SliderMark::with_label(0.0, "0%"),
                                     SliderMark::with_label(50.0, "50%"),
                                     SliderMark::with_label(100.0, "100%"),
                                 ]
+                                on_change=Callback::new(move |v| marks_value.set(v))
                             />
                         </div>
                     </Stack>

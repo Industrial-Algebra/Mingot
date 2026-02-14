@@ -496,9 +496,7 @@ pub fn AngleInput(
         };
 
         let bg_color = match variant {
-            InputVariant::Default => scheme_colors
-                .get_color("white", 0)
-                .unwrap_or_else(|| "#ffffff".to_string()),
+            InputVariant::Default => scheme_colors.background.clone(),
             InputVariant::Filled => scheme_colors
                 .get_color("gray", 1)
                 .unwrap_or_else(|| "#f1f3f5".to_string()),

@@ -109,6 +109,11 @@ body {
     text-decoration: none;
     color: var(--text-color);
     font-size: 0.875rem;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
