@@ -206,6 +206,11 @@ impl Vector {
         Vector::new(self.components.iter().map(|x| x * factor).collect())
     }
 
+    /// Get all components as a Vec<f64>
+    pub fn to_components(&self) -> Vec<f64> {
+        self.components.clone()
+    }
+
     /// Add another vector
     pub fn add(&self, other: &Vector) -> Option<Vector> {
         if self.dimensions() != other.dimensions() {
@@ -360,6 +365,9 @@ pub fn VectorInput(
     /// Whether the input is disabled
     #[prop(optional)]
     disabled: Signal<bool>,
+    // Note: Cliffy behavior prop not supported for VectorInput due to variable-length Vec<f64>
+    // not being compatible with cliffy-core's Behavior type constraints.
+    // Use individual BehaviorF64 signals for each component if needed.
 ) -> impl IntoView {
     let theme = use_theme();
 

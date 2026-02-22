@@ -1,3 +1,4 @@
+use crate::cliffy_types::BehaviorF64;
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
@@ -98,6 +99,11 @@ pub fn Slider(
     /// Additional inline styles
     #[prop(optional, into)]
     style: Option<String>,
+    /// Cliffy Behavior for geometric state management (requires `cliffy` feature).
+    /// When provided, slider value changes are synced to this behavior.
+    /// Note: This prop only has effect when the `cliffy` feature is enabled.
+    #[prop(optional)]
+    behavior: Option<BehaviorF64>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or_default();
@@ -278,6 +284,16 @@ pub fn Slider(
             callback.run(new_value);
         }
     };
+
+    // Sync value changes to Cliffy behavior when provided
+    // (Only has effect when cliffy feature is enabled)
+    if let Some(ref b) = behavior {
+        let behavior_clone = b.clone();
+        Effect::new(move || {
+            let current_value = value.get();
+            behavior_clone.set(current_value);
+        });
+    }
 
     let track_ref = NodeRef::<leptos::html::Div>::new();
 
