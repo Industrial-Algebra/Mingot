@@ -4,6 +4,7 @@
 //! row/column manipulation, and operation previews.
 
 use crate::components::input::InputSize;
+use crate::crdt_types::{CrdtNodeId, CrdtSyncPayload};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
@@ -419,8 +420,22 @@ pub fn MatrixInput(
     /// Whether the input is disabled
     #[prop(optional)]
     disabled: Signal<bool>,
+    // =========================================================================
+    // Collaborative/CRDT Props (requires `cliffy` feature for real functionality)
+    // =========================================================================
+    /// Node ID for this client in collaborative sessions.
+    /// Used for cell-level CRDT in multi-user matrix editing.
+    #[prop(optional)]
+    node_id: Option<CrdtNodeId>,
+    /// Callback when a sync message should be sent to other nodes.
+    #[prop(optional)]
+    on_sync_message: Option<Callback<CrdtSyncPayload>>,
 ) -> impl IntoView {
     let theme = use_theme();
+
+    // Store collaborative props for future use
+    let _collaborative_node_id = node_id;
+    let _on_sync = on_sync_message;
 
     // Internal state
     let internal_matrix = value.unwrap_or_else(|| RwSignal::new(Matrix::zeros(rows, cols)));

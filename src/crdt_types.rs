@@ -161,3 +161,141 @@ impl<T: Clone> CollaborativeState<T> {
         self.local_value
     }
 }
+
+// ============================================================================
+// NODE ID TYPES
+// ============================================================================
+
+/// Unique node identifier for distributed systems.
+/// When cliffy feature is enabled, this will be replaced with a proper distributed ID.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct CrdtNodeId {
+    id: u128,
+}
+
+impl Default for CrdtNodeId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CrdtNodeId {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        Self { id: 0 }
+    }
+
+    #[allow(dead_code)]
+    pub fn from_u128(id: u128) -> Self {
+        Self { id }
+    }
+}
+
+// ============================================================================
+// SYNC PAYLOAD TYPES
+// ============================================================================
+
+/// Sync payload for sending updates between nodes.
+#[cfg(feature = "cliffy")]
+pub type CrdtSyncPayload = cliffy_protocols::SyncPayload;
+
+#[cfg(not(feature = "cliffy"))]
+#[derive(Clone, Debug)]
+pub struct CrdtSyncPayload {
+    /// Source node ID
+    pub node_id: CrdtNodeId,
+    /// Operation data (serialized)
+    pub data: Vec<u8>,
+    /// Vector clock timestamp
+    pub timestamp: u64,
+}
+
+#[cfg(not(feature = "cliffy"))]
+impl Default for CrdtSyncPayload {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(not(feature = "cliffy"))]
+impl CrdtSyncPayload {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        Self {
+            node_id: CrdtNodeId::new(),
+            data: Vec::new(),
+            timestamp: 0,
+        }
+    }
+}
+
+// ============================================================================
+// COLLABORATIVE MAP TYPES
+// ============================================================================
+
+#[cfg(not(feature = "cliffy"))]
+use std::collections::HashMap;
+
+/// Collaborative map for key-value state with CRDT semantics.
+/// Used by ParameterGrid and similar components for multi-user editing.
+#[cfg(not(feature = "cliffy"))]
+#[derive(Clone)]
+pub struct CollaborativeMap {
+    values: HashMap<String, String>,
+    clock: CrdtVectorClock,
+    node_id: CrdtNodeId,
+}
+
+#[cfg(not(feature = "cliffy"))]
+impl Default for CollaborativeMap {
+    fn default() -> Self {
+        Self::new(CrdtNodeId::new())
+    }
+}
+
+#[cfg(not(feature = "cliffy"))]
+impl CollaborativeMap {
+    #[allow(dead_code)]
+    pub fn new(node_id: CrdtNodeId) -> Self {
+        Self {
+            values: HashMap::new(),
+            clock: CrdtVectorClock::new(),
+            node_id,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn get(&self, key: &str) -> Option<&String> {
+        self.values.get(key)
+    }
+
+    #[allow(dead_code)]
+    pub fn set(&mut self, key: String, value: String) -> Option<CrdtSyncPayload> {
+        self.values.insert(key, value);
+        self.clock.tick();
+        // In stub mode, we don't generate real sync payloads
+        None
+    }
+
+    #[allow(dead_code)]
+    pub fn remove(&mut self, key: &str) -> Option<CrdtSyncPayload> {
+        self.values.remove(key);
+        self.clock.tick();
+        None
+    }
+
+    #[allow(dead_code)]
+    pub fn apply_remote(&mut self, _payload: &CrdtSyncPayload) {
+        // In stub mode, remote operations are no-ops
+    }
+
+    #[allow(dead_code)]
+    pub fn to_hashmap(&self) -> HashMap<String, String> {
+        self.values.clone()
+    }
+
+    #[allow(dead_code)]
+    pub fn node_id(&self) -> CrdtNodeId {
+        self.node_id
+    }
+}

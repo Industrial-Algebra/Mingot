@@ -1,4 +1,5 @@
 use crate::components::number_input::{NumberInputPrecision, ParseError};
+use crate::crdt_types::{CrdtNodeId, CrdtSyncPayload};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
@@ -340,10 +341,23 @@ pub fn ParameterTree(
     /// Additional inline styles
     #[prop(optional, into)]
     style: Option<String>,
+    // =========================================================================
+    // Collaborative/CRDT Props (requires `cliffy` feature for real functionality)
+    // =========================================================================
+    /// Node ID for this client in collaborative sessions.
+    #[prop(optional)]
+    node_id: Option<CrdtNodeId>,
+    /// Callback when a sync message should be sent to other nodes.
+    #[prop(optional)]
+    on_sync_message: Option<Callback<CrdtSyncPayload>>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or_default();
     let config = config.unwrap_or_default();
+
+    // Store collaborative props for future use
+    let _collaborative_node_id = node_id;
+    let _on_sync = on_sync_message;
 
     let search_query = RwSignal::new(String::new());
     let expanded_nodes = RwSignal::new(std::collections::HashSet::<String>::new());

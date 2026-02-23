@@ -1,5 +1,6 @@
 use crate::components::number_input::{NumberInputPrecision, ParseError};
 use crate::components::parameter_slider::{ParameterSliderScale, ParameterSliderSize};
+use crate::crdt_types::{CrdtNodeId, CrdtSyncPayload};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
@@ -252,9 +253,29 @@ pub fn ParameterGrid(
     /// Additional inline styles
     #[prop(optional, into)]
     style: Option<String>,
+    // =========================================================================
+    // Collaborative/CRDT Props (requires `cliffy` feature for real functionality)
+    // =========================================================================
+    /// Node ID for this client in collaborative sessions.
+    /// Required when using collaborative features.
+    #[prop(optional)]
+    node_id: Option<CrdtNodeId>,
+    /// Callback when a sync message should be sent to other nodes.
+    /// Connect this to your sync transport (WebSocket, WebRTC, etc.)
+    #[prop(optional)]
+    on_sync_message: Option<Callback<CrdtSyncPayload>>,
+    /// Callback when remote changes are received.
+    /// Used to update local state from other nodes.
+    #[prop(optional)]
+    on_remote_change: Option<Callback<HashMap<String, String>>>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or_default();
+
+    // Store node_id for collaborative operations
+    let _collaborative_node_id = node_id;
+    let _on_sync = on_sync_message;
+    let _on_remote = on_remote_change;
 
     // Track current values for all parameters
     let values = RwSignal::new(HashMap::<String, String>::new());
