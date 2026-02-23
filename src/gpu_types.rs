@@ -151,3 +151,152 @@ impl AccelerationPreference {
         matches!(self, Self::Auto | Self::PreferSimd)
     }
 }
+
+// ============================================================================
+// BATCH MATRIX OPERATIONS
+// ============================================================================
+
+/// A 2D matrix represented as rows of f64 values.
+pub type MatrixData = Vec<Vec<f64>>;
+
+/// A pair of matrices for binary operations.
+pub type MatrixPair = (MatrixData, MatrixData);
+
+/// Batch matrix operations that can be GPU-accelerated.
+#[derive(Clone, Debug, PartialEq)]
+pub enum BatchMatrixOp {
+    /// Multiply a batch of matrices
+    Multiply(Vec<MatrixPair>),
+    /// Compute determinants for a batch of matrices
+    Determinant(Vec<MatrixData>),
+    /// Transpose a batch of matrices
+    Transpose(Vec<MatrixData>),
+    /// Compute inverses for a batch of matrices
+    Inverse(Vec<MatrixData>),
+    /// Compute eigenvalues for a batch of matrices
+    Eigenvalues(Vec<MatrixData>),
+    /// Add matrices element-wise (batch)
+    Add(Vec<MatrixPair>),
+    /// Scalar multiplication (batch)
+    ScalarMul(Vec<(f64, MatrixData)>),
+}
+
+/// Result of a batch matrix operation
+#[derive(Clone, Debug)]
+pub enum BatchMatrixResult {
+    /// Results from matrix multiplication
+    Matrices(Vec<MatrixData>),
+    /// Scalar results (determinants, traces, etc.)
+    Scalars(Vec<f64>),
+    /// Complex results (eigenvalues as (real, imaginary) pairs)
+    Complex(Vec<Vec<(f64, f64)>>),
+    /// Error occurred during computation
+    Error(String),
+}
+
+// ============================================================================
+// BATCH VECTOR OPERATIONS
+// ============================================================================
+
+/// Batch vector operations that can be GPU-accelerated.
+#[derive(Clone, Debug, PartialEq)]
+pub enum BatchVectorOp {
+    /// Dot products for pairs of vectors
+    DotProduct(Vec<(Vec<f64>, Vec<f64>)>),
+    /// Cross products for pairs of 3D vectors
+    CrossProduct(Vec<(Vec<f64>, Vec<f64>)>),
+    /// Normalize a batch of vectors
+    Normalize(Vec<Vec<f64>>),
+    /// Compute magnitudes for a batch of vectors
+    Magnitude(Vec<Vec<f64>>),
+    /// Add vectors element-wise (batch)
+    Add(Vec<(Vec<f64>, Vec<f64>)>),
+    /// Scalar multiplication (batch)
+    ScalarMul(Vec<(f64, Vec<f64>)>),
+    /// Project vectors onto other vectors (batch)
+    Project(Vec<(Vec<f64>, Vec<f64>)>),
+}
+
+/// Result of a batch vector operation
+#[derive(Clone, Debug)]
+pub enum BatchVectorResult {
+    /// Vector results
+    Vectors(Vec<Vec<f64>>),
+    /// Scalar results (dot products, magnitudes)
+    Scalars(Vec<f64>),
+    /// Error occurred during computation
+    Error(String),
+}
+
+// ============================================================================
+// BATCH TENSOR OPERATIONS
+// ============================================================================
+
+/// Batch tensor operations that can be GPU-accelerated.
+#[derive(Clone, Debug, PartialEq)]
+pub enum BatchTensorOp {
+    /// Element-wise addition
+    Add(Vec<(Vec<f64>, Vec<f64>)>),
+    /// Element-wise multiplication (Hadamard product)
+    Multiply(Vec<(Vec<f64>, Vec<f64>)>),
+    /// Tensor contraction along specified axes
+    Contract {
+        tensors: Vec<(Vec<f64>, Vec<f64>)>,
+        /// Shapes for each tensor pair
+        shapes: Vec<(Vec<usize>, Vec<usize>)>,
+        /// Contraction axes
+        axes: (usize, usize),
+    },
+    /// Compute Frobenius norms
+    FrobeniusNorm(Vec<Vec<f64>>),
+    /// Reshape tensors (batch) - validation only, no GPU needed
+    Reshape {
+        data: Vec<Vec<f64>>,
+        new_shapes: Vec<Vec<usize>>,
+    },
+}
+
+/// Result of a batch tensor operation
+#[derive(Clone, Debug)]
+pub enum BatchTensorResult {
+    /// Tensor results with shapes
+    Tensors(Vec<(Vec<f64>, Vec<usize>)>),
+    /// Scalar results (norms, etc.)
+    Scalars(Vec<f64>),
+    /// Error occurred during computation
+    Error(String),
+}
+
+// ============================================================================
+// BATCH OPERATION DISPATCHER
+// ============================================================================
+
+/// Unified batch operation type for dispatch
+#[derive(Clone, Debug)]
+pub enum BatchOperation {
+    Matrix(BatchMatrixOp),
+    Vector(BatchVectorOp),
+    Tensor(BatchTensorOp),
+}
+
+/// Unified batch result type
+#[derive(Clone, Debug)]
+pub enum BatchResult {
+    Matrix(BatchMatrixResult),
+    Vector(BatchVectorResult),
+    Tensor(BatchTensorResult),
+}
+
+/// Threshold for automatic GPU dispatch (number of operations)
+pub const GPU_DISPATCH_THRESHOLD: usize = 100;
+
+/// Check if batch size warrants GPU acceleration
+#[allow(dead_code)]
+pub fn should_use_gpu(batch_size: usize, preference: AccelerationPreference) -> bool {
+    match preference {
+        AccelerationPreference::CpuOnly => false,
+        AccelerationPreference::PreferGpu => true,
+        AccelerationPreference::PreferSimd => false,
+        AccelerationPreference::Auto => batch_size >= GPU_DISPATCH_THRESHOLD,
+    }
+}
