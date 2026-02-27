@@ -1,6 +1,7 @@
 use crate::components::number_input::{NumberInputPrecision, ParseError};
 use crate::components::parameter_slider::{ParameterSliderScale, ParameterSliderSize};
 use crate::crdt_types::{CrdtNodeId, CrdtSyncPayload};
+use crate::gpu_types::{AccelerationPreference, BatchVectorOp, BatchVectorResult};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
@@ -268,14 +269,31 @@ pub fn ParameterGrid(
     /// Used to update local state from other nodes.
     #[prop(optional)]
     on_remote_change: Option<Callback<HashMap<String, String>>>,
+    // =========================================================================
+    // GPU Acceleration Props (requires `cliffy-full` feature for real functionality)
+    // =========================================================================
+    /// Hardware acceleration preference for batch parameter interpolation.
+    #[prop(optional)]
+    acceleration: Option<AccelerationPreference>,
+    /// Callback to request a batch vector operation (e.g., interpolation across parameters).
+    #[prop(optional)]
+    on_batch_request: Option<Callback<BatchVectorOp>>,
+    /// Callback when batch operation results are available.
+    #[prop(optional)]
+    on_batch_result: Option<Callback<BatchVectorResult>>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or_default();
 
-    // Store node_id for collaborative operations
+    // Store collaborative props for future use
     let _collaborative_node_id = node_id;
     let _on_sync = on_sync_message;
     let _on_remote = on_remote_change;
+
+    // Store GPU acceleration props for future use
+    let _acceleration_preference = acceleration;
+    let _batch_request_callback = on_batch_request;
+    let _batch_result_callback = on_batch_result;
 
     // Track current values for all parameters
     let values = RwSignal::new(HashMap::<String, String>::new());

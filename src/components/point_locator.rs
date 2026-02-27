@@ -4,6 +4,7 @@
 //! and precision coordinate display.
 
 use crate::cliffy_types::BehaviorF64;
+use crate::gpu_types::{AccelerationPreference, BatchVectorOp, BatchVectorResult};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
@@ -191,8 +192,25 @@ pub fn PointLocator(
     /// Note: This prop only has effect when the `cliffy` feature is enabled.
     #[prop(optional)]
     behavior_y: Option<BehaviorF64>,
+    // =========================================================================
+    // GPU Acceleration Props (requires `cliffy-full` feature for real functionality)
+    // =========================================================================
+    /// Hardware acceleration preference for multi-point transformations.
+    #[prop(optional)]
+    acceleration: Option<AccelerationPreference>,
+    /// Callback to request a batch vector operation (e.g., multi-point transforms).
+    #[prop(optional)]
+    on_batch_request: Option<Callback<BatchVectorOp>>,
+    /// Callback when batch operation results are available.
+    #[prop(optional)]
+    on_batch_result: Option<Callback<BatchVectorResult>>,
 ) -> impl IntoView {
     let theme = use_theme();
+
+    // Store GPU acceleration props for future use
+    let _acceleration_preference = acceleration;
+    let _batch_request_callback = on_batch_request;
+    let _batch_result_callback = on_batch_result;
 
     // Internal state
     let internal_point = value.unwrap_or_else(|| RwSignal::new(Point2D::new(0.0, 0.0)));

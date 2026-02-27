@@ -4,6 +4,7 @@
 //! with automatic conversion between them.
 
 use crate::components::input::{InputSize, InputVariant};
+use crate::gpu_types::{AccelerationPreference, BatchVectorOp, BatchVectorResult};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
@@ -332,8 +333,25 @@ pub fn CoordinateInput(
     // Note: Cliffy behavior prop not supported for CoordinateInput due to variable-length
     // coordinate values not being compatible with cliffy-core's Behavior type constraints.
     // Use individual BehaviorF64 signals for each coordinate if needed.
+    // =========================================================================
+    // GPU Acceleration Props (requires `cliffy-full` feature for real functionality)
+    // =========================================================================
+    /// Hardware acceleration preference for batch coordinate conversions.
+    #[prop(optional)]
+    acceleration: Option<AccelerationPreference>,
+    /// Callback to request a batch vector operation (e.g., coordinate system conversions).
+    #[prop(optional)]
+    on_batch_request: Option<Callback<BatchVectorOp>>,
+    /// Callback when batch operation results are available.
+    #[prop(optional)]
+    on_batch_result: Option<Callback<BatchVectorResult>>,
 ) -> impl IntoView {
     let theme = use_theme();
+
+    // Store GPU acceleration props for future use
+    let _acceleration_preference = acceleration;
+    let _batch_request_callback = on_batch_request;
+    let _batch_result_callback = on_batch_result;
 
     // Internal state
     let current_system = RwSignal::new(system);
