@@ -1,3 +1,4 @@
+use crate::cliffy_types::BehaviorF64Tuple;
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
@@ -78,9 +79,24 @@ pub fn RangeSlider(
     /// Additional inline styles
     #[prop(optional, into)]
     style: Option<String>,
+    /// Cliffy Behavior for geometric state management (requires `cliffy` feature).
+    /// When provided, range value changes are synced to this behavior.
+    /// Note: This prop only has effect when the `cliffy` feature is enabled.
+    #[prop(optional)]
+    behavior: Option<BehaviorF64Tuple>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or_default();
+
+    // Sync value changes to Cliffy behavior when provided
+    // (Only has effect when cliffy feature is enabled)
+    if let Some(ref b) = behavior {
+        let behavior_clone = b.clone();
+        Effect::new(move || {
+            let current_value = value.get();
+            behavior_clone.set(current_value);
+        });
+    }
 
     // Track which thumb is being dragged: None, Some(0) for left, Some(1) for right
     let dragging_thumb = RwSignal::new(Option::<usize>::None);

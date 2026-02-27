@@ -6,6 +6,7 @@
 use leptos::prelude::*;
 use leptos::tachys::html::event as ev;
 
+use crate::cliffy_types::BehaviorF64;
 use crate::theme::use_theme;
 use crate::utils::style_builder::StyleBuilder;
 
@@ -342,11 +343,37 @@ pub fn ComplexNumberInput(
     /// Additional CSS class
     #[prop(optional, into)]
     class: Option<String>,
+    /// Cliffy Behavior for real part (requires `cliffy` feature).
+    /// Note: This prop only has effect when the `cliffy` feature is enabled.
+    #[prop(optional)]
+    behavior_real: Option<BehaviorF64>,
+    /// Cliffy Behavior for imaginary part (requires `cliffy` feature).
+    /// Note: This prop only has effect when the `cliffy` feature is enabled.
+    #[prop(optional)]
+    behavior_imaginary: Option<BehaviorF64>,
 ) -> impl IntoView {
     let theme = use_theme();
 
     // Internal state
     let complex_value = RwSignal::new(value.map_or(default_value, |v| v.get()));
+
+    // Sync value changes to Cliffy behaviors when provided
+    // (Only has effect when cliffy feature is enabled)
+    if let Some(ref br) = behavior_real {
+        let behavior_clone = br.clone();
+        Effect::new(move || {
+            let c = complex_value.get();
+            behavior_clone.set(c.real);
+        });
+    }
+    if let Some(ref bi) = behavior_imaginary {
+        let behavior_clone = bi.clone();
+        Effect::new(move || {
+            let c = complex_value.get();
+            behavior_clone.set(c.imaginary);
+        });
+    }
+
     let current_format = RwSignal::new(format);
     let has_error = RwSignal::new(false);
 

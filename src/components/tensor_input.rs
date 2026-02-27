@@ -4,6 +4,7 @@
 //! shape manipulation.
 
 use crate::components::input::InputSize;
+use crate::gpu_types::{AccelerationPreference, BatchTensorOp, BatchTensorResult};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
@@ -300,8 +301,25 @@ pub fn TensorInput(
     /// Whether the input is disabled
     #[prop(optional)]
     disabled: Signal<bool>,
+    // =========================================================================
+    // GPU Acceleration Props (requires `cliffy-full` feature for real functionality)
+    // =========================================================================
+    /// Hardware acceleration preference for batch operations.
+    #[prop(optional)]
+    acceleration: Option<AccelerationPreference>,
+    /// Callback to request a batch tensor operation.
+    #[prop(optional)]
+    on_batch_request: Option<Callback<BatchTensorOp>>,
+    /// Callback when batch operation results are available.
+    #[prop(optional)]
+    on_batch_result: Option<Callback<BatchTensorResult>>,
 ) -> impl IntoView {
     let theme = use_theme();
+
+    // Store GPU acceleration props for future use
+    let _acceleration_preference = acceleration;
+    let _batch_request_callback = on_batch_request;
+    let _batch_result_callback = on_batch_result;
 
     // Internal state
     let initial_shape = shape.unwrap_or_else(|| vec![2, 3, 4]);

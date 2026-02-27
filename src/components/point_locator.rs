@@ -3,6 +3,7 @@
 //! Mathematica-style drag-and-drop point positioning with grid snapping
 //! and precision coordinate display.
 
+use crate::cliffy_types::BehaviorF64;
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
@@ -182,11 +183,37 @@ pub fn PointLocator(
     /// Whether the input is disabled
     #[prop(optional)]
     disabled: Signal<bool>,
+    /// Cliffy Behavior for X coordinate (requires `cliffy` feature).
+    /// Note: This prop only has effect when the `cliffy` feature is enabled.
+    #[prop(optional)]
+    behavior_x: Option<BehaviorF64>,
+    /// Cliffy Behavior for Y coordinate (requires `cliffy` feature).
+    /// Note: This prop only has effect when the `cliffy` feature is enabled.
+    #[prop(optional)]
+    behavior_y: Option<BehaviorF64>,
 ) -> impl IntoView {
     let theme = use_theme();
 
     // Internal state
     let internal_point = value.unwrap_or_else(|| RwSignal::new(Point2D::new(0.0, 0.0)));
+
+    // Sync value changes to Cliffy behaviors when provided
+    // (Only has effect when cliffy feature is enabled)
+    if let Some(ref bx) = behavior_x {
+        let behavior_clone = bx.clone();
+        Effect::new(move || {
+            let point = internal_point.get();
+            behavior_clone.set(point.x);
+        });
+    }
+    if let Some(ref by) = behavior_y {
+        let behavior_clone = by.clone();
+        Effect::new(move || {
+            let point = internal_point.get();
+            behavior_clone.set(point.y);
+        });
+    }
+
     let is_dragging = RwSignal::new(false);
     let mouse_pos = RwSignal::new(None::<Point2D>);
 

@@ -664,7 +664,204 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 
 ---
 
-## Phase 6: Visualization & Analysis
+## Phase 6: Cliffy Integration & Test Audit
+
+**Target**: Q2 2026
+**Version**: 0.7.0
+
+### Objectives
+
+Integrate the Cliffy ecosystem to bring geometric algebra state management, multi-user collaboration, and algebraic testing to Mingot components. This audit phase ensures components are built on principled foundations.
+
+### Dependencies
+
+```toml
+[dependencies]
+cliffy-core = { version = "0.2", optional = true }
+cliffy-protocols = { version = "0.2", optional = true }
+cliffy-gpu = { version = "0.2", optional = true }
+
+[dev-dependencies]
+cliffy-test = "0.2"
+
+[features]
+cliffy = ["cliffy-core", "cliffy-protocols"]
+cliffy-gpu = ["dep:cliffy-gpu"]
+```
+
+### Deliverables
+
+#### Cliffy-GPU Integration: Hardware-Accelerated Geometric Algebra
+
+Leverage WebGPU/SIMD for high-performance batch operations:
+
+- [ ] **GPU Compute Pipeline** - WebGPU context initialization for WASM targets
+- [ ] **Auto-Dispatch** - Automatic GPU/SIMD selection based on batch size (threshold: 256)
+- [ ] **Batch Operations** - Geometric product, sandwich product, exponential for multiple elements
+- [ ] **Rotor SLERP** - GPU-accelerated spherical interpolation for smooth animations
+- [ ] **Animation System** - Frame-budget-aware geometric animations using GPU compute
+
+**Target Components**:
+- [ ] **ParameterGrid** - Batch parameter interpolation on GPU
+- [ ] **MatrixInput** - GPU-accelerated matrix operations preview
+- [ ] **VectorInput** - Batch vector transformations visualization
+- [ ] **CoordinateInput** - Real-time coordinate system conversions
+- [ ] **PointLocator** - Multi-point transformations with GPU compute
+
+**API Pattern**:
+```rust
+// Automatic GPU/SIMD dispatch
+let dispatcher = AutoDispatcher::new().await;
+
+// Batch rotor interpolation for animations
+let interpolated = dispatcher.rotor_slerp(&start_rotors, &end_rotors, t).await;
+
+// GPU-accelerated sandwich product for rotations
+let rotated = dispatcher.sandwich(&rotors, &vectors).await;
+```
+
+**WASM Integration**:
+```rust
+// Browser-side WebGPU compute
+let batch = WasmBatch::geometric_product(&a_array, &b_array);
+let rotated = WasmBatch::sandwich(&rotors, &vectors);
+```
+
+#### Cliffy-Core Integration: Geometric State Management
+
+Replace signal-based state with FRP `Behavior<T>` for components that benefit from geometric transformations:
+
+- [ ] **NumberInput** - Value changes as geometric translations on the number line
+- [ ] **Slider/RangeSlider** - Position as 1D geometric state with interpolation
+- [ ] **ParameterSlider** - Logarithmic scale as geometric exponential
+- [ ] **AngleInput** - Angle as rotor in 2D plane (natural representation)
+- [ ] **CoordinateInput** - Position as GA3 vector (native!)
+- [ ] **PointLocator** - Drag operations as geometric translations
+- [ ] **ComplexNumberInput** - Complex numbers as 2D rotors + scalars
+- [ ] **MatrixInput** - Matrix state with geometric product for transformations
+- [ ] **VectorInput** - Vectors as native GA3 grade-1 elements
+- [ ] **ColorPicker** - Color space as 3D geometric position (RGB/HSL)
+
+**API Pattern**:
+```rust
+<NumberInput
+    // Cliffy-aware state
+    behavior=value_behavior
+    // Geometric events
+    on_geometric_change=Callback::new(|delta: GA3| { ... })
+/>
+```
+
+#### Cliffy-Protocols Integration: Multi-User Collaboration
+
+Enable real-time collaborative editing for applicable components:
+
+- [ ] **ParameterGrid** - Shared parameter presets across users
+- [ ] **ParameterTree** - Collaborative hierarchical editing
+- [ ] **MatrixInput** - Multi-user matrix editing with cell-level CRDT
+- [ ] **FormulaInput** - Shared formula editing with conflict resolution
+- [ ] **EquationEditor** - Collaborative equation authoring
+
+**Sync Pattern**:
+```rust
+<ParameterGrid
+    // CRDT-backed state
+    crdt=shared_crdt
+    node_id=local_node_id
+    // Sync callbacks
+    on_sync_message=Callback::new(|msg: SyncPayload| { ... })
+/>
+```
+
+**Features**:
+- Immediate local response (optimistic updates)
+- Automatic conflict resolution via geometric mean
+- Vector clock causal ordering
+- Offline-first with delta sync on reconnect
+- Storage adapter trait for persistence
+
+#### Cliffy-Test Integration: Algebraic Component Testing
+
+Introduce geometric invariant testing across the component library:
+
+**Impossible Invariants** (must never fail):
+- [ ] Rotors preserve magnitude in AngleInput
+- [ ] NumberInput precision never silently truncates
+- [ ] VectorInput magnitude calculations are exact
+- [ ] Slider value always within [min, max] bounds
+- [ ] Matrix operations preserve dimensions
+
+**Rare Invariants** (bounded probability):
+- [ ] UI re-renders < 1% during stable state
+- [ ] Convergence within N sync iterations
+- [ ] Animation frame budget met 99.9% of time
+
+**Manifold Tests**:
+- [ ] Component state spaces as geometric manifolds
+- [ ] Props validation as manifold membership
+- [ ] Transitions as paths on manifolds
+
+**Property-Based Tests**:
+- [ ] Random geometric state generation via `arbitrary_ga3()`
+- [ ] Fuzz testing with `ArbitraryVector`, `ArbitraryRotor`
+- [ ] QuickCheck integration for all numeric components
+
+**Test Macros**:
+```rust
+#[test]
+fn test_angle_input_rotor_invariant() {
+    let inv = invariant_impossible! {
+        name: "AngleInput preserves rotor magnitude",
+        check: || {
+            let angle = arbitrary_angle();
+            let rotor = angle_to_rotor(angle);
+            if (rotor.magnitude() - 1.0).abs() < 1e-10 {
+                TestResult::Pass
+            } else {
+                TestResult::fail_with_distance(
+                    (rotor.magnitude() - 1.0).abs(),
+                    "Rotor magnitude != 1"
+                )
+            }
+        }
+    };
+    verify_invariant!(inv, samples: 10000);
+}
+```
+
+### Component Audit Checklist
+
+| Component | cliffy-core | cliffy-protocols | cliffy-gpu | cliffy-test |
+|-----------|-------------|------------------|------------|-------------|
+| NumberInput | Behavior<T> | - | - | Impossible |
+| Slider | Behavior<f64> | - | - | Impossible |
+| RangeSlider | Behavior<(f64,f64)> | - | - | Impossible |
+| ParameterSlider | Geometric scale | - | SLERP | Impossible |
+| ParameterGrid | GeometricState | CRDT | Batch | Impossible |
+| ParameterTree | GeometricState | CRDT | - | Impossible |
+| AngleInput | Rotor | - | SLERP | Impossible |
+| CoordinateInput | GA3 Vector | - | Batch | Impossible |
+| PointLocator | GA3 Vector | CRDT | Batch | Impossible |
+| ComplexNumberInput | Rotor+Scalar | - | - | Impossible |
+| MatrixInput | GA3 state | CRDT | Batch | Impossible |
+| VectorInput | GA3 grade-1 | - | Sandwich | Impossible |
+| TensorInput | Multi-GA3 | - | Batch | Rare |
+| FormulaInput | - | CRDT | - | Rare |
+| EquationEditor | - | CRDT | - | Rare |
+| ColorPicker | GA3 position | - | - | Impossible |
+
+### Success Metrics
+
+- [ ] 100% of numeric components have cliffy-test invariants
+- [ ] Geometric state available for all spatial/numeric components
+- [ ] CRDT sync working for collaborative components
+- [ ] GPU acceleration available for batch operations (≥256 elements)
+- [ ] Zero precision loss in geometric transformations
+- [ ] All invariant tests pass with 10,000+ samples
+
+---
+
+## Phase 7: Visualization & Analysis
 
 **Target**: 2027
 **Version**: 0.8.0
@@ -691,7 +888,7 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 
 ---
 
-## Phase 7: Node-Based Network UI
+## Phase 8: Node-Based Network UI
 
 **Target**: 2027
 **Version**: 0.9.0
@@ -859,7 +1056,7 @@ graph.from_json(json);
 
 ---
 
-## Phase 8: Theme System & Custom Themes
+## Phase 9: Theme System & Custom Themes
 
 **Target**: 2027+
 **Version**: 1.0.0
@@ -939,7 +1136,7 @@ let user_theme = create_signal(themes::MINGOT_DEFAULT);
 
 ---
 
-## Phase 9: VFX Extension (WGSL Shaders)
+## Phase 10: VFX Extension (WGSL Shaders)
 
 **Target**: 2027+
 **Version**: 1.1.0
