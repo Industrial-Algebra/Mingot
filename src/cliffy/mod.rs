@@ -22,6 +22,11 @@ pub mod angle_state;
 pub mod bridge;
 pub mod vector_state;
 
+#[cfg(feature = "cliffy-full")]
+pub mod animation;
+#[cfg(feature = "cliffy-full")]
+pub mod gpu;
+
 pub use angle_state::*;
 pub use bridge::*;
 pub use vector_state::*;
@@ -38,4 +43,9 @@ pub mod prelude {
     };
     pub use super::vector_state::{GeometricCoordinateState2D, GeometricVectorState};
     pub use cliffy_core::{behavior, Behavior, Rotor};
+
+    #[cfg(feature = "cliffy-full")]
+    pub use super::animation::{easing, AnimationConfig, FrameBudget};
+    #[cfg(feature = "cliffy-full")]
+    pub use super::gpu::{provide_gpu_context, use_gpu_context, MingotGpuContext};
 }

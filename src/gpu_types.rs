@@ -974,6 +974,7 @@ mod tests {
     // --- GpuError tests ---
 
     #[test]
+    #[cfg(not(feature = "cliffy-full"))]
     fn test_gpu_error_display() {
         let err = GpuError::AdapterNotFound;
         assert_eq!(format!("{err}"), "GPU adapter not found");
