@@ -26,14 +26,8 @@ wasm-bindgen = "0.2"
 # Optional: High-precision decimal arithmetic
 rust_decimal = { version = "1.39", optional = true, default-features = false }
 
-# Optional: Cliffy ecosystem for geometric algebra state management
-cliffy-core = { version = "0.2", optional = true }
-cliffy-protocols = { version = "0.2", optional = true }
-cliffy-gpu = { version = "0.2", optional = true }
-
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
-cliffy-test = "0.2"
 
 [features]
 default = ["csr"]
@@ -41,10 +35,6 @@ csr = ["leptos/csr"]
 ssr = ["leptos/ssr"]
 hydrate = ["leptos/hydrate"]
 high-precision = ["rust_decimal"]
-
-# Cliffy ecosystem features
-cliffy = ["cliffy-core", "cliffy-protocols"]
-cliffy-full = ["cliffy", "cliffy-gpu"]
 
 [profile.wasm-release]
 inherits = "release"

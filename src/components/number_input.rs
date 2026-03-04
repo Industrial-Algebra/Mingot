@@ -1,4 +1,3 @@
-use crate::cliffy_types::BehaviorString;
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
@@ -1084,11 +1083,6 @@ pub fn NumberInput(
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
-    /// Cliffy Behavior for geometric state management (requires `cliffy` feature).
-    /// When provided, value changes are synced to this behavior.
-    /// Note: This prop only has effect when the `cliffy` feature is enabled.
-    #[prop(optional)]
-    behavior: Option<BehaviorString>,
 ) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(InputVariant::Default);
@@ -1124,16 +1118,6 @@ pub fn NumberInput(
     let allow_decimal = allow_decimal || matches!(precision, NumberInputPrecision::Decimal(_));
 
     let number_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
-
-    // Sync value changes to Cliffy behavior when provided
-    // (Only has effect when cliffy feature is enabled)
-    if let Some(ref b) = behavior {
-        let behavior_clone = b.clone();
-        Effect::new(move || {
-            let current_value = number_value.get();
-            behavior_clone.set(current_value);
-        });
-    }
 
     // Undo/redo state management
     let undo_stack: RwSignal<Vec<String>> = RwSignal::new(Vec::new());

@@ -59,25 +59,6 @@ pub mod theme;
 pub mod utils;
 pub mod validation;
 
-/// Type aliases for Cliffy integration (always available, stubs when feature disabled)
-pub mod cliffy_types;
-
-/// Type aliases for CRDT integration (always available, stubs when feature disabled)
-pub mod crdt_types;
-
-/// Type aliases for GPU acceleration (always available, stubs when feature disabled)
-pub mod gpu_types;
-
-/// Cliffy ecosystem integration for geometric algebra state management.
-///
-/// This module is only available when the `cliffy` feature is enabled:
-///
-/// ```toml
-/// mingot = { version = "0.6", features = ["cliffy"] }
-/// ```
-#[cfg(feature = "cliffy")]
-pub mod cliffy;
-
 // Re-export commonly used components
 pub use components::*;
 pub use theme::{
@@ -97,8 +78,4 @@ pub mod prelude {
         ColorSchemeMode, MingotProvider, Theme,
     };
     pub use crate::validation::{self, ValidationError, ValidationResult, Validator};
-
-    /// Cliffy geometric state types (requires `cliffy` feature)
-    #[cfg(feature = "cliffy")]
-    pub use crate::cliffy::prelude::*;
 }

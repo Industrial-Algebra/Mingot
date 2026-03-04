@@ -4,7 +4,6 @@
 //! and operation displays.
 
 use crate::components::input::InputSize;
-use crate::gpu_types::{AccelerationPreference, BatchVectorOp, BatchVectorResult};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::ev;
@@ -207,11 +206,6 @@ impl Vector {
         Vector::new(self.components.iter().map(|x| x * factor).collect())
     }
 
-    /// Get all components as a Vec<f64>
-    pub fn to_components(&self) -> Vec<f64> {
-        self.components.clone()
-    }
-
     /// Add another vector
     pub fn add(&self, other: &Vector) -> Option<Vector> {
         if self.dimensions() != other.dimensions() {
@@ -366,28 +360,8 @@ pub fn VectorInput(
     /// Whether the input is disabled
     #[prop(optional)]
     disabled: Signal<bool>,
-    // Note: Cliffy behavior prop not supported for VectorInput due to variable-length Vec<f64>
-    // not being compatible with cliffy-core's Behavior type constraints.
-    // Use individual BehaviorF64 signals for each component if needed.
-    // =========================================================================
-    // GPU Acceleration Props (requires `cliffy-full` feature for real functionality)
-    // =========================================================================
-    /// Hardware acceleration preference for batch operations.
-    #[prop(optional)]
-    acceleration: Option<AccelerationPreference>,
-    /// Callback to request a batch vector operation.
-    #[prop(optional)]
-    on_batch_request: Option<Callback<BatchVectorOp>>,
-    /// Callback when batch operation results are available.
-    #[prop(optional)]
-    on_batch_result: Option<Callback<BatchVectorResult>>,
 ) -> impl IntoView {
     let theme = use_theme();
-
-    // Store GPU acceleration props for future use
-    let _acceleration_preference = acceleration;
-    let _batch_request_callback = on_batch_request;
-    let _batch_result_callback = on_batch_result;
 
     // Internal state
     let internal_vector = value.unwrap_or_else(|| RwSignal::new(Vector::zeros(dimensions)));

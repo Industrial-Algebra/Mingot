@@ -3,7 +3,6 @@
 //! Supports degrees, radians, gradians, turns, and DMS (degrees-minutes-seconds) format.
 //! Features automatic conversion between units and optional normalization.
 
-use crate::cliffy_types::BehaviorF64;
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
@@ -387,11 +386,6 @@ pub fn AngleInput(
     /// Additional inline styles
     #[prop(optional, into)]
     style: Option<String>,
-    /// Cliffy Behavior for geometric state management (requires `cliffy` feature).
-    /// When provided, angle value changes (in degrees) are synced to this behavior.
-    /// Note: This prop only has effect when the `cliffy` feature is enabled.
-    #[prop(optional)]
-    behavior: Option<BehaviorF64>,
 ) -> impl IntoView {
     let theme = use_theme();
     let variant = variant.unwrap_or(InputVariant::Default);
@@ -400,16 +394,6 @@ pub fn AngleInput(
 
     // Internal value in degrees
     let angle_value = value.unwrap_or_else(|| RwSignal::new(0.0));
-
-    // Sync value changes to Cliffy behavior when provided
-    // (Only has effect when cliffy feature is enabled)
-    if let Some(ref b) = behavior {
-        let behavior_clone = b.clone();
-        Effect::new(move || {
-            let current_value = angle_value.get();
-            behavior_clone.set(current_value);
-        });
-    }
 
     // Current display unit (can be changed via selector)
     let current_unit = RwSignal::new(unit);

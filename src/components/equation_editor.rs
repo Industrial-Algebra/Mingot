@@ -3,7 +3,6 @@
 //! A structured math editor designed for geometric algebra expressions,
 //! with support for Amari library operations.
 
-use crate::crdt_types::{CrdtNodeId, CrdtSyncPayload};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
@@ -666,19 +665,8 @@ pub fn EquationEditor(
     /// Placeholder text when empty
     #[prop(optional, into)]
     placeholder: Option<String>,
-    // CRDT collaborative editing props
-    /// Node ID for collaborative editing identification
-    #[prop(optional)]
-    node_id: Option<CrdtNodeId>,
-    /// Callback for sync messages to other nodes
-    #[prop(optional)]
-    on_sync_message: Option<Callback<CrdtSyncPayload>>,
 ) -> impl IntoView {
     let theme = use_theme();
-
-    // Store CRDT props for future collaborative editing implementation
-    let _collaborative_node_id = node_id;
-    let _collaborative_sync_callback = on_sync_message;
 
     // Internal state
     let equation = value.unwrap_or_else(|| RwSignal::new(EquationNode::Placeholder));

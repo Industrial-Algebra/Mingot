@@ -26,17 +26,6 @@ pub enum CoordinateSystem {
 }
 
 impl CoordinateSystem {
-    /// Convert to a numeric ID for behavior sync
-    pub fn to_id(&self) -> u8 {
-        match self {
-            CoordinateSystem::Cartesian2D => 0,
-            CoordinateSystem::Cartesian3D => 1,
-            CoordinateSystem::Polar => 2,
-            CoordinateSystem::Cylindrical => 3,
-            CoordinateSystem::Spherical => 4,
-        }
-    }
-
     /// Get the labels for each coordinate
     pub fn labels(&self) -> Vec<&'static str> {
         match self {
@@ -329,9 +318,6 @@ pub fn CoordinateInput(
     /// Whether the input is disabled
     #[prop(optional)]
     disabled: Signal<bool>,
-    // Note: Cliffy behavior prop not supported for CoordinateInput due to variable-length
-    // coordinate values not being compatible with cliffy-core's Behavior type constraints.
-    // Use individual BehaviorF64 signals for each coordinate if needed.
 ) -> impl IntoView {
     let theme = use_theme();
 

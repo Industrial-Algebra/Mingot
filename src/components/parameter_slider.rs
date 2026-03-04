@@ -1,4 +1,3 @@
-use crate::cliffy_types::BehaviorString;
 use crate::components::number_input::{NumberInputPrecision, ParseError};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
@@ -151,27 +150,12 @@ pub fn ParameterSlider(
     /// Additional inline styles
     #[prop(optional, into)]
     style: Option<String>,
-    /// Cliffy Behavior for geometric state management (requires `cliffy` feature).
-    /// When provided, value changes are synced to this behavior.
-    /// Note: This prop only has effect when the `cliffy` feature is enabled.
-    #[prop(optional)]
-    behavior: Option<BehaviorString>,
 ) -> impl IntoView {
     let theme = use_theme();
     let size = size.unwrap_or_default();
     let is_dragging = RwSignal::new(false);
     let input_value = RwSignal::new(String::new());
     let is_editing = RwSignal::new(false);
-
-    // Sync value changes to Cliffy behavior when provided
-    // (Only has effect when cliffy feature is enabled)
-    if let Some(ref b) = behavior {
-        let behavior_clone = b.clone();
-        Effect::new(move || {
-            let current_value = value.get();
-            behavior_clone.set(current_value);
-        });
-    }
 
     // Parse min, max, step as f64 for calculations
     // We use f64 internally for positioning but preserve string precision for values
