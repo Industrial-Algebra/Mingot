@@ -664,37 +664,90 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 
 ---
 
-## Phase 6: Visualization & Analysis
+## Phase 6: Theme System & Custom Themes
 
-**Target**: 2027
-**Version**: 0.8.0
+**Target**: 2026
+**Version**: 0.7.0
 
-### Components
+### Objectives
 
-#### PrecisionChart
-- High-precision data visualization
-- Zoom without precision loss
-- Exact point coordinates
-- Error bar precision handling
+Expand Mingot's theming capabilities with production-ready themes and a flexible theme creation system. Some themes will be designed in Figma and translated to Mingot's theme system.
 
-#### StatisticsPanel
-- Precision-preserving statistical calculations
-- Mean, variance, etc. with arbitrary precision
-- Distribution fitting with exact parameters
-- Hypothesis testing with exact p-values
+### Deliverables
 
-#### TropicalAlgebraComponents
-- Tropical semiring operations UI
-- Min-plus/max-plus algebra widgets
-- Path algebra visualization
-- Integration with Amari's tropical algebra
+#### Built-in Themes
+- [ ] **Mingot Default** - Current theme, refined and polished
+- [ ] **Mingot Dark** - Dark mode variant of default
+- [ ] **Industrial** - Industrial Algebra brand theme
+- [ ] **Scientific** - Clean, academic aesthetic for research applications
+- [ ] **Financial** - Professional theme for fintech applications
+- [ ] **TBD (Figma)** - Custom themes designed in Figma
+
+#### Theme System Enhancements
+- [ ] Theme switching without page reload
+- [ ] CSS custom property extraction
+- [ ] Theme inheritance (extend existing themes)
+- [ ] Component-level theme overrides
+- [ ] Theme validation and type safety
+
+#### Figma Integration Workflow
+- [ ] Figma design tokens export format
+- [ ] Theme generator from Figma variables
+- [ ] Documentation for Figma-to-Mingot workflow
+- [ ] Example Figma component library
+
+#### Theme API
+```rust
+// Define a custom theme
+let my_theme = Theme::new()
+    .extend(themes::MINGOT_DARK)
+    .colors(ColorScheme {
+        primary: "#6366f1",
+        secondary: "#8b5cf6",
+        accent: "#22d3ee",
+        ..Default::default()
+    })
+    .typography(Typography {
+        font_family: "'JetBrains Mono', monospace",
+        ..Default::default()
+    })
+    .radius(Radius::rounded())  // All rounded corners
+    .shadows(Shadows::subtle()); // Subtle shadow preset
+
+// Use in app
+view! {
+    <ThemeProvider theme=my_theme>
+        <App />
+    </ThemeProvider>
+}
+```
+
+#### Theme Presets
+```rust
+// Quick theme presets
+<ThemeProvider theme=themes::SCIENTIFIC />
+<ThemeProvider theme=themes::FINANCIAL />
+<ThemeProvider theme=themes::INDUSTRIAL />
+
+// Dynamic theming
+let user_theme = create_signal(themes::MINGOT_DEFAULT);
+<ThemeProvider theme=user_theme />
+```
+
+### Design Goals
+
+- **Consistency**: All 50+ components respect theme values
+- **Accessibility**: All themes meet WCAG 2.1 AA contrast requirements
+- **Performance**: Theme switching is instantaneous (CSS variables)
+- **Customization**: Override any theme value at any level
+- **Documentation**: Each theme documented with usage guidelines
 
 ---
 
 ## Phase 7: Node-Based Network UI
 
-**Target**: 2027
-**Version**: 0.9.0
+**Target**: 2026-2027
+**Version**: 0.8.0
 
 ### Objectives
 
@@ -859,90 +912,10 @@ graph.from_json(json);
 
 ---
 
-## Phase 8: Theme System & Custom Themes
+## Phase 8: VFX Extension (WGSL Shaders)
 
 **Target**: 2027+
-**Version**: 1.0.0
-
-### Objectives
-
-Expand Mingot's theming capabilities with production-ready themes and a flexible theme creation system. Some themes will be designed in Figma and translated to Mingot's theme system.
-
-### Deliverables
-
-#### Built-in Themes
-- [ ] **Mingot Default** - Current theme, refined and polished
-- [ ] **Mingot Dark** - Dark mode variant of default
-- [ ] **Industrial** - Industrial Algebra brand theme
-- [ ] **Scientific** - Clean, academic aesthetic for research applications
-- [ ] **Financial** - Professional theme for fintech applications
-- [ ] **TBD (Figma)** - Custom themes designed in Figma
-
-#### Theme System Enhancements
-- [ ] Theme switching without page reload
-- [ ] CSS custom property extraction
-- [ ] Theme inheritance (extend existing themes)
-- [ ] Component-level theme overrides
-- [ ] Theme validation and type safety
-
-#### Figma Integration Workflow
-- [ ] Figma design tokens export format
-- [ ] Theme generator from Figma variables
-- [ ] Documentation for Figma-to-Mingot workflow
-- [ ] Example Figma component library
-
-#### Theme API
-```rust
-// Define a custom theme
-let my_theme = Theme::new()
-    .extend(themes::MINGOT_DARK)
-    .colors(ColorScheme {
-        primary: "#6366f1",
-        secondary: "#8b5cf6",
-        accent: "#22d3ee",
-        ..Default::default()
-    })
-    .typography(Typography {
-        font_family: "'JetBrains Mono', monospace",
-        ..Default::default()
-    })
-    .radius(Radius::rounded())  // All rounded corners
-    .shadows(Shadows::subtle()); // Subtle shadow preset
-
-// Use in app
-view! {
-    <ThemeProvider theme=my_theme>
-        <App />
-    </ThemeProvider>
-}
-```
-
-#### Theme Presets
-```rust
-// Quick theme presets
-<ThemeProvider theme=themes::SCIENTIFIC />
-<ThemeProvider theme=themes::FINANCIAL />
-<ThemeProvider theme=themes::INDUSTRIAL />
-
-// Dynamic theming
-let user_theme = create_signal(themes::MINGOT_DEFAULT);
-<ThemeProvider theme=user_theme />
-```
-
-### Design Goals
-
-- **Consistency**: All 50+ components respect theme values
-- **Accessibility**: All themes meet WCAG 2.1 AA contrast requirements
-- **Performance**: Theme switching is instantaneous (CSS variables)
-- **Customization**: Override any theme value at any level
-- **Documentation**: Each theme documented with usage guidelines
-
----
-
-## Phase 9: VFX Extension (WGSL Shaders)
-
-**Target**: 2027+
-**Version**: 1.1.0
+**Version**: 0.9.0
 
 ### Objectives
 
@@ -1159,6 +1132,33 @@ mingot = { version = "1.1", features = ["vfx"] }
 
 ---
 
+## Phase 9: Visualization & Analysis
+
+**Target**: 2027+
+**Version**: 0.10.0
+
+### Components
+
+#### PrecisionChart
+- High-precision data visualization
+- Zoom without precision loss
+- Exact point coordinates
+- Error bar precision handling
+
+#### StatisticsPanel
+- Precision-preserving statistical calculations
+- Mean, variance, etc. with arbitrary precision
+- Distribution fitting with exact parameters
+- Hypothesis testing with exact p-values
+
+#### TropicalAlgebraComponents
+- Tropical semiring operations UI
+- Min-plus/max-plus algebra widgets
+- Path algebra visualization
+- Integration with Amari's tropical algebra
+
+---
+
 ## Long-Term Vision (2027+)
 
 ### Research Collaborations
@@ -1201,7 +1201,9 @@ mingot = { version = "1.1", features = ["vfx"] }
 - **Breaking changes allowed**: API evolution prioritized over stability
 
 ### 1.0.0 Release Criteria
-- [ ] All Phase 1-3 features complete and tested
+- [x] All Phase 1-5 features complete and tested
+- [ ] Phase 6 (Theme System) complete
+- [ ] Phase 7 (Node-Based Network UI) complete
 - [ ] Comprehensive documentation
 - [ ] Real-world usage in 3+ production applications
 - [ ] Performance benchmarks meet targets
@@ -1290,8 +1292,8 @@ The community is invited to shape Mingot's future:
 
 ---
 
-**Last Updated**: January 2026
-**Next Review**: April 2026
+**Last Updated**: March 2026
+**Next Review**: June 2026
 
 ---
 
