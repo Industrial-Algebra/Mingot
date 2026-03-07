@@ -77,7 +77,7 @@ pub fn Hero(
         } else {
             builder.add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xl, theme_val.spacing.md),
+                format!("{} {}", &*theme_val.spacing.xl, &*theme_val.spacing.md),
             );
         }
 
@@ -156,7 +156,7 @@ pub fn HeroTitle(
             )
             .add("line-height", "1.2")
             .add("margin", "0")
-            .add("margin-bottom", theme_val.spacing.md);
+            .add("margin-bottom", &*theme_val.spacing.md);
 
         if let Some(c) = color.as_ref() {
             builder.add("color", c);
@@ -195,14 +195,14 @@ pub fn HeroSubtitle(
         let mut builder = StyleBuilder::new();
 
         builder
-            .add("font-size", theme_val.typography.font_sizes.xl)
+            .add("font-size", &*theme_val.typography.font_sizes.xl)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.normal.to_string(),
             )
             .add("line-height", "1.5")
             .add("margin", "0")
-            .add("margin-bottom", theme_val.spacing.lg)
+            .add("margin-bottom", &*theme_val.spacing.lg)
             .add("opacity", "0.9");
 
         if let Some(c) = color.as_ref() {
@@ -243,7 +243,7 @@ pub fn HeroActions(
              flex-wrap: wrap; \
              align-items: center; \
              margin-top: {};",
-            theme_val.spacing.md, theme_val.spacing.md
+            &*theme_val.spacing.md, theme_val.spacing.md
         )
     };
 

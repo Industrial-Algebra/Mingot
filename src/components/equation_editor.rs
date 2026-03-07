@@ -838,9 +838,9 @@ pub fn EquationEditor(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         let font_size = match size {
-            EquationEditorSize::Sm => theme_val.typography.font_sizes.sm,
-            EquationEditorSize::Md => theme_val.typography.font_sizes.md,
-            EquationEditorSize::Lg => theme_val.typography.font_sizes.lg,
+            EquationEditorSize::Sm => &*theme_val.typography.font_sizes.sm,
+            EquationEditorSize::Md => &*theme_val.typography.font_sizes.md,
+            EquationEditorSize::Lg => &*theme_val.typography.font_sizes.lg,
         };
 
         StyleBuilder::new()
@@ -851,7 +851,7 @@ pub fn EquationEditor(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.md)
+            .add("border-radius", &*theme_val.radius.md)
             .add("background", scheme_colors.background.clone())
             .add_if(disabled, "opacity", "0.6")
             .add_if(disabled, "pointer-events", "none")
@@ -866,10 +866,10 @@ pub fn EquationEditor(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-wrap", "wrap")
-            .add("gap", theme_val.spacing.xs)
+            .add("gap", &*theme_val.spacing.xs)
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add(
                 "border-bottom",
@@ -893,12 +893,12 @@ pub fn EquationEditor(
         StyleBuilder::new()
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add("border", "none")
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("cursor", "pointer")
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "background",
                 if is_active {
@@ -931,9 +931,9 @@ pub fn EquationEditor(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("cursor", "pointer")
-            .add("font-size", theme_val.typography.font_sizes.md)
+            .add("font-size", &*theme_val.typography.font_sizes.md)
             .add("font-family", "'Cambria Math', 'Latin Modern Math', serif")
             .add("background", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
@@ -948,9 +948,9 @@ pub fn EquationEditor(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         let padding = match size {
-            EquationEditorSize::Sm => theme_val.spacing.sm,
-            EquationEditorSize::Md => theme_val.spacing.md,
-            EquationEditorSize::Lg => theme_val.spacing.lg,
+            EquationEditorSize::Sm => &*theme_val.spacing.sm,
+            EquationEditorSize::Md => &*theme_val.spacing.md,
+            EquationEditorSize::Lg => &*theme_val.spacing.lg,
         };
 
         let min_height = match size {
@@ -986,11 +986,11 @@ pub fn EquationEditor(
 
         StyleBuilder::new()
             .add("flex", "1")
-            .add("padding", theme_val.spacing.xs)
+            .add("padding", &*theme_val.spacing.xs)
             .add("border", "none")
             .add("outline", "none")
             .add("font-family", "'Cambria Math', 'Latin Modern Math', serif")
-            .add("font-size", theme_val.typography.font_sizes.md)
+            .add("font-size", &*theme_val.typography.font_sizes.md)
             .add("background", "transparent")
             .add("color", scheme_colors.text.clone())
             .build()
@@ -1004,14 +1004,14 @@ pub fn EquationEditor(
         StyleBuilder::new()
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add(
                 "border-top",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
             .add("font-family", "monospace")
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "color",
                 scheme_colors
@@ -1036,10 +1036,10 @@ pub fn EquationEditor(
         StyleBuilder::new()
             .add("display", "flex")
             .add("align-items", "center")
-            .add("gap", theme_val.spacing.xs)
+            .add("gap", &*theme_val.spacing.xs)
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add(
                 "border-top",

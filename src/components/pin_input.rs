@@ -130,23 +130,23 @@ pub fn PinInput(
             .add("width", input_size)
             .add("height", input_size)
             .add("text-align", "center")
-            .add("font-family", theme_val.typography.font_family)
+            .add("font-family", &*theme_val.typography.font_family)
             .add(
                 "font-size",
                 match font_size {
-                    "xs" => theme_val.typography.font_sizes.xs,
-                    "sm" => theme_val.typography.font_sizes.sm,
-                    "md" => theme_val.typography.font_sizes.md,
-                    "lg" => theme_val.typography.font_sizes.lg,
-                    "xl" => theme_val.typography.font_sizes.xl,
-                    _ => theme_val.typography.font_sizes.md,
+                    "xs" => &*theme_val.typography.font_sizes.xs,
+                    "sm" => &*theme_val.typography.font_sizes.sm,
+                    "md" => &*theme_val.typography.font_sizes.md,
+                    "lg" => &*theme_val.typography.font_sizes.lg,
+                    "xl" => &*theme_val.typography.font_sizes.xl,
+                    _ => &*theme_val.typography.font_sizes.md,
                 },
             )
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("outline", "none")
             .add("transition", "all 0.15s ease")
             .add("box-sizing", "border-box");
@@ -248,7 +248,7 @@ pub fn PinInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.5rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())

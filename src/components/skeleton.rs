@@ -73,7 +73,7 @@ pub fn Skeleton(
         } else if let Some(ref r) = radius {
             builder.add("border-radius", r);
         } else {
-            builder.add("border-radius", theme_val.radius.sm);
+            builder.add("border-radius", &*theme_val.radius.sm);
         }
 
         // Background
@@ -147,7 +147,7 @@ pub fn SkeletonText(
 
     let container_styles = move || {
         let theme_val = theme.get();
-        let g = gap.as_deref().unwrap_or(theme_val.spacing.xs);
+        let g = gap.as_deref().unwrap_or(&*theme_val.spacing.xs);
         let mut builder = StyleBuilder::new();
         builder
             .add("display", "flex")

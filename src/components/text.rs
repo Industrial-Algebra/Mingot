@@ -65,12 +65,12 @@ pub fn Text(
 
         // Font size
         let font_size = match size {
-            TextSize::Xs => theme_val.typography.font_sizes.xs,
-            TextSize::Sm => theme_val.typography.font_sizes.sm,
-            TextSize::Md => theme_val.typography.font_sizes.md,
-            TextSize::Lg => theme_val.typography.font_sizes.lg,
-            TextSize::Xl => theme_val.typography.font_sizes.xl,
-            TextSize::Xxl => theme_val.typography.font_sizes.xxl,
+            TextSize::Xs => &*theme_val.typography.font_sizes.xs,
+            TextSize::Sm => &*theme_val.typography.font_sizes.sm,
+            TextSize::Md => &*theme_val.typography.font_sizes.md,
+            TextSize::Lg => &*theme_val.typography.font_sizes.lg,
+            TextSize::Xl => &*theme_val.typography.font_sizes.xl,
+            TextSize::Xxl => &*theme_val.typography.font_sizes.xxl,
         };
         builder.add("font-size", font_size);
 
@@ -109,8 +109,8 @@ pub fn Text(
             builder.add("text-align", custom_align);
         }
 
-        builder.add("font-family", theme_val.typography.font_family);
-        builder.add("line-height", theme_val.typography.line_heights.md);
+        builder.add("font-family", &*theme_val.typography.font_family);
+        builder.add("line-height", &*theme_val.typography.line_heights.md);
 
         if let Some(s) = style.as_ref() {
             return format!("{}; {}", builder.build(), s);

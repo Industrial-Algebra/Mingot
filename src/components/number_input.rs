@@ -1737,7 +1737,7 @@ pub fn NumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )
@@ -1748,7 +1748,7 @@ pub fn NumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -1760,7 +1760,7 @@ pub fn NumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())
@@ -1782,9 +1782,9 @@ pub fn NumberInput(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("box-shadow", "0 2px 8px rgba(0,0,0,0.15)")
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add("color", scheme_colors.text.clone())
             .add("z-index", "1000")
             .add("white-space", "nowrap")
@@ -1805,7 +1805,7 @@ pub fn NumberInput(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
             .add("z-index", "10000")
             .add("min-width", "180px")
@@ -1824,7 +1824,7 @@ pub fn NumberInput(
             .add("background", "transparent")
             .add("border", "none")
             .add("text-align", "left")
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("color", scheme_colors.text.clone())
             .add("cursor", "pointer")
             .build()
@@ -1853,7 +1853,7 @@ pub fn NumberInput(
             .add("flex-direction", "column")
             .add(
                 "border-radius",
-                format!("0 {} {} 0", theme_val.radius.sm, theme_val.radius.sm),
+                format!("0 {} {} 0", &*theme_val.radius.sm, &*theme_val.radius.sm),
             )
             .add("overflow", "hidden")
             .build()
@@ -1887,7 +1887,7 @@ pub fn NumberInput(
                     "pointer"
                 },
             )
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -1913,8 +1913,8 @@ pub fn NumberInput(
         // Base styles
         builder
             .add("width", "100%")
-            .add("font-family", theme_val.typography.font_family)
-            .add("border-radius", theme_val.radius.sm)
+            .add("font-family", &*theme_val.typography.font_family)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("transition", "all 0.15s ease")
             .add("outline", "none")
             .add("box-sizing", "border-box");
@@ -1932,7 +1932,7 @@ pub fn NumberInput(
                             "0 0.625rem"
                         },
                     )
-                    .add("font-size", theme_val.typography.font_sizes.xs);
+                    .add("font-size", &*theme_val.typography.font_sizes.xs);
             }
             InputSize::Sm => {
                 builder
@@ -1945,7 +1945,7 @@ pub fn NumberInput(
                             "0 0.75rem"
                         },
                     )
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             InputSize::Md => {
                 builder
@@ -1958,7 +1958,7 @@ pub fn NumberInput(
                             "0 0.875rem"
                         },
                     )
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             InputSize::Lg => {
                 builder
@@ -1971,7 +1971,7 @@ pub fn NumberInput(
                             "0 1rem"
                         },
                     )
-                    .add("font-size", theme_val.typography.font_sizes.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.md);
             }
             InputSize::Xl => {
                 builder
@@ -1984,7 +1984,7 @@ pub fn NumberInput(
                             "0 1.125rem"
                         },
                     )
-                    .add("font-size", theme_val.typography.font_sizes.lg);
+                    .add("font-size", &*theme_val.typography.font_sizes.lg);
             }
         }
 
@@ -2139,7 +2139,7 @@ pub fn NumberInput(
                     let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
                     format!(
                         "margin-top: 0.25rem; font-size: {}; color: {}; display: flex; align-items: center; gap: 0.25rem;",
-                        theme_val.typography.font_sizes.xs,
+                        &*theme_val.typography.font_sizes.xs,
                         scheme_colors
                             .get_color("blue", 6)
                             .unwrap_or_else(|| "#228be6".to_string())
@@ -2169,7 +2169,7 @@ pub fn NumberInput(
                     let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
                     format!(
                         "margin-top: 0.25rem; font-size: {}; color: {}; display: flex; align-items: center; gap: 0.25rem;",
-                        theme_val.typography.font_sizes.xs,
+                        &*theme_val.typography.font_sizes.xs,
                         scheme_colors
                             .get_color("orange", 6)
                             .unwrap_or_else(|| "#fd7e14".to_string())

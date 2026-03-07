@@ -132,7 +132,7 @@ pub fn Grid(
         if let Some(g) = gutter.as_ref() {
             builder.add("gap", g);
         } else {
-            builder.add("gap", theme_val.spacing.md);
+            builder.add("gap", &*theme_val.spacing.md);
         }
 
         if let Some(a) = align {
@@ -206,7 +206,7 @@ pub fn GridCol(
         if let Some(span_xs) = xs {
             responsive_styles.push_str(&format!(
                 "@media (min-width: {}) {{ .mingot-grid-col {{ grid-column: span {}; }} }} ",
-                theme_val.breakpoints.xs,
+                &*theme_val.breakpoints.xs,
                 span_xs.min(total_cols)
             ));
         }
@@ -214,7 +214,7 @@ pub fn GridCol(
         if let Some(span_sm) = sm {
             responsive_styles.push_str(&format!(
                 "@media (min-width: {}) {{ .mingot-grid-col {{ grid-column: span {}; }} }} ",
-                theme_val.breakpoints.sm,
+                &*theme_val.breakpoints.sm,
                 span_sm.min(total_cols)
             ));
         }
@@ -222,7 +222,7 @@ pub fn GridCol(
         if let Some(span_md) = md {
             responsive_styles.push_str(&format!(
                 "@media (min-width: {}) {{ .mingot-grid-col {{ grid-column: span {}; }} }} ",
-                theme_val.breakpoints.md,
+                &*theme_val.breakpoints.md,
                 span_md.min(total_cols)
             ));
         }
@@ -230,7 +230,7 @@ pub fn GridCol(
         if let Some(span_lg) = lg {
             responsive_styles.push_str(&format!(
                 "@media (min-width: {}) {{ .mingot-grid-col {{ grid-column: span {}; }} }} ",
-                theme_val.breakpoints.lg,
+                &*theme_val.breakpoints.lg,
                 span_lg.min(total_cols)
             ));
         }
@@ -238,7 +238,7 @@ pub fn GridCol(
         if let Some(span_xl) = xl {
             responsive_styles.push_str(&format!(
                 "@media (min-width: {}) {{ .mingot-grid-col {{ grid-column: span {}; }} }} ",
-                theme_val.breakpoints.xl,
+                &*theme_val.breakpoints.xl,
                 span_xl.min(total_cols)
             ));
         }
@@ -295,7 +295,7 @@ pub fn SimpleGrid(
         if let Some(s) = spacing.as_ref() {
             builder.add("gap", s);
         } else {
-            builder.add("gap", theme_val.spacing.md);
+            builder.add("gap", &*theme_val.spacing.md);
         }
 
         if let Some(s) = style.as_ref() {

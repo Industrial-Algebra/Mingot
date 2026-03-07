@@ -483,11 +483,15 @@ pub fn FractionInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         let (height, font_size, padding): (&str, &str, &str) = match size {
-            InputSize::Xs => ("1.625rem", theme_val.typography.font_sizes.xs, "0 0.5rem"),
-            InputSize::Sm => ("1.875rem", theme_val.typography.font_sizes.sm, "0 0.625rem"),
-            InputSize::Md => ("2.25rem", theme_val.typography.font_sizes.sm, "0 0.75rem"),
-            InputSize::Lg => ("2.625rem", theme_val.typography.font_sizes.md, "0 1rem"),
-            InputSize::Xl => ("3rem", theme_val.typography.font_sizes.lg, "0 1.25rem"),
+            InputSize::Xs => ("1.625rem", &*theme_val.typography.font_sizes.xs, "0 0.5rem"),
+            InputSize::Sm => (
+                "1.875rem",
+                &*theme_val.typography.font_sizes.sm,
+                "0 0.625rem",
+            ),
+            InputSize::Md => ("2.25rem", &*theme_val.typography.font_sizes.sm, "0 0.75rem"),
+            InputSize::Lg => ("2.625rem", &*theme_val.typography.font_sizes.md, "0 1rem"),
+            InputSize::Xl => ("3rem", &*theme_val.typography.font_sizes.lg, "0 1.25rem"),
         };
 
         let border_color = if error_for_style.is_some() {
@@ -516,7 +520,7 @@ pub fn FractionInput(
             .add("padding", padding)
             .add("background-color", bg_color)
             .add("border", format!("1px solid {}", border_color))
-            .add("border-radius", theme_val.radius.sm.to_owned())
+            .add("border-radius", &*theme_val.radius.sm)
             .add("transition", "border-color 150ms ease")
             .add_if(disabled.get(), "opacity", "0.6")
             .add_if(disabled.get(), "cursor", "not-allowed")
@@ -541,7 +545,7 @@ pub fn FractionInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )
@@ -552,7 +556,7 @@ pub fn FractionInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -564,7 +568,7 @@ pub fn FractionInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())

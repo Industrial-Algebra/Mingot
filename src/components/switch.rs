@@ -120,7 +120,7 @@ pub fn Switch(
              font-weight: {}; \
              color: {}; \
              user-select: none;",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )
@@ -136,7 +136,7 @@ pub fn Switch(
             "font-size: {}; \
              color: {}; \
              line-height: 1.4;",
-            theme_val.typography.font_sizes.xs, text_secondary
+            &*theme_val.typography.font_sizes.xs, text_secondary
         )
     };
 

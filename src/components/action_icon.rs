@@ -190,7 +190,7 @@ pub fn ActionIcon(
         if let Some(ref r) = radius {
             builder.add("border-radius", r);
         } else {
-            builder.add("border-radius", theme_val.radius.sm);
+            builder.add("border-radius", &*theme_val.radius.sm);
         }
 
         // Hover state (CSS variable for hover, but we'll keep it simple)

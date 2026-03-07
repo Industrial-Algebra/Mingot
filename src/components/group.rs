@@ -67,7 +67,7 @@ pub fn Group(
             .add("justify-content", justify.as_str());
 
         // Spacing
-        let gap = spacing.as_deref().unwrap_or(theme_val.spacing.md);
+        let gap = spacing.as_deref().unwrap_or(&*theme_val.spacing.md);
         builder.add("gap", gap);
 
         // Wrap

@@ -55,7 +55,7 @@ pub fn AppShell(
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
         } else {
-            builder.add("padding", theme_val.spacing.md);
+            builder.add("padding", &*theme_val.spacing.md);
         }
 
         builder.build()

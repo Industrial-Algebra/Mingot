@@ -132,8 +132,8 @@ where
         builder
             .add("width", "100%")
             .add("border-collapse", "collapse")
-            .add("font-family", theme_val.typography.font_family)
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-family", &*theme_val.typography.font_family)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("color", scheme_colors.text.clone());
 
         if with_border {
@@ -158,7 +158,7 @@ where
         builder
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+                format!("{} {}", &*theme_val.spacing.sm, &*theme_val.spacing.md),
             )
             .add("text-align", "left")
             .add(
@@ -196,7 +196,7 @@ where
 
         builder.add(
             "padding",
-            format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+            format!("{} {}", &*theme_val.spacing.sm, &*theme_val.spacing.md),
         );
 
         if striped && row_index % 2 == 1 {
@@ -384,8 +384,8 @@ pub fn TablePagination(
             .add("display", "inline-flex")
             .add("align-items", "center")
             .add("justify-content", "center")
-            .add("border-radius", theme_val.radius.sm)
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("border-radius", &*theme_val.radius.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),

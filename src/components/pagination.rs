@@ -159,16 +159,16 @@ pub fn Pagination(
                 .add("min-width", button_size)
                 .add("height", button_size)
                 .add("padding", "0 0.5rem")
-                .add("border-radius", theme_val.radius.sm)
-                .add("font-family", theme_val.typography.font_family)
+                .add("border-radius", &*theme_val.radius.sm)
+                .add("font-family", &*theme_val.typography.font_family)
                 .add(
                     "font-size",
                     match font_size {
-                        "xs" => theme_val.typography.font_sizes.xs,
-                        "sm" => theme_val.typography.font_sizes.sm,
-                        "md" => theme_val.typography.font_sizes.md,
-                        "lg" => theme_val.typography.font_sizes.lg,
-                        _ => theme_val.typography.font_sizes.sm,
+                        "xs" => &*theme_val.typography.font_sizes.xs,
+                        "sm" => &*theme_val.typography.font_sizes.sm,
+                        "md" => &*theme_val.typography.font_sizes.md,
+                        "lg" => &*theme_val.typography.font_sizes.lg,
+                        _ => &*theme_val.typography.font_sizes.sm,
                     },
                 )
                 .add("border", "none")

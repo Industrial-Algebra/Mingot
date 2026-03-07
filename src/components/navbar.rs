@@ -46,7 +46,7 @@ pub fn Navbar(
         if let Some(s) = spacing.as_ref() {
             builder.add("gap", s);
         } else {
-            builder.add("gap", theme_val.spacing.sm);
+            builder.add("gap", &*theme_val.spacing.sm);
         }
 
         if let Some(s) = style.as_ref() {
@@ -88,7 +88,7 @@ pub fn NavbarLink(
             .add("display", "inline-flex")
             .add("align-items", "center")
             .add("text-decoration", "none")
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -106,7 +106,7 @@ pub fn NavbarLink(
             NavbarVariant::Default => {
                 builder.add(
                     "padding",
-                    format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                    format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
                 );
 
                 if active {
@@ -123,9 +123,9 @@ pub fn NavbarLink(
             NavbarVariant::Subtle => {
                 builder.add(
                     "padding",
-                    format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                    format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
                 );
-                builder.add("border-radius", theme_val.radius.sm);
+                builder.add("border-radius", &*theme_val.radius.sm);
 
                 if active {
                     let light_color = scheme_colors
@@ -144,7 +144,7 @@ pub fn NavbarLink(
             NavbarVariant::Pills => {
                 builder.add(
                     "padding",
-                    format!("{} {}", theme_val.spacing.xs, theme_val.spacing.md),
+                    format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.md),
                 );
                 builder.add("border-radius", "9999px");
 
@@ -208,13 +208,13 @@ pub fn NavbarBrand(
             .add("display", "inline-flex")
             .add("align-items", "center")
             .add("text-decoration", "none")
-            .add("font-size", theme_val.typography.font_sizes.lg)
+            .add("font-size", &*theme_val.typography.font_sizes.lg)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.bold.to_string(),
             )
             .add("color", scheme_colors.text.clone())
-            .add("margin-right", theme_val.spacing.lg);
+            .add("margin-right", &*theme_val.spacing.lg);
 
         if let Some(s) = style.as_ref() {
             return format!("{}; {}", builder.build(), s);
