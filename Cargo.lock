@@ -1069,6 +1069,8 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "rust_decimal",
+ "serde",
+ "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "web-sys",
