@@ -4,6 +4,7 @@ mod colors;
 mod provider;
 mod spacing;
 mod typography;
+pub mod validation;
 
 pub use builder::*;
 pub use color_scheme::*;
@@ -11,6 +12,7 @@ pub use colors::*;
 pub use provider::*;
 pub use spacing::*;
 pub use typography::*;
+pub use validation::*;
 
 use leptos::prelude::*;
 use std::borrow::Cow;
