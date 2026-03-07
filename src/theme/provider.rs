@@ -42,6 +42,34 @@ pub fn MingotProvider(
         });
     }
 
+    // Listen for system color scheme changes when Auto mode is active.
+    // When the OS preference changes, we nudge the theme signal so that
+    // `ColorSchemeMode::Auto.resolve()` picks up the new value.
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = Effect::new(move || {
+            let theme_val = theme_signal.get();
+            if theme_val.color_scheme != ColorSchemeMode::Auto {
+                return;
+            }
+
+            if let Some(mql) = web_sys::window()
+                .and_then(|w| w.match_media("(prefers-color-scheme: dark)").ok().flatten())
+            {
+                let cb = wasm_bindgen::closure::Closure::<dyn Fn(web_sys::Event)>::new(
+                    move |_: web_sys::Event| {
+                        // Trigger a reactive update so dependents re-evaluate resolve()
+                        theme_signal.update(|_| {});
+                    },
+                );
+                let _ = mql.add_event_listener_with_callback("change", cb.as_ref().unchecked_ref());
+                // Leak the closure so it lives for the duration of the page.
+                // This is fine because the listener is global and long-lived.
+                cb.forget();
+            }
+        });
+    }
+
     // Suppress unused variable warning in non-wasm builds
     #[cfg(not(target_arch = "wasm32"))]
     let _ = inject_css_vars;
