@@ -75,7 +75,7 @@ pub mod prelude {
     pub use crate::components::*;
     pub use crate::theme::{
         use_color_scheme, use_color_scheme_toggle, use_set_color_scheme, ActiveColorScheme,
-        ColorSchemeMode, MingotProvider, Theme, ThemeOverride,
+        ColorSchemeMode, MingotProvider, Theme, ThemeBuilder, ThemeOverride,
     };
     pub use crate::validation::{self, ValidationError, ValidationResult, Validator};
 }

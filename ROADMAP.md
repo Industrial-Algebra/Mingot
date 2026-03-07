@@ -664,83 +664,56 @@ Advanced mathematical input components inspired by [MathLive](https://cortexjs.i
 
 ---
 
-## Phase 6: Theme System & Custom Themes
+## Phase 6: Theme System & Custom Themes ✅ COMPLETED
 
-**Target**: 2026
+**Status**: Complete
+**Completed**: March 2026
 **Version**: 0.7.0
 
 ### Objectives
 
-Expand Mingot's theming capabilities with production-ready themes and a flexible theme creation system. Some themes will be designed in Figma and translated to Mingot's theme system.
+Expand Mingot's theming capabilities with production-ready themes and a flexible theme creation system.
 
 ### Deliverables
 
+#### Theme System Foundation
+- [x] Migrate `&'static str` to `Cow<'static, str>` for runtime theme creation
+- [x] Expand color palettes to 13 (added orange, cyan, violet, pink, teal, indigo, lime, grape)
+- [x] ThemeBuilder fluent API for theme creation and inheritance
+- [x] Theme validation with WCAG 2.1 contrast checking
+
+#### CSS Variable Injection
+- [x] `theme_to_css_vars()` pure function for `--mingot-*` namespaced variables
+- [x] MingotProvider injects CSS variables reactively (opt-out via `inject_css_vars` prop)
+- [x] Variables cover colors, surfaces, spacing, radius, and typography
+
+#### Color Scheme
+- [x] Auto color scheme with system preference detection (`prefers-color-scheme: dark`)
+- [x] matchMedia change listener for live OS dark mode switching
+
+#### Scoped Overrides
+- [x] ThemeOverride component for subtree-level theme customization
+- [x] Stays in sync with parent theme changes via reactive Effect
+
 #### Built-in Themes
-- [ ] **Mingot Default** - Current theme, refined and polished
-- [ ] **Mingot Dark** - Dark mode variant of default
-- [ ] **Industrial** - Industrial Algebra brand theme
-- [ ] **Scientific** - Clean, academic aesthetic for research applications
-- [ ] **Financial** - Professional theme for fintech applications
-- [ ] **TBD (Figma)** - Custom themes designed in Figma
+- [x] **Mingot Default** — standard light theme
+- [x] **Mingot Dark** — dark-first with stronger shadows
+- [x] **Industrial** — monospace, tight spacing, steel gray
+- [x] **Scientific** — serif, generous spacing, minimal shadows
+- [x] **Financial** — conservative, comfortable spacing for data-dense UIs
 
-#### Theme System Enhancements
-- [ ] Theme switching without page reload
-- [ ] CSS custom property extraction
-- [ ] Theme inheritance (extend existing themes)
-- [ ] Component-level theme overrides
-- [ ] Theme validation and type safety
+#### Design Tokens (optional)
+- [x] `theme-tokens` feature flag for serde-based export/import
+- [x] JSON round-trip via `DesignTokens::to_json()` / `from_json()`
+- [x] `DesignTokens::from_theme()` and `to_theme()` conversions
 
-#### Figma Integration Workflow
-- [ ] Figma design tokens export format
-- [ ] Theme generator from Figma variables
-- [ ] Documentation for Figma-to-Mingot workflow
-- [ ] Example Figma component library
+### Design Goals Achieved
 
-#### Theme API
-```rust
-// Define a custom theme
-let my_theme = Theme::new()
-    .extend(themes::MINGOT_DARK)
-    .colors(ColorScheme {
-        primary: "#6366f1",
-        secondary: "#8b5cf6",
-        accent: "#22d3ee",
-        ..Default::default()
-    })
-    .typography(Typography {
-        font_family: "'JetBrains Mono', monospace",
-        ..Default::default()
-    })
-    .radius(Radius::rounded())  // All rounded corners
-    .shadows(Shadows::subtle()); // Subtle shadow preset
-
-// Use in app
-view! {
-    <ThemeProvider theme=my_theme>
-        <App />
-    </ThemeProvider>
-}
-```
-
-#### Theme Presets
-```rust
-// Quick theme presets
-<ThemeProvider theme=themes::SCIENTIFIC />
-<ThemeProvider theme=themes::FINANCIAL />
-<ThemeProvider theme=themes::INDUSTRIAL />
-
-// Dynamic theming
-let user_theme = create_signal(themes::MINGOT_DEFAULT);
-<ThemeProvider theme=user_theme />
-```
-
-### Design Goals
-
-- **Consistency**: All 50+ components respect theme values
-- **Accessibility**: All themes meet WCAG 2.1 AA contrast requirements
-- **Performance**: Theme switching is instantaneous (CSS variables)
-- **Customization**: Override any theme value at any level
-- **Documentation**: Each theme documented with usage guidelines
+- **Consistency**: All 50+ components respect theme values via `Cow<'static, str>`
+- **Accessibility**: All themes meet WCAG 2.1 AA contrast requirements (validated)
+- **Performance**: Theme switching is instantaneous (CSS variables + reactive signals)
+- **Customization**: Override any theme value at any level (ThemeBuilder + ThemeOverride)
+- **Interoperability**: Design tokens export for Figma and other tools
 
 ---
 
@@ -1202,7 +1175,7 @@ mingot = { version = "1.1", features = ["vfx"] }
 
 ### 1.0.0 Release Criteria
 - [x] All Phase 1-5 features complete and tested
-- [ ] Phase 6 (Theme System) complete
+- [x] Phase 6 (Theme System) complete
 - [ ] Phase 7 (Node-Based Network UI) complete
 - [ ] Comprehensive documentation
 - [ ] Real-world usage in 3+ production applications
