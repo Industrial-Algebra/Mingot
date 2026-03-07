@@ -100,3 +100,193 @@ pub fn get_scheme_colors(theme: &Theme) -> &ColorScheme {
         ActiveColorScheme::Dark => &theme.colors.dark,
     }
 }
+
+/// Convert a theme into a list of CSS custom property (variable) name-value pairs.
+///
+/// All variable names are namespaced with `--mingot-`.
+/// This is a pure function usable in tests without a DOM.
+pub fn theme_to_css_vars(theme: &Theme) -> Vec<(String, String)> {
+    let mut vars = Vec::new();
+    let scheme = get_scheme_colors(theme);
+    let is_dark = theme.color_scheme.resolve().is_dark();
+
+    // Core colors
+    vars.push(("--mingot-background".into(), scheme.background.clone()));
+    vars.push(("--mingot-text".into(), scheme.text.clone()));
+    vars.push(("--mingot-border".into(), scheme.border.clone()));
+    vars.push(("--mingot-white".into(), scheme.white.clone()));
+    vars.push(("--mingot-black".into(), scheme.black.clone()));
+
+    // Primary colors (use theme's primary_color key)
+    let primary_key = &theme.colors.primary_color;
+    if let Some(primary) = scheme.get_color(primary_key, 6) {
+        vars.push(("--mingot-primary".into(), primary));
+    }
+    if let Some(primary_light) = scheme.get_color(primary_key, if is_dark { 1 } else { 0 }) {
+        vars.push(("--mingot-primary-light".into(), primary_light));
+    }
+
+    // Semantic colors
+    if let Some(success) = scheme.get_color("green", 6) {
+        vars.push(("--mingot-success".into(), success));
+    }
+    if let Some(error) = scheme.get_color("red", 6) {
+        vars.push(("--mingot-error".into(), error));
+    }
+    if let Some(warning) = scheme.get_color("yellow", 6) {
+        vars.push(("--mingot-warning".into(), warning));
+    }
+
+    // Surface colors (different shade indices for dark mode)
+    let (s0, s1, s2, hover_idx) = if is_dark { (1, 2, 3, 3) } else { (0, 1, 2, 1) };
+    if let Some(surface) = scheme.get_color("gray", s0) {
+        vars.push(("--mingot-surface-0".into(), surface));
+    }
+    if let Some(surface1) = scheme.get_color("gray", s1) {
+        vars.push(("--mingot-surface-1".into(), surface1));
+    }
+    if let Some(surface2) = scheme.get_color("gray", s2) {
+        vars.push(("--mingot-surface-2".into(), surface2));
+    }
+    if let Some(hover) = scheme.get_color("gray", hover_idx) {
+        vars.push(("--mingot-hover-bg".into(), hover));
+    }
+
+    // Text dimmed
+    let dimmed_idx = if is_dark { 7 } else { 6 };
+    if let Some(dimmed) = scheme.get_color("gray", dimmed_idx) {
+        vars.push(("--mingot-text-dimmed".into(), dimmed));
+    }
+
+    // Spacing
+    vars.push(("--mingot-spacing-xs".into(), theme.spacing.xs.to_string()));
+    vars.push(("--mingot-spacing-sm".into(), theme.spacing.sm.to_string()));
+    vars.push(("--mingot-spacing-md".into(), theme.spacing.md.to_string()));
+    vars.push(("--mingot-spacing-lg".into(), theme.spacing.lg.to_string()));
+    vars.push(("--mingot-spacing-xl".into(), theme.spacing.xl.to_string()));
+
+    // Radius
+    vars.push(("--mingot-radius-xs".into(), theme.radius.xs.to_string()));
+    vars.push(("--mingot-radius-sm".into(), theme.radius.sm.to_string()));
+    vars.push(("--mingot-radius-md".into(), theme.radius.md.to_string()));
+    vars.push(("--mingot-radius-lg".into(), theme.radius.lg.to_string()));
+    vars.push(("--mingot-radius-xl".into(), theme.radius.xl.to_string()));
+
+    // Typography
+    vars.push((
+        "--mingot-font-family".into(),
+        theme.typography.font_family.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-family-mono".into(),
+        theme.typography.font_family_monospace.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-size-xs".into(),
+        theme.typography.font_sizes.xs.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-size-sm".into(),
+        theme.typography.font_sizes.sm.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-size-md".into(),
+        theme.typography.font_sizes.md.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-size-lg".into(),
+        theme.typography.font_sizes.lg.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-size-xl".into(),
+        theme.typography.font_sizes.xl.to_string(),
+    ));
+    vars.push((
+        "--mingot-font-size-xxl".into(),
+        theme.typography.font_sizes.xxl.to_string(),
+    ));
+
+    vars
+}
+
+#[cfg(test)]
+mod css_var_tests {
+    use super::*;
+
+    #[test]
+    fn test_theme_to_css_vars_default() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+
+        // Should produce a non-empty set of variables
+        assert!(!vars.is_empty());
+
+        // Check some expected vars exist
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+        assert_eq!(var_map.get("--mingot-background").unwrap(), "#ffffff");
+        assert_eq!(var_map.get("--mingot-text").unwrap(), "#000000");
+        assert_eq!(var_map.get("--mingot-spacing-md").unwrap(), "1rem");
+        assert_eq!(var_map.get("--mingot-radius-md").unwrap(), "0.5rem");
+        assert!(var_map.contains_key("--mingot-font-family"));
+        assert!(var_map.contains_key("--mingot-primary"));
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_dark_mode() {
+        let theme = Theme {
+            color_scheme: ColorSchemeMode::Dark,
+            ..Theme::default()
+        };
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        // Dark mode should use dark scheme colors
+        assert_eq!(var_map.get("--mingot-background").unwrap(), "#1a1b1e");
+        assert_eq!(var_map.get("--mingot-text").unwrap(), "#c1c2c5");
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_has_all_spacing() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        for size in &["xs", "sm", "md", "lg", "xl"] {
+            assert!(
+                var_map.contains_key(&format!("--mingot-spacing-{}", size) as &str),
+                "Missing --mingot-spacing-{}",
+                size
+            );
+        }
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_has_all_radius() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        for size in &["xs", "sm", "md", "lg", "xl"] {
+            assert!(
+                var_map.contains_key(&format!("--mingot-radius-{}", size) as &str),
+                "Missing --mingot-radius-{}",
+                size
+            );
+        }
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_has_all_font_sizes() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        for size in &["xs", "sm", "md", "lg", "xl", "xxl"] {
+            assert!(
+                var_map.contains_key(&format!("--mingot-font-size-{}", size) as &str),
+                "Missing --mingot-font-size-{}",
+                size
+            );
+        }
+    }
+}

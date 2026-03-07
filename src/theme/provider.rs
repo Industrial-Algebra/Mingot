@@ -1,12 +1,50 @@
 use super::{ColorSchemeMode, Theme, ThemeContext};
 use leptos::prelude::*;
 
+#[cfg(target_arch = "wasm32")]
+use super::theme_to_css_vars;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsCast;
+
 #[component]
-pub fn MingotProvider(#[prop(optional)] theme: Option<Theme>, children: Children) -> impl IntoView {
+pub fn MingotProvider(
+    #[prop(optional)] theme: Option<Theme>,
+    /// Whether to inject CSS custom properties on the document root element.
+    /// Defaults to `true`. Set to `false` if you manage CSS variables externally.
+    #[prop(optional, default = true)]
+    inject_css_vars: bool,
+    children: Children,
+) -> impl IntoView {
     let theme = theme.unwrap_or_default();
     let theme_signal = RwSignal::new(theme);
 
     provide_context::<ThemeContext>(theme_signal);
+
+    // Inject CSS custom properties onto the document root element
+    #[cfg(target_arch = "wasm32")]
+    if inject_css_vars {
+        let _ = Effect::new(move || {
+            let theme_val = theme_signal.get();
+            let vars = theme_to_css_vars(&theme_val);
+
+            if let Some(window) = web_sys::window() {
+                if let Some(document) = window.document() {
+                    if let Some(root) = document.document_element() {
+                        if let Some(el) = root.dyn_ref::<web_sys::HtmlElement>() {
+                            let style = el.style();
+                            for (name, value) in &vars {
+                                let _ = style.set_property(name, value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Suppress unused variable warning in non-wasm builds
+    #[cfg(not(target_arch = "wasm32"))]
+    let _ = inject_css_vars;
 
     // Apply background color and text color based on theme
     let root_style = move || {
