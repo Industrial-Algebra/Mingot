@@ -63,7 +63,7 @@ pub mod validation;
 pub use components::*;
 pub use theme::{
     use_color_scheme, use_color_scheme_toggle, use_set_color_scheme, use_theme, ActiveColorScheme,
-    ColorSchemeMode, MingotProvider, Theme, ThemeContext,
+    ColorSchemeMode, MingotProvider, Theme, ThemeBuilder, ThemeContext,
 };
 pub use validation::{ValidationError, ValidationResult, Validator};
 

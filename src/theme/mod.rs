@@ -1,9 +1,11 @@
+mod builder;
 mod color_scheme;
 mod colors;
 mod provider;
 mod spacing;
 mod typography;
 
+pub use builder::*;
 pub use color_scheme::*;
 pub use colors::*;
 pub use provider::*;
