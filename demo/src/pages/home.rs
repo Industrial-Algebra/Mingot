@@ -42,11 +42,13 @@ pub fn HomePage() -> impl IntoView {
                     description="Buttons, inputs, modals, tables, and more. Everything you need for your app."
                     icon="🧩"
                 />
-                <FeatureCard
-                    title="Theming"
-                    description="Dark and light modes with customizable color schemes out of the box."
-                    icon="🎨"
-                />
+                <a href="/theming/overview" style="text-decoration: none; color: inherit;">
+                    <FeatureCard
+                        title="Theming"
+                        description="5 preset themes, ThemeBuilder API, WCAG validation, scoped overrides, and design token export."
+                        icon="🎨"
+                    />
+                </a>
                 <FeatureCard
                     title="Type Safe"
                     description="Leverages Rust's type system. No silent precision loss or runtime surprises."
