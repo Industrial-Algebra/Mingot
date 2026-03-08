@@ -32,6 +32,26 @@ pub fn get_navigation() -> Vec<NavSection> {
             ],
         },
         NavSection {
+            title: "Theming",
+            items: vec![
+                NavItem {
+                    label: "Overview",
+                    href: "/theming/overview",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "Presets",
+                    href: "/theming/presets",
+                    badge: Some("New"),
+                },
+                NavItem {
+                    label: "Custom Themes",
+                    href: "/theming/custom",
+                    badge: Some("New"),
+                },
+            ],
+        },
+        NavSection {
             title: "Core",
             items: vec![
                 NavItem {
