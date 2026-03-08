@@ -12,7 +12,7 @@ pub fn HomePage() -> impl IntoView {
                 <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem;">
                     "Mingot"
                 </h1>
-                <p style="font-size: 1.25rem; color: #868e96; max-width: 600px; margin: 0 auto 1.5rem;">
+                <p style="font-size: 1.25rem; color: var(--mingot-text-dimmed); max-width: 600px; margin: 0 auto 1.5rem;">
                     "The Leptos UI library for applications demanding mathematical precision. "
                     "u64+ integers, arbitrary-precision decimals, zero precision loss."
                 </p>
@@ -108,10 +108,10 @@ fn FeatureCard(
     icon: &'static str,
 ) -> impl IntoView {
     view! {
-        <div style="padding: 1.5rem; border: 1px solid #e9ecef; border-radius: 0.5rem;">
+        <div style="padding: 1.5rem; border: 1px solid var(--mingot-border); border-radius: 0.5rem;">
             <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
             <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">{title}</h3>
-            <p style="color: #868e96; font-size: 0.875rem; margin: 0;">{description}</p>
+            <p style="color: var(--mingot-text-dimmed); font-size: 0.875rem; margin: 0;">{description}</p>
         </div>
     }
 }

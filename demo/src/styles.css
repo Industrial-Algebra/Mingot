@@ -5,23 +5,10 @@
     --header-height: 60px;
     --content-max-width: 900px;
 
-    /* Default light theme values (will be overridden by ThemeVars) */
-    --background: #ffffff;
-    --text-color: #000000;
-    --border-color: #dee2e6;
-    --surface: #f8f9fa;
-    --surface-1: #f1f3f5;
-    --surface-2: #e9ecef;
-    --text-dimmed: #868e96;
-    --hover-bg: #f1f3f5;
-    --primary: #228be6;
-    --primary-light: #e7f5ff;
-    --success: #40c057;
-    --success-light: #d3f9d8;
-    --error: #fa5252;
-    --warning: #fab005;
+    /* Demo-specific vars (not injected by MingotProvider) */
     --code-bg: #1e1e1e;
     --code-inline-bg: #f1f3f5;
+    --success-light: #d3f9d8;
 }
 
 /* Reset and base */
@@ -33,8 +20,8 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background-color: var(--background);
-    color: var(--text-color);
+    background-color: var(--mingot-background);
+    color: var(--mingot-text);
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -51,10 +38,10 @@ body {
     top: 0;
     left: 0;
     overflow-y: auto;
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid var(--mingot-border);
     padding: 1rem;
     padding-top: calc(var(--header-height) + 1rem);
-    background-color: var(--background);
+    background-color: var(--mingot-background);
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -62,7 +49,7 @@ body {
     flex: 1;
     margin-left: var(--sidebar-width);
     padding-top: var(--header-height);
-    background-color: var(--background);
+    background-color: var(--mingot-background);
     transition: background-color 0.2s ease;
 }
 
@@ -73,8 +60,8 @@ body {
     right: 0;
     height: var(--header-height);
     z-index: 100;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--background);
+    border-bottom: 1px solid var(--mingot-border);
+    background-color: var(--mingot-background);
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -94,7 +81,7 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-dimmed);
+    color: var(--mingot-text-dimmed);
     margin-bottom: 0.5rem;
     padding: 0 0.5rem;
     transition: color 0.2s ease;
@@ -107,7 +94,7 @@ body {
     padding: 0.5rem;
     border-radius: 0.25rem;
     text-decoration: none;
-    color: var(--text-color);
+    color: var(--mingot-text);
     font-size: 0.875rem;
     background: transparent;
     border: none;
@@ -118,18 +105,18 @@ body {
 }
 
 .nav-link:hover {
-    background-color: var(--hover-bg);
+    background-color: var(--mingot-hover-bg);
 }
 
 .nav-link.active {
-    background-color: var(--primary-light);
-    color: var(--primary);
+    background-color: var(--mingot-primary-light);
+    color: var(--mingot-primary);
     font-weight: 500;
 }
 
 /* Demo block */
 .demo-block {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--mingot-border);
     border-radius: 0.5rem;
     overflow: hidden;
     margin: 1.5rem 0;
@@ -142,7 +129,7 @@ body {
     flex-direction: column;
     align-items: stretch;
     min-height: 120px;
-    background-color: var(--surface);
+    background-color: var(--mingot-surface-0);
     transition: background-color 0.2s ease;
 }
 
@@ -152,13 +139,13 @@ body {
 
 .demo-controls {
     padding: 1rem;
-    background-color: var(--surface-1);
-    border-top: 1px solid var(--border-color);
+    background-color: var(--mingot-surface-1);
+    border-top: 1px solid var(--mingot-border);
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .demo-code-section {
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--mingot-border);
     transition: border-color 0.2s ease;
 }
 
@@ -167,7 +154,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 1rem;
-    background-color: var(--surface-1);
+    background-color: var(--mingot-surface-1);
     transition: background-color 0.2s ease;
 }
 
@@ -196,13 +183,13 @@ body {
 .props-table td {
     padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--mingot-border);
     transition: border-color 0.2s ease;
 }
 
 .props-table th {
     font-weight: 600;
-    background-color: var(--surface-1);
+    background-color: var(--mingot-surface-1);
     transition: background-color 0.2s ease;
 }
 
@@ -257,7 +244,7 @@ pre code.hljs {
 }
 
 .page-description {
-    color: var(--text-dimmed);
+    color: var(--mingot-text-dimmed);
     margin-bottom: 2rem;
     transition: color 0.2s ease;
 }
@@ -267,7 +254,7 @@ pre code.hljs {
     margin-top: 2.5rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--mingot-border);
     transition: border-color 0.2s ease;
 }
 
@@ -300,19 +287,19 @@ pre code.hljs {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     cursor: pointer;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--mingot-border);
     border-radius: 0.25rem;
-    background: var(--surface);
-    color: var(--text-color);
+    background: var(--mingot-surface-0);
+    color: var(--mingot-text);
     transition: all 0.15s ease;
 }
 
 .copy-button:hover {
-    background: var(--surface-1);
+    background: var(--mingot-surface-1);
 }
 
 .copy-button.copied {
     background: var(--success-light);
-    border-color: var(--success);
-    color: var(--success);
+    border-color: var(--mingot-success);
+    color: var(--mingot-success);
 }
