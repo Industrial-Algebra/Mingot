@@ -177,6 +177,13 @@ pub fn theme_to_css_vars(theme: &Theme) -> Vec<(String, String)> {
     vars.push(("--mingot-radius-lg".into(), theme.radius.lg.to_string()));
     vars.push(("--mingot-radius-xl".into(), theme.radius.xl.to_string()));
 
+    // Shadows
+    vars.push(("--mingot-shadow-xs".into(), theme.shadows.xs.to_string()));
+    vars.push(("--mingot-shadow-sm".into(), theme.shadows.sm.to_string()));
+    vars.push(("--mingot-shadow-md".into(), theme.shadows.md.to_string()));
+    vars.push(("--mingot-shadow-lg".into(), theme.shadows.lg.to_string()));
+    vars.push(("--mingot-shadow-xl".into(), theme.shadows.xl.to_string()));
+
     // Typography
     vars.push((
         "--mingot-font-family".into(),
@@ -293,5 +300,33 @@ mod css_var_tests {
                 size
             );
         }
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_has_all_shadows() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        for size in &["xs", "sm", "md", "lg", "xl"] {
+            assert!(
+                var_map.contains_key(&format!("--mingot-shadow-{}", size) as &str),
+                "Missing --mingot-shadow-{}",
+                size
+            );
+        }
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_shadow_values_match() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        assert_eq!(var_map["--mingot-shadow-xs"], theme.shadows.xs.as_ref());
+        assert_eq!(var_map["--mingot-shadow-sm"], theme.shadows.sm.as_ref());
+        assert_eq!(var_map["--mingot-shadow-md"], theme.shadows.md.as_ref());
+        assert_eq!(var_map["--mingot-shadow-lg"], theme.shadows.lg.as_ref());
+        assert_eq!(var_map["--mingot-shadow-xl"], theme.shadows.xl.as_ref());
     }
 }
