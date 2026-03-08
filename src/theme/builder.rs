@@ -131,6 +131,36 @@ impl ThemeBuilder {
         self
     }
 
+    /// Set shadow xs value.
+    pub fn shadow_xs(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.shadows.xs = val.into();
+        self
+    }
+
+    /// Set shadow sm value.
+    pub fn shadow_sm(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.shadows.sm = val.into();
+        self
+    }
+
+    /// Set shadow md value.
+    pub fn shadow_md(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.shadows.md = val.into();
+        self
+    }
+
+    /// Set shadow lg value.
+    pub fn shadow_lg(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.shadows.lg = val.into();
+        self
+    }
+
+    /// Set shadow xl value.
+    pub fn shadow_xl(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.shadows.xl = val.into();
+        self
+    }
+
     // --- Typography ---
 
     /// Replace the entire typography configuration.
@@ -354,5 +384,34 @@ mod tests {
             .build();
         assert_eq!(&*theme.typography.font_family, "'Custom Font', sans-serif");
         assert_eq!(&*theme.spacing.md, "1.5rem");
+    }
+
+    #[test]
+    fn test_builder_shadow_individual() {
+        let theme = ThemeBuilder::new()
+            .shadow_md("0 2px 8px rgba(0,0,0,0.15)")
+            .build();
+        assert_eq!(&*theme.shadows.md, "0 2px 8px rgba(0,0,0,0.15)");
+        // Others unchanged
+        assert_eq!(theme.shadows.xs, Theme::default().shadows.xs);
+    }
+
+    #[test]
+    fn test_builder_shadow_chaining() {
+        let theme = ThemeBuilder::new()
+            .shadow_xs("none")
+            .shadow_sm("0 1px 2px rgba(0,0,0,0.1)")
+            .shadow_lg("0 8px 32px rgba(0,0,0,0.2)")
+            .build();
+        assert_eq!(&*theme.shadows.xs, "none");
+        assert_eq!(&*theme.shadows.sm, "0 1px 2px rgba(0,0,0,0.1)");
+        assert_eq!(&*theme.shadows.lg, "0 8px 32px rgba(0,0,0,0.2)");
+    }
+
+    #[test]
+    fn test_builder_shadow_owned_string() {
+        let shadow = String::from("0 4px 16px rgba(0,0,0,0.25)");
+        let theme = ThemeBuilder::new().shadow_xl(shadow).build();
+        assert_eq!(&*theme.shadows.xl, "0 4px 16px rgba(0,0,0,0.25)");
     }
 }
