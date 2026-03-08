@@ -1,6 +1,6 @@
 use super::{
     BorderScale, Breakpoints, ColorPalette, ColorSchemeMode, ColorShades, FontSizes, FontWeights,
-    LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
+    LayoutTokens, LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
 };
 use std::borrow::Cow;
 
@@ -271,6 +271,44 @@ impl ThemeBuilder {
         self
     }
 
+    // --- Layout ---
+
+    /// Replace the entire layout tokens.
+    pub fn layout(mut self, layout: LayoutTokens) -> Self {
+        self.theme.layout = layout;
+        self
+    }
+
+    /// Set container xs max-width.
+    pub fn container_xs(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.layout.container_xs = val.into();
+        self
+    }
+
+    /// Set container sm max-width.
+    pub fn container_sm(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.layout.container_sm = val.into();
+        self
+    }
+
+    /// Set container md max-width.
+    pub fn container_md(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.layout.container_md = val.into();
+        self
+    }
+
+    /// Set container lg max-width.
+    pub fn container_lg(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.layout.container_lg = val.into();
+        self
+    }
+
+    /// Set container xl max-width.
+    pub fn container_xl(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.layout.container_xl = val.into();
+        self
+    }
+
     // --- Breakpoints ---
 
     /// Replace the entire breakpoints scale.
@@ -457,5 +495,30 @@ mod tests {
         let width = String::from("3px");
         let theme = ThemeBuilder::new().border_width(width).build();
         assert_eq!(&*theme.borders.width, "3px");
+    }
+
+    #[test]
+    fn test_builder_container_individual() {
+        let theme = ThemeBuilder::new().container_md("1024px").build();
+        assert_eq!(&*theme.layout.container_md, "1024px");
+        // Others unchanged
+        assert_eq!(&*theme.layout.container_xs, "540px");
+        assert_eq!(&*theme.layout.container_xl, "1320px");
+    }
+
+    #[test]
+    fn test_builder_container_chaining() {
+        let theme = ThemeBuilder::new()
+            .container_xs("600px")
+            .container_sm("800px")
+            .container_md("1024px")
+            .container_lg("1200px")
+            .container_xl("1400px")
+            .build();
+        assert_eq!(&*theme.layout.container_xs, "600px");
+        assert_eq!(&*theme.layout.container_sm, "800px");
+        assert_eq!(&*theme.layout.container_md, "1024px");
+        assert_eq!(&*theme.layout.container_lg, "1200px");
+        assert_eq!(&*theme.layout.container_xl, "1400px");
     }
 }

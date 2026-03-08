@@ -31,7 +31,29 @@ pub struct Theme {
     pub shadows: ShadowScale,
     pub breakpoints: Breakpoints,
     pub borders: BorderScale,
+    pub layout: LayoutTokens,
     pub color_scheme: ColorSchemeMode,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct LayoutTokens {
+    pub container_xs: Cow<'static, str>,
+    pub container_sm: Cow<'static, str>,
+    pub container_md: Cow<'static, str>,
+    pub container_lg: Cow<'static, str>,
+    pub container_xl: Cow<'static, str>,
+}
+
+impl Default for LayoutTokens {
+    fn default() -> Self {
+        Self {
+            container_xs: Cow::Borrowed("540px"),
+            container_sm: Cow::Borrowed("720px"),
+            container_md: Cow::Borrowed("960px"),
+            container_lg: Cow::Borrowed("1140px"),
+            container_xl: Cow::Borrowed("1320px"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -210,6 +232,28 @@ pub fn theme_to_css_vars(theme: &Theme) -> Vec<(String, String)> {
         theme.borders.style.to_string(),
     ));
 
+    // Layout
+    vars.push((
+        "--mingot-container-xs".into(),
+        theme.layout.container_xs.to_string(),
+    ));
+    vars.push((
+        "--mingot-container-sm".into(),
+        theme.layout.container_sm.to_string(),
+    ));
+    vars.push((
+        "--mingot-container-md".into(),
+        theme.layout.container_md.to_string(),
+    ));
+    vars.push((
+        "--mingot-container-lg".into(),
+        theme.layout.container_lg.to_string(),
+    ));
+    vars.push((
+        "--mingot-container-xl".into(),
+        theme.layout.container_xl.to_string(),
+    ));
+
     // Typography
     vars.push((
         "--mingot-font-family".into(),
@@ -364,5 +408,18 @@ mod css_var_tests {
 
         assert_eq!(var_map["--mingot-border-width"], "1px");
         assert_eq!(var_map["--mingot-border-style"], "solid");
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_has_all_container_sizes() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        assert_eq!(var_map["--mingot-container-xs"], "540px");
+        assert_eq!(var_map["--mingot-container-sm"], "720px");
+        assert_eq!(var_map["--mingot-container-md"], "960px");
+        assert_eq!(var_map["--mingot-container-lg"], "1140px");
+        assert_eq!(var_map["--mingot-container-xl"], "1320px");
     }
 }

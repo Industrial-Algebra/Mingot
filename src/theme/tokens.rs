@@ -6,7 +6,7 @@
 
 use super::{
     BorderScale, Breakpoints, ColorPalette, ColorScheme, ColorSchemeMode, ColorShades, FontSizes,
-    FontWeights, LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
+    FontWeights, LayoutTokens, LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
 };
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -39,6 +39,9 @@ pub struct DesignTokens {
     // --- Borders ---
     #[serde(default)]
     pub borders: BorderTokens,
+    // --- Layout ---
+    #[serde(default)]
+    pub layout: ContainerTokens,
 
     // --- Typography ---
     pub font_family: String,
@@ -96,6 +99,28 @@ impl Default for BorderTokens {
     }
 }
 
+/// Container max-width tokens.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ContainerTokens {
+    pub xs: String,
+    pub sm: String,
+    pub md: String,
+    pub lg: String,
+    pub xl: String,
+}
+
+impl Default for ContainerTokens {
+    fn default() -> Self {
+        Self {
+            xs: "540px".to_string(),
+            sm: "720px".to_string(),
+            md: "960px".to_string(),
+            lg: "1140px".to_string(),
+            xl: "1320px".to_string(),
+        }
+    }
+}
+
 /// Font weight tokens.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FontWeightTokens {
@@ -148,6 +173,13 @@ impl DesignTokens {
             borders: BorderTokens {
                 width: theme.borders.width.to_string(),
                 style: theme.borders.style.to_string(),
+            },
+            layout: ContainerTokens {
+                xs: theme.layout.container_xs.to_string(),
+                sm: theme.layout.container_sm.to_string(),
+                md: theme.layout.container_md.to_string(),
+                lg: theme.layout.container_lg.to_string(),
+                xl: theme.layout.container_xl.to_string(),
             },
             font_family: theme.typography.font_family.to_string(),
             font_family_monospace: theme.typography.font_family_monospace.to_string(),
@@ -239,6 +271,13 @@ impl DesignTokens {
             borders: BorderScale {
                 width: Cow::Owned(self.borders.width.clone()),
                 style: Cow::Owned(self.borders.style.clone()),
+            },
+            layout: LayoutTokens {
+                container_xs: Cow::Owned(self.layout.xs.clone()),
+                container_sm: Cow::Owned(self.layout.sm.clone()),
+                container_md: Cow::Owned(self.layout.md.clone()),
+                container_lg: Cow::Owned(self.layout.lg.clone()),
+                container_xl: Cow::Owned(self.layout.xl.clone()),
             },
             color_scheme: match self.color_scheme.as_str() {
                 "dark" => ColorSchemeMode::Dark,
@@ -358,6 +397,20 @@ mod tests {
         let tokens = DesignTokens::from_theme(&theme);
         assert_eq!(tokens.borders.width, "2px");
         assert_eq!(tokens.borders.style, "dashed");
+        let recovered = tokens.to_theme();
+        assert_eq!(theme, recovered);
+    }
+
+    #[test]
+    fn test_layout_tokens_roundtrip() {
+        use crate::theme::ThemeBuilder;
+        let theme = ThemeBuilder::new()
+            .container_md("1024px")
+            .container_xl("1400px")
+            .build();
+        let tokens = DesignTokens::from_theme(&theme);
+        assert_eq!(tokens.layout.md, "1024px");
+        assert_eq!(tokens.layout.xl, "1400px");
         let recovered = tokens.to_theme();
         assert_eq!(theme, recovered);
     }
