@@ -182,6 +182,22 @@ fn ThemeBuilderDemo() -> impl IntoView {
                 >
                     "Reset to Default"
                 </Button>
+                // Preview showing how the primary color affects components
+                <Text size=TextSize::Sm weight=TextWeight::Medium>"Preview:"</Text>
+                <div style="padding: 1rem; border: 1px solid var(--mingot-border); border-radius: 0.5rem;">
+                    <Group>
+                        {move || {
+                            let color = theme_ctx.get().colors.primary_color;
+                            view! {
+                                <Button variant=ButtonVariant::Filled color=color.clone()>"Filled"</Button>
+                                <Button variant=ButtonVariant::Outline color=color.clone()>"Outline"</Button>
+                                <Button variant=ButtonVariant::Light color=color.clone()>"Light"</Button>
+                                <Badge color=color.clone()>"Badge"</Badge>
+                                <Badge variant=BadgeVariant::Outline color=color>"Outline"</Badge>
+                            }
+                        }}
+                    </Group>
+                </div>
             </Stack>
         </DemoBlock>
     }

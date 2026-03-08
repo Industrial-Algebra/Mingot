@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 use mingot::prelude::*;
-use mingot::theme::{presets, use_theme};
+use mingot::theme::{get_scheme_colors, presets, use_theme};
 
 use crate::components::{CodeBlock, DemoBlock};
 
@@ -55,7 +55,7 @@ pub fn ThemingPresetsPage() -> impl IntoView {
 
             // Live Preview
             <h2 class="section-title">"Live Preview"</h2>
-            <p>"Each card below is rendered inside a " <code>"ThemeOverride"</code> " with a different preset applied."</p>
+            <p>"Each card below renders with a different preset's colors and typography applied."</p>
             <PresetPreviewGrid />
 
             // Using a Preset
@@ -115,23 +115,36 @@ fn PresetPreviewGrid() -> impl IntoView {
     view! {
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
             {preset_cards.into_iter().map(|(name, preset)| {
-                let scheme = preset.color_scheme;
-                let primary = preset.colors.primary_color.clone();
+                // Compute colors directly from the preset's scheme
+                let scheme = get_scheme_colors(&preset);
+                let primary_key = preset.colors.primary_color.clone();
+                let bg = scheme.get_color("gray", if preset.color_scheme == ColorSchemeMode::Dark { 1 } else { 0 }).unwrap_or_default();
+                let border = scheme.border.clone();
+                let text_color = scheme.text.clone();
+                let font = preset.typography.font_family.to_string();
+                let card_style = format!(
+                    "padding: 1.25rem; border-radius: 0.5rem; background: {}; border: 1px solid {}; color: {}; font-family: {};",
+                    bg, border, text_color, font
+                );
+
+                let primary_for_buttons = primary_key.clone();
+                let primary_for_outline_btn = primary_key.clone();
+                let primary_for_badges = primary_key.clone();
+                let primary_for_outline_badge = primary_key.clone();
+                let color_scheme = preset.color_scheme;
+
                 view! {
-                    <ThemeOverride
-                        color_scheme=scheme
-                        primary_color=primary
-                    >
-                        <div style="padding: 1.25rem; border-radius: 0.5rem; background: var(--mingot-surface-0); border: 1px solid var(--mingot-border);">
+                    <ThemeOverride color_scheme=color_scheme primary_color=primary_key>
+                        <div style=card_style>
                             <Stack spacing="sm">
                                 <Text size=TextSize::Lg weight=TextWeight::Bold>{name}</Text>
                                 <Group>
-                                    <Button variant=ButtonVariant::Filled size=ButtonSize::Xs>"Filled"</Button>
-                                    <Button variant=ButtonVariant::Outline size=ButtonSize::Xs>"Outline"</Button>
+                                    <Button variant=ButtonVariant::Filled size=ButtonSize::Xs color=primary_for_buttons>"Filled"</Button>
+                                    <Button variant=ButtonVariant::Outline size=ButtonSize::Xs color=primary_for_outline_btn>"Outline"</Button>
                                 </Group>
                                 <Group>
-                                    <Badge>"Badge"</Badge>
-                                    <Badge variant=BadgeVariant::Outline>"Outline"</Badge>
+                                    <Badge color=primary_for_badges>"Badge"</Badge>
+                                    <Badge variant=BadgeVariant::Outline color=primary_for_outline_badge>"Outline"</Badge>
                                 </Group>
                                 <Text size=TextSize::Sm>"Sample body text in this preset."</Text>
                             </Stack>
