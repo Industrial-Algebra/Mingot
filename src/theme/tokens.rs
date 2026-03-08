@@ -5,8 +5,8 @@
 //! W3C Design Tokens Community Group format.
 
 use super::{
-    Breakpoints, ColorPalette, ColorScheme, ColorSchemeMode, ColorShades, FontSizes, FontWeights,
-    LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
+    BorderScale, Breakpoints, ColorPalette, ColorScheme, ColorSchemeMode, ColorShades, FontSizes,
+    FontWeights, LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
 };
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -36,6 +36,9 @@ pub struct DesignTokens {
     pub shadows: ScaleTokens,
     // --- Breakpoints ---
     pub breakpoints: ScaleTokens,
+    // --- Borders ---
+    #[serde(default)]
+    pub borders: BorderTokens,
 
     // --- Typography ---
     pub font_family: String,
@@ -75,6 +78,22 @@ pub struct FontSizeTokens {
     pub lg: String,
     pub xl: String,
     pub xxl: String,
+}
+
+/// Border width/style tokens.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct BorderTokens {
+    pub width: String,
+    pub style: String,
+}
+
+impl Default for BorderTokens {
+    fn default() -> Self {
+        Self {
+            width: "1px".to_string(),
+            style: "solid".to_string(),
+        }
+    }
 }
 
 /// Font weight tokens.
@@ -125,6 +144,10 @@ impl DesignTokens {
                 md: theme.breakpoints.md.to_string(),
                 lg: theme.breakpoints.lg.to_string(),
                 xl: theme.breakpoints.xl.to_string(),
+            },
+            borders: BorderTokens {
+                width: theme.borders.width.to_string(),
+                style: theme.borders.style.to_string(),
             },
             font_family: theme.typography.font_family.to_string(),
             font_family_monospace: theme.typography.font_family_monospace.to_string(),
@@ -212,6 +235,10 @@ impl DesignTokens {
                 md: Cow::Owned(self.breakpoints.md.clone()),
                 lg: Cow::Owned(self.breakpoints.lg.clone()),
                 xl: Cow::Owned(self.breakpoints.xl.clone()),
+            },
+            borders: BorderScale {
+                width: Cow::Owned(self.borders.width.clone()),
+                style: Cow::Owned(self.borders.style.clone()),
             },
             color_scheme: match self.color_scheme.as_str() {
                 "dark" => ColorSchemeMode::Dark,
@@ -319,6 +346,20 @@ mod tests {
             ..Theme::default()
         };
         assert_eq!(DesignTokens::from_theme(&auto).color_scheme, "auto");
+    }
+
+    #[test]
+    fn test_border_tokens_roundtrip() {
+        use crate::theme::ThemeBuilder;
+        let theme = ThemeBuilder::new()
+            .border_width("2px")
+            .border_style("dashed")
+            .build();
+        let tokens = DesignTokens::from_theme(&theme);
+        assert_eq!(tokens.borders.width, "2px");
+        assert_eq!(tokens.borders.style, "dashed");
+        let recovered = tokens.to_theme();
+        assert_eq!(theme, recovered);
     }
 
     #[test]

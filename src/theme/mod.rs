@@ -30,7 +30,23 @@ pub struct Theme {
     pub radius: RadiusScale,
     pub shadows: ShadowScale,
     pub breakpoints: Breakpoints,
+    pub borders: BorderScale,
     pub color_scheme: ColorSchemeMode,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct BorderScale {
+    pub width: Cow<'static, str>,
+    pub style: Cow<'static, str>,
+}
+
+impl Default for BorderScale {
+    fn default() -> Self {
+        Self {
+            width: Cow::Borrowed("1px"),
+            style: Cow::Borrowed("solid"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -184,6 +200,16 @@ pub fn theme_to_css_vars(theme: &Theme) -> Vec<(String, String)> {
     vars.push(("--mingot-shadow-lg".into(), theme.shadows.lg.to_string()));
     vars.push(("--mingot-shadow-xl".into(), theme.shadows.xl.to_string()));
 
+    // Borders
+    vars.push((
+        "--mingot-border-width".into(),
+        theme.borders.width.to_string(),
+    ));
+    vars.push((
+        "--mingot-border-style".into(),
+        theme.borders.style.to_string(),
+    ));
+
     // Typography
     vars.push((
         "--mingot-font-family".into(),
@@ -328,5 +354,15 @@ mod css_var_tests {
         assert_eq!(var_map["--mingot-shadow-md"], theme.shadows.md.as_ref());
         assert_eq!(var_map["--mingot-shadow-lg"], theme.shadows.lg.as_ref());
         assert_eq!(var_map["--mingot-shadow-xl"], theme.shadows.xl.as_ref());
+    }
+
+    #[test]
+    fn test_theme_to_css_vars_has_border_tokens() {
+        let theme = Theme::default();
+        let vars = theme_to_css_vars(&theme);
+        let var_map: std::collections::HashMap<_, _> = vars.into_iter().collect();
+
+        assert_eq!(var_map["--mingot-border-width"], "1px");
+        assert_eq!(var_map["--mingot-border-style"], "solid");
     }
 }

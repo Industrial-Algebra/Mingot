@@ -1,6 +1,6 @@
 use super::{
-    Breakpoints, ColorPalette, ColorSchemeMode, ColorShades, FontSizes, FontWeights, LineHeights,
-    RadiusScale, ShadowScale, Spacing, Theme, Typography,
+    BorderScale, Breakpoints, ColorPalette, ColorSchemeMode, ColorShades, FontSizes, FontWeights,
+    LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,
 };
 use std::borrow::Cow;
 
@@ -251,6 +251,26 @@ impl ThemeBuilder {
         self
     }
 
+    // --- Borders ---
+
+    /// Replace the entire border scale.
+    pub fn borders(mut self, borders: BorderScale) -> Self {
+        self.theme.borders = borders;
+        self
+    }
+
+    /// Set border width value.
+    pub fn border_width(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.borders.width = val.into();
+        self
+    }
+
+    /// Set border style value.
+    pub fn border_style(mut self, val: impl Into<Cow<'static, str>>) -> Self {
+        self.theme.borders.style = val.into();
+        self
+    }
+
     // --- Breakpoints ---
 
     /// Replace the entire breakpoints scale.
@@ -413,5 +433,29 @@ mod tests {
         let shadow = String::from("0 4px 16px rgba(0,0,0,0.25)");
         let theme = ThemeBuilder::new().shadow_xl(shadow).build();
         assert_eq!(&*theme.shadows.xl, "0 4px 16px rgba(0,0,0,0.25)");
+    }
+
+    #[test]
+    fn test_builder_border_individual() {
+        let theme = ThemeBuilder::new().border_width("2px").build();
+        assert_eq!(&*theme.borders.width, "2px");
+        assert_eq!(&*theme.borders.style, "solid"); // default unchanged
+    }
+
+    #[test]
+    fn test_builder_border_chaining() {
+        let theme = ThemeBuilder::new()
+            .border_width("2px")
+            .border_style("dashed")
+            .build();
+        assert_eq!(&*theme.borders.width, "2px");
+        assert_eq!(&*theme.borders.style, "dashed");
+    }
+
+    #[test]
+    fn test_builder_border_owned_string() {
+        let width = String::from("3px");
+        let theme = ThemeBuilder::new().border_width(width).build();
+        assert_eq!(&*theme.borders.width, "3px");
     }
 }
