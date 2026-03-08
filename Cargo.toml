@@ -24,7 +24,7 @@ web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Win
 wasm-bindgen = "0.2"
 
 # Optional: High-precision decimal arithmetic
-rust_decimal = { version = "1.39", optional = true, default-features = false }
+rust_decimal = { version = "1.40", optional = true, default-features = false }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
