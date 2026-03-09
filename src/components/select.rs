@@ -72,8 +72,8 @@ pub fn Select(
         // Base styles
         builder
             .add("width", "100%")
-            .add("font-family", theme_val.typography.font_family)
-            .add("border-radius", theme_val.radius.sm)
+            .add("font-family", &*theme_val.typography.font_family)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("transition", "all 0.15s ease")
             .add("outline", "none")
             .add("box-sizing", "border-box")
@@ -89,31 +89,31 @@ pub fn Select(
                 builder
                     .add("height", "1.875rem")
                     .add("padding-left", "0.625rem")
-                    .add("font-size", theme_val.typography.font_sizes.xs);
+                    .add("font-size", &*theme_val.typography.font_sizes.xs);
             }
             SelectSize::Sm => {
                 builder
                     .add("height", "2.25rem")
                     .add("padding-left", "0.75rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             SelectSize::Md => {
                 builder
                     .add("height", "2.625rem")
                     .add("padding-left", "0.875rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             SelectSize::Lg => {
                 builder
                     .add("height", "3.125rem")
                     .add("padding-left", "1rem")
-                    .add("font-size", theme_val.typography.font_sizes.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.md);
             }
             SelectSize::Xl => {
                 builder
                     .add("height", "3.75rem")
                     .add("padding-left", "1.125rem")
-                    .add("font-size", theme_val.typography.font_sizes.lg);
+                    .add("font-size", &*theme_val.typography.font_sizes.lg);
             }
         }
 
@@ -179,7 +179,7 @@ pub fn Select(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )
@@ -190,7 +190,7 @@ pub fn Select(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -202,7 +202,7 @@ pub fn Select(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())

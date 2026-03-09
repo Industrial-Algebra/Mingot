@@ -58,8 +58,8 @@ pub fn Textarea(
         // Base styles
         builder
             .add("width", "100%")
-            .add("font-family", theme_val.typography.font_family)
-            .add("border-radius", theme_val.radius.sm)
+            .add("font-family", &*theme_val.typography.font_family)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("transition", "all 0.15s ease")
             .add("outline", "none")
             .add("box-sizing", "border-box")
@@ -70,32 +70,32 @@ pub fn Textarea(
             TextareaSize::Xs => {
                 builder
                     .add("padding", "0.375rem 0.625rem")
-                    .add("font-size", theme_val.typography.font_sizes.xs)
-                    .add("line-height", theme_val.typography.line_heights.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.xs)
+                    .add("line-height", &*theme_val.typography.line_heights.md);
             }
             TextareaSize::Sm => {
                 builder
                     .add("padding", "0.5rem 0.75rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm)
-                    .add("line-height", theme_val.typography.line_heights.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm)
+                    .add("line-height", &*theme_val.typography.line_heights.md);
             }
             TextareaSize::Md => {
                 builder
                     .add("padding", "0.625rem 0.875rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm)
-                    .add("line-height", theme_val.typography.line_heights.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm)
+                    .add("line-height", &*theme_val.typography.line_heights.md);
             }
             TextareaSize::Lg => {
                 builder
                     .add("padding", "0.75rem 1rem")
-                    .add("font-size", theme_val.typography.font_sizes.md)
-                    .add("line-height", theme_val.typography.line_heights.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.md)
+                    .add("line-height", &*theme_val.typography.line_heights.md);
             }
             TextareaSize::Xl => {
                 builder
                     .add("padding", "0.875rem 1.125rem")
-                    .add("font-size", theme_val.typography.font_sizes.lg)
-                    .add("line-height", theme_val.typography.line_heights.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.lg)
+                    .add("line-height", &*theme_val.typography.line_heights.md);
             }
         }
 
@@ -173,7 +173,7 @@ pub fn Textarea(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )
@@ -184,7 +184,7 @@ pub fn Textarea(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -196,7 +196,7 @@ pub fn Textarea(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())

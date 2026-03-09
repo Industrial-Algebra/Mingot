@@ -15,7 +15,7 @@ pub fn DemoBlock(
     view! {
         <div class="demo-block">
             {title.map(|t| view! {
-                <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-weight: 500;">
+                <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--mingot-border); font-weight: 500;">
                     {t}
                 </div>
             })}

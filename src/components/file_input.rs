@@ -127,8 +127,8 @@ pub fn FileInput(
             .add("align-items", "center")
             .add("gap", "0.5rem")
             .add("width", "100%")
-            .add("font-family", theme_val.typography.font_family)
-            .add("border-radius", theme_val.radius.sm)
+            .add("font-family", &*theme_val.typography.font_family)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("transition", "all 0.15s ease")
             .add("box-sizing", "border-box")
             .add(
@@ -146,31 +146,31 @@ pub fn FileInput(
                 builder
                     .add("min-height", "1.875rem")
                     .add("padding", "0 0.625rem")
-                    .add("font-size", theme_val.typography.font_sizes.xs);
+                    .add("font-size", &*theme_val.typography.font_sizes.xs);
             }
             InputSize::Sm => {
                 builder
                     .add("min-height", "2.25rem")
                     .add("padding", "0 0.75rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             InputSize::Md => {
                 builder
                     .add("min-height", "2.625rem")
                     .add("padding", "0 0.875rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             InputSize::Lg => {
                 builder
                     .add("min-height", "3.125rem")
                     .add("padding", "0 1rem")
-                    .add("font-size", theme_val.typography.font_sizes.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.md);
             }
             InputSize::Xl => {
                 builder
                     .add("min-height", "3.75rem")
                     .add("padding", "0 1.125rem")
-                    .add("font-size", theme_val.typography.font_sizes.lg);
+                    .add("font-size", &*theme_val.typography.font_sizes.lg);
             }
         }
 
@@ -289,7 +289,7 @@ pub fn FileInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: block; margin-bottom: 0.25rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )
@@ -300,7 +300,7 @@ pub fn FileInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -312,7 +312,7 @@ pub fn FileInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "margin-top: 0.25rem; font-size: {}; color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())
@@ -335,7 +335,7 @@ pub fn FileInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: flex; align-items: center; justify-content: center; padding: 0.25rem; margin-left: auto; border: none; background: transparent; cursor: pointer; border-radius: {}; color: {};",
-            theme_val.radius.sm,
+            &*theme_val.radius.sm,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())

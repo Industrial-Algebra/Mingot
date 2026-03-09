@@ -42,7 +42,7 @@ pub fn Breadcrumbs(
              color: {}; \
              text-decoration: none; \
              transition: color 0.15s ease;",
-            theme_val.typography.font_sizes.sm, scheme_colors.text
+            &*theme_val.typography.font_sizes.sm, scheme_colors.text
         )
     };
 
@@ -58,7 +58,7 @@ pub fn Breadcrumbs(
              text-decoration: none; \
              cursor: pointer; \
              transition: color 0.15s ease;",
-            theme_val.typography.font_sizes.sm, link_color
+            &*theme_val.typography.font_sizes.sm, link_color
         )
     };
 
@@ -72,7 +72,7 @@ pub fn Breadcrumbs(
             "font-size: {}; \
              color: {}; \
              user-select: none;",
-            theme_val.typography.font_sizes.sm, text_secondary
+            &*theme_val.typography.font_sizes.sm, text_secondary
         )
     };
 

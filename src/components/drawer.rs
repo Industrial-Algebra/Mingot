@@ -87,7 +87,7 @@ pub fn Drawer(
             transform_closed
         };
 
-        let padding_val = padding.as_deref().unwrap_or(theme_val.spacing.lg);
+        let padding_val = padding.as_deref().unwrap_or(&*theme_val.spacing.lg);
 
         format!(
             "position: fixed; \
@@ -129,7 +129,7 @@ pub fn Drawer(
              margin-bottom: {}; \
              padding-bottom: {}; \
              border-bottom: 1px solid {};",
-            theme_val.spacing.md, theme_val.spacing.md, scheme_colors.border
+            &*theme_val.spacing.md, theme_val.spacing.md, scheme_colors.border
         )
     };
 
@@ -141,7 +141,7 @@ pub fn Drawer(
              font-weight: {}; \
              color: {}; \
              margin: 0;",
-            theme_val.typography.font_sizes.lg,
+            &*theme_val.typography.font_sizes.lg,
             theme_val.typography.font_weights.bold,
             scheme_colors.text
         )
@@ -162,7 +162,7 @@ pub fn Drawer(
              justify-content: center; \
              border-radius: {}; \
              transition: background-color 0.15s ease;",
-            theme_val.typography.font_sizes.lg,
+            &*theme_val.typography.font_sizes.lg,
             theme_val.spacing.xs,
             scheme_colors.text,
             theme_val.radius.sm

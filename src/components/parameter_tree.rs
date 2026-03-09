@@ -396,7 +396,7 @@ pub fn ParameterTree(
                         .unwrap_or_else(|| "#dee2e6".to_string())
                 ),
             )
-            .add("border-radius", theme_val.radius.md)
+            .add("border-radius", &*theme_val.radius.md)
             .add("font-size", font_size)
             .add("overflow", "hidden");
 

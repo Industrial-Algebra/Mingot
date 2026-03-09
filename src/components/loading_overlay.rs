@@ -110,7 +110,7 @@ pub fn LoadingOverlay(
         if let Some(ref r) = radius {
             builder.add("border-radius", r);
         } else {
-            builder.add("border-radius", theme_val.radius.sm);
+            builder.add("border-radius", &*theme_val.radius.sm);
         }
 
         if let Some(s) = style.as_ref() {

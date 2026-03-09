@@ -83,7 +83,7 @@ pub fn TabsList(
 
         builder
             .add("display", "flex")
-            .add("gap", theme_val.spacing.xs);
+            .add("gap", &*theme_val.spacing.xs);
 
         match orientation.get() {
             TabsOrientation::Horizontal => {
@@ -111,11 +111,11 @@ pub fn TabsList(
                         "border",
                         format!("1px solid {}", scheme_colors.border.clone()),
                     )
-                    .add("border-radius", theme_val.radius.sm)
-                    .add("padding", theme_val.spacing.xs);
+                    .add("border-radius", &*theme_val.radius.sm)
+                    .add("padding", &*theme_val.spacing.xs);
             }
             TabsVariant::Pills => {
-                builder.add("padding", theme_val.spacing.xs);
+                builder.add("padding", &*theme_val.spacing.xs);
             }
         }
 
@@ -164,12 +164,12 @@ pub fn TabsTab(
             .add("gap", "0.5rem")
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+                format!("{} {}", &*theme_val.spacing.sm, &*theme_val.spacing.md),
             )
             .add("background", "none")
             .add("border", "none")
             .add("cursor", "pointer")
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -199,7 +199,7 @@ pub fn TabsTab(
                 }
             }
             TabsVariant::Outline => {
-                builder.add("border-radius", theme_val.radius.sm);
+                builder.add("border-radius", &*theme_val.radius.sm);
                 if is_active() {
                     let active_color = scheme_colors
                         .get_color("blue", 6)
@@ -279,7 +279,7 @@ pub fn TabsPanel(
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
         } else {
-            builder.add("padding", theme_val.spacing.md);
+            builder.add("padding", &*theme_val.spacing.md);
         }
 
         if let Some(s) = style.as_ref() {

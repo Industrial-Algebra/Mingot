@@ -296,7 +296,7 @@ pub fn ParameterSlider(
             .add("position", "relative")
             .add("width", "100%")
             .add("height", track_height)
-            .add("border-radius", theme_val.radius.xl)
+            .add("border-radius", &*theme_val.radius.xl)
             .add(
                 "background-color",
                 scheme_colors
@@ -327,7 +327,7 @@ pub fn ParameterSlider(
             .add("top", "0")
             .add("height", "100%")
             .add("width", format!("{}%", percentage()))
-            .add("border-radius", theme_val.radius.xl)
+            .add("border-radius", &*theme_val.radius.xl)
             .add(
                 "background-color",
                 scheme_colors
@@ -370,7 +370,7 @@ pub fn ParameterSlider(
                         .unwrap_or_else(|| "#228be6".to_string())
                 ),
             )
-            .add("box-shadow", theme_val.shadows.sm)
+            .add("box-shadow", &*theme_val.shadows.sm)
             .add("cursor", if is_disabled { "not-allowed" } else { "grab" })
             .add(
                 "transition",
@@ -428,7 +428,7 @@ pub fn ParameterSlider(
                         .unwrap_or_else(|| "#ced4da".to_string())
                 ),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background-color", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
             .add("text-align", "right")
@@ -456,7 +456,7 @@ pub fn ParameterSlider(
                         .unwrap_or_else(|| "#339af0".to_string())
                 ),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background-color", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
             .add("text-align", "right")

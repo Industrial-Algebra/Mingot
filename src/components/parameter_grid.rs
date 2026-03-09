@@ -395,7 +395,7 @@ pub fn ParameterGrid(
                         .unwrap_or_else(|| "#dee2e6".to_string())
                 ),
             )
-            .add("border-radius", theme_val.radius.md);
+            .add("border-radius", &*theme_val.radius.md);
 
         let mut result = builder.build();
         if let Some(ref s) = style {
@@ -423,7 +423,7 @@ pub fn ParameterGrid(
 
         format!(
             "font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.md,
+            &*theme_val.typography.font_sizes.md,
             theme_val.typography.font_weights.semibold,
             scheme_colors.text
         )
@@ -435,7 +435,7 @@ pub fn ParameterGrid(
 
         format!(
             "display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; cursor: pointer; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )

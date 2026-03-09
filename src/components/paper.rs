@@ -12,13 +12,13 @@ pub enum PaperPadding {
 }
 
 impl PaperPadding {
-    fn value(&self, theme: &crate::theme::Theme) -> &str {
+    fn value<'a>(&self, theme: &'a crate::theme::Theme) -> &'a str {
         match self {
-            PaperPadding::Xs => theme.spacing.xs,
-            PaperPadding::Sm => theme.spacing.sm,
-            PaperPadding::Md => theme.spacing.md,
-            PaperPadding::Lg => theme.spacing.lg,
-            PaperPadding::Xl => theme.spacing.xl,
+            PaperPadding::Xs => &theme.spacing.xs,
+            PaperPadding::Sm => &theme.spacing.sm,
+            PaperPadding::Md => &theme.spacing.md,
+            PaperPadding::Lg => &theme.spacing.lg,
+            PaperPadding::Xl => &theme.spacing.xl,
         }
     }
 }
@@ -60,7 +60,7 @@ pub fn Paper(
         if let Some(r) = radius.as_ref() {
             builder.add("border-radius", r);
         } else {
-            builder.add("border-radius", theme_val.radius.sm);
+            builder.add("border-radius", &*theme_val.radius.sm);
         }
 
         if with_border {

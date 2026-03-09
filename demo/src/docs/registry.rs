@@ -3362,7 +3362,7 @@ fn pin_input_doc() -> ComponentDoc {
                             <Text size=TextSize::Sm weight=TextWeight::Medium>"Masked PIN"</Text>
                             <PinInput
                                 length=4
-                                value=Signal::derive(|| String::new())
+                                value=Signal::derive(String::new)
                                 mask=true
                             />
                         </div>

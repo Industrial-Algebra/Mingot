@@ -144,7 +144,7 @@ pub fn Slider(
             .add("position", "relative")
             .add("width", "100%")
             .add("height", track_height)
-            .add("border-radius", theme_val.radius.xl)
+            .add("border-radius", &*theme_val.radius.xl)
             .add(
                 "background-color",
                 scheme_colors
@@ -175,7 +175,7 @@ pub fn Slider(
             .add("top", "0")
             .add("height", "100%")
             .add("width", format!("{}%", percentage()))
-            .add("border-radius", theme_val.radius.xl)
+            .add("border-radius", &*theme_val.radius.xl)
             .add(
                 "background-color",
                 scheme_colors
@@ -218,7 +218,7 @@ pub fn Slider(
                         .unwrap_or_else(|| "#228be6".to_string())
                 ),
             )
-            .add("box-shadow", theme_val.shadows.sm)
+            .add("box-shadow", &*theme_val.shadows.sm)
             .add("cursor", if is_disabled { "not-allowed" } else { "grab" })
             .add(
                 "transition",
@@ -242,7 +242,7 @@ pub fn Slider(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )

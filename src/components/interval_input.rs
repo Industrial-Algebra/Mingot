@@ -408,7 +408,7 @@ pub fn IntervalInput(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-direction", "column")
-            .add("gap", theme_val.spacing.xs)
+            .add("gap", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -416,7 +416,7 @@ pub fn IntervalInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -450,10 +450,10 @@ pub fn IntervalInput(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("width", "80px")
             .add("text-align", "center")
             .build()
@@ -475,7 +475,7 @@ pub fn IntervalInput(
         StyleBuilder::new()
             .add("display", "flex")
             .add("gap", "0.25rem")
-            .add("margin-top", theme_val.spacing.xs)
+            .add("margin-top", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -488,7 +488,7 @@ pub fn IntervalInput(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add(
                 "background",
                 if is_active {
@@ -508,7 +508,7 @@ pub fn IntervalInput(
                 },
             )
             .add("cursor", "pointer")
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .build()
     };
 
@@ -516,14 +516,14 @@ pub fn IntervalInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "color",
                 scheme_colors
                     .get_color("gray", 6)
                     .unwrap_or_else(|| "#868e96".to_string()),
             )
-            .add("margin-top", theme_val.spacing.xs)
+            .add("margin-top", &*theme_val.spacing.xs)
             .add("font-family", "monospace")
             .build()
     };
@@ -532,7 +532,7 @@ pub fn IntervalInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -546,14 +546,14 @@ pub fn IntervalInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
                     .get_color("red", 6)
                     .unwrap_or_else(|| "#fa5252".to_string()),
             )
-            .add("margin-top", theme_val.spacing.xs)
+            .add("margin-top", &*theme_val.spacing.xs)
             .build()
     };
 

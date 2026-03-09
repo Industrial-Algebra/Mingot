@@ -72,7 +72,7 @@ pub fn Footer(
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
         } else {
-            builder.add("padding", format!("0 {}", theme_val.spacing.md));
+            builder.add("padding", format!("0 {}", &*theme_val.spacing.md));
         }
 
         if with_border {

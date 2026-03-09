@@ -698,7 +698,7 @@ pub fn FormulaInput(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-direction", "column")
-            .add("gap", theme_val.spacing.xs)
+            .add("gap", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -706,7 +706,7 @@ pub fn FormulaInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -727,7 +727,7 @@ pub fn FormulaInput(
             .add("width", "100%")
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add(
                 "border",
@@ -742,11 +742,11 @@ pub fn FormulaInput(
                     }
                 ),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
             .add("font-family", "monospace")
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("outline", "none")
             .build()
     };
@@ -756,15 +756,15 @@ pub fn FormulaInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
             .add("font-family", "monospace")
-            .add("font-size", theme_val.typography.font_sizes.sm)
-            .add("padding", theme_val.spacing.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
+            .add("padding", &*theme_val.spacing.xs)
             .add(
                 "background",
                 scheme_colors
                     .get_color("gray", 1)
                     .unwrap_or_else(|| "#f8f9fa".to_string()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("color", scheme_colors.text.clone())
             .build()
     };
@@ -773,7 +773,7 @@ pub fn FormulaInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -787,7 +787,7 @@ pub fn FormulaInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -803,8 +803,8 @@ pub fn FormulaInput(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-wrap", "wrap")
-            .add("gap", theme_val.spacing.xs)
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("gap", &*theme_val.spacing.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -831,7 +831,7 @@ pub fn FormulaInput(
                     .get_color(&theme_val.colors.primary_color, 7)
                     .unwrap_or_else(|| "#1971c2".to_string()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("font-family", "monospace")
             .build()
     };

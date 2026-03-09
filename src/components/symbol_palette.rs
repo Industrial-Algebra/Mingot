@@ -750,13 +750,13 @@ pub fn SymbolPalette(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-direction", "column")
-            .add("gap", theme_val.spacing.sm)
+            .add("gap", &*theme_val.spacing.sm)
             .add(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.md)
-            .add("padding", theme_val.spacing.sm)
+            .add("border-radius", &*theme_val.radius.md)
+            .add("padding", &*theme_val.spacing.sm)
             .add("background", scheme_colors.background.clone())
             .build()
     };
@@ -765,13 +765,13 @@ pub fn SymbolPalette(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
             )
             .add("color", scheme_colors.text.clone())
-            .add("margin-bottom", theme_val.spacing.xs)
+            .add("margin-bottom", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -782,16 +782,16 @@ pub fn SymbolPalette(
             .add("width", "100%")
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("outline", "none")
             .build()
     };
@@ -801,8 +801,8 @@ pub fn SymbolPalette(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-wrap", "wrap")
-            .add("gap", theme_val.spacing.xs)
-            .add("margin-bottom", theme_val.spacing.xs)
+            .add("gap", &*theme_val.spacing.xs)
+            .add("margin-bottom", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -883,7 +883,7 @@ pub fn SymbolPalette(
                 let theme_val = theme.get();
                 let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
                 StyleBuilder::new()
-                    .add("font-size", theme_val.typography.font_sizes.xs)
+                    .add("font-size", &*theme_val.typography.font_sizes.xs)
                     .add("color", scheme_colors.get_color("gray", 6).unwrap_or_else(|| "#868e96".to_string()))
                     .add("text-align", "center")
                     .build()
@@ -911,12 +911,12 @@ fn TabButton(
         StyleBuilder::new()
             .add(
                 "padding",
-                format!("{} {}", theme_val.spacing.xs, theme_val.spacing.sm),
+                format!("{} {}", &*theme_val.spacing.xs, &*theme_val.spacing.sm),
             )
             .add("border", "none")
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("cursor", "pointer")
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "background",
                 if is_active {
@@ -978,7 +978,7 @@ fn SymbolButton(
             .add("width", "32px")
             .add("height", "32px")
             .add("border", "none")
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("cursor", "pointer")
             .add("font-size", "1.25rem")
             .add(

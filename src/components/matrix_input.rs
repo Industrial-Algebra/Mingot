@@ -484,7 +484,7 @@ pub fn MatrixInput(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-direction", "column")
-            .add("gap", theme_val.spacing.sm)
+            .add("gap", &*theme_val.spacing.sm)
             .build()
     };
 
@@ -492,7 +492,7 @@ pub fn MatrixInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -589,7 +589,7 @@ pub fn MatrixInput(
             .add("border-radius", "2px")
             .add("background", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("width", size_vals.1)
             .add("text-align", "center")
             .add("font-family", "monospace")
@@ -605,11 +605,11 @@ pub fn MatrixInput(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
             .add("cursor", "pointer")
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .build()
     };
 
@@ -620,7 +620,7 @@ pub fn MatrixInput(
             .add("display", "flex")
             .add("gap", "1rem")
             .add("flex-wrap", "wrap")
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("font-family", "monospace")
             .add(
                 "color",
@@ -635,7 +635,7 @@ pub fn MatrixInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -649,7 +649,7 @@ pub fn MatrixInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors

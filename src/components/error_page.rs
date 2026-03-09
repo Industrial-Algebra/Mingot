@@ -188,7 +188,7 @@ pub fn ErrorPage(
              padding: {} {}; \
              background-color: {}; \
              text-align: center;",
-            theme_val.spacing.xl, theme_val.spacing.md, scheme_colors.background
+            &*theme_val.spacing.xl, theme_val.spacing.md, scheme_colors.background
         )
     };
 
@@ -236,7 +236,7 @@ pub fn ErrorPage(
              max-width: 500px; \
              margin: 0 0 2rem 0; \
              line-height: 1.6;",
-            theme_val.typography.font_sizes.md, text_secondary
+            &*theme_val.typography.font_sizes.md, text_secondary
         )
     };
 

@@ -83,7 +83,7 @@ pub fn Avatar(
             .add("height", size.px())
             .add("min-width", size.px())
             .add("min-height", size.px())
-            .add("border-radius", radius.value(theme_val.radius.md))
+            .add("border-radius", radius.value(&theme_val.radius.md))
             .add("display", "inline-flex")
             .add("align-items", "center")
             .add("justify-content", "center")
@@ -164,7 +164,7 @@ pub fn AvatarGroup(
             builder.add("gap", s);
         } else {
             // Negative margin for overlap
-            builder.add("margin-left", format!("-{}", theme_val.spacing.xs));
+            builder.add("margin-left", format!("-{}", &*theme_val.spacing.xs));
         }
 
         if let Some(s) = style.as_ref() {

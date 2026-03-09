@@ -16,14 +16,14 @@ pub fn GettingStartedPage() -> impl IntoView {
             <p>"Add Mingot to your " <code>"Cargo.toml"</code> ":"</p>
             <CodeBlock
                 code=r#"[dependencies]
-    mingot = "0.3.0""#
+    mingot = "0.7.0""#
                 language="toml"
             />
 
             <p>"For high-precision decimal support with rust_decimal:"</p>
             <CodeBlock
                 code=r#"[dependencies]
-    mingot = { version = "0.3.0", features = ["high-precision"] }"#
+    mingot = { version = "0.7.0", features = ["high-precision"] }"#
                 language="toml"
             />
 
@@ -126,11 +126,37 @@ fn PrecisionInput() -> impl IntoView {
                 language="rust"
             />
 
+            // Theming
+            <h2 class="section-title">"Theming"</h2>
+            <p>
+                "Mingot v0.7.0 includes a full theme system with 5 built-in presets, a fluent "
+                <code>"ThemeBuilder"</code> " API, WCAG contrast validation, scoped overrides, and design token export/import."
+            </p>
+            <CodeBlock
+                code=r#"use mingot::prelude::*;
+use mingot::theme::presets;
+
+#[component]
+fn App() -> impl IntoView {
+    view! {
+        <MingotProvider theme=presets::scientific()>
+            // Your app with the Scientific preset applied
+        </MingotProvider>
+    }
+}"#
+                language="rust"
+            />
+            <p>
+                "See the " <a href="/theming/overview">"Theming Overview"</a>
+                " for details on color schemes, presets, and the ThemeBuilder API."
+            </p>
+
             // Next steps
             <h2 class="section-title">"Next Steps"</h2>
             <ul style="line-height: 1.8;">
                 <li>"Explore the " <a href="/core/button">"Button"</a> " component to learn about variants and sizes"</li>
                 <li>"Check out " <a href="/form/number-input">"NumberInput"</a> " for the flagship precision component"</li>
+                <li>"Browse the " <a href="/theming/overview">"Theming"</a> " section for presets, custom themes, and WCAG validation"</li>
                 <li>"Browse all 46 components in the sidebar"</li>
             </ul>
         </div>

@@ -97,7 +97,7 @@ pub fn Banner(
         } else {
             builder.add(
                 "padding",
-                format!("{} {}", theme_val.spacing.sm, theme_val.spacing.md),
+                format!("{} {}", &*theme_val.spacing.sm, &*theme_val.spacing.md),
             );
         }
 

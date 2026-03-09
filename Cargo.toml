@@ -4,7 +4,7 @@ resolver = "2"
 
 [package]
 name = "mingot"
-version = "0.6.1"
+version = "0.7.0"
 edition = "2021"
 authors = ["Industrial Algebra <noreply@industrial-algebra.org>"]
 description = "Leptos UI library for applications demanding mathematical precision - u64+ integers, arbitrary-precision decimals, zero precision loss"
@@ -20,14 +20,19 @@ crate-type = ["cdylib", "rlib"]
 leptos = { version = "0.8.12", features = ["csr"] }
 leptos_meta = "0.8.5"
 leptos_router = "0.8.12"
-web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Window", "Document", "CssStyleDeclaration", "DomRect", "Element", "File", "FileList", "DataTransfer", "ClipboardEvent", "Clipboard", "Navigator"] }
+web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Window", "Document", "CssStyleDeclaration", "DomRect", "Element", "Event", "EventTarget", "File", "FileList", "DataTransfer", "ClipboardEvent", "Clipboard", "Navigator", "MediaQueryList"] }
 wasm-bindgen = "0.2"
 
 # Optional: High-precision decimal arithmetic
 rust_decimal = { version = "1.40", optional = true, default-features = false }
 
+# Optional: Design tokens export/import
+serde = { version = "1", optional = true, features = ["derive"] }
+serde_json = { version = "1", optional = true }
+
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
+serde_json = "1"
 
 [features]
 default = ["csr"]
@@ -35,6 +40,7 @@ csr = ["leptos/csr"]
 ssr = ["leptos/ssr"]
 hydrate = ["leptos/hydrate"]
 high-precision = ["rust_decimal"]
+theme-tokens = ["serde", "serde_json"]
 
 [profile.wasm-release]
 inherits = "release"
