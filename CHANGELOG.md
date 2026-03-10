@@ -5,6 +5,45 @@ All notable changes to Mingot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-03-08
+
+### Added
+
+#### Theme System Foundation (Phase 6 Complete)
+- **Cow<'static, str> migration** - All string props migrated from `String` to `Cow<'static, str>` for zero-copy efficiency
+- **8 new color palettes** - Rose, Amber, Emerald, Sky, Fuchsia, Lime, Slate, Stone
+- **ThemeBuilder** - Fluent API for constructing custom themes with live preview
+- **WCAG 2.1 AA validation** - Automatic contrast ratio checking for text/background combinations
+
+#### CSS Variable Injection
+- `--mingot-*` namespace covering colors, surfaces, spacing, radius, shadows, borders, layout, typography
+- Auto color scheme with system preference detection (`prefers-color-scheme`)
+- Shadow CSS variables (`--mingot-shadow-xs` through `--mingot-shadow-xl`) with individual ThemeBuilder setters
+- BorderScale tokens (`--mingot-border-width`, `--mingot-border-style`)
+- LayoutTokens (`--mingot-container-xs` through `--mingot-container-xl`)
+
+#### Theme Presets & Customization
+- **5 built-in theme presets** - Default, Dark, Industrial, Scientific, Financial
+- **ThemeOverride component** - Scoped subtree theme customization
+- **Design tokens export/import** via `theme-tokens` feature flag (JSON round-trip)
+
+#### Demo Site
+- Theming demo pages with live preset switching
+- ThemeBuilder playground with color palette display
+- Interactive theme customization examples
+
+### Changed
+- Demo site CSS vars migrated to `--mingot-*` namespace
+- Version badge updated to v0.7.0
+
+### Dependencies
+- leptos_router 0.8.9 → 0.8.10
+- rust_decimal 1.39.0 → 1.40.0
+- wasm-bindgen-test 0.3.55 → 0.3.64
+- actions/cache v4 → v5, actions/checkout v4 → v6
+
+---
+
 ## [0.6.1] - 2026-02-14
 
 ### Added

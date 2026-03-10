@@ -132,7 +132,7 @@ pub fn Radio(
              color: {}; \
              cursor: {}; \
              user-select: none;",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.normal,
             scheme_colors.text,
             if disabled { "not-allowed" } else { "pointer" }
@@ -146,7 +146,7 @@ pub fn Radio(
             "font-size: {}; \
              color: {}; \
              margin-top: 0.125rem;",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -160,7 +160,7 @@ pub fn Radio(
             "margin-top: 0.25rem; \
              font-size: {}; \
              color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())
@@ -251,7 +251,7 @@ pub fn RadioGroup(
              font-size: {}; \
              font-weight: {}; \
              color: {};",
-            theme_val.spacing.sm,
+            &*theme_val.spacing.sm,
             theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
@@ -265,7 +265,7 @@ pub fn RadioGroup(
             "margin-bottom: {}; \
              font-size: {}; \
              color: {};",
-            theme_val.spacing.sm,
+            &*theme_val.spacing.sm,
             theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
@@ -280,7 +280,7 @@ pub fn RadioGroup(
             "margin-top: {}; \
              font-size: {}; \
              color: {};",
-            theme_val.spacing.xs,
+            &*theme_val.spacing.xs,
             theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)

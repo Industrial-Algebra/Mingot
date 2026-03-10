@@ -5,7 +5,10 @@ use mingot::prelude::*;
 
 use crate::components::ThemeVars;
 use crate::layout::DocsLayout;
-use crate::pages::{ComponentPage, GettingStartedPage, HomePage, NotFoundPage};
+use crate::pages::{
+    ComponentPage, GettingStartedPage, HomePage, NotFoundPage, ThemingCustomPage,
+    ThemingOverviewPage, ThemingPresetsPage,
+};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -18,6 +21,11 @@ pub fn App() -> impl IntoView {
                         // Home
                         <Route path=path!("/") view=HomePage />
                         <Route path=path!("/getting-started") view=GettingStartedPage />
+
+                        // Theming pages
+                        <Route path=path!("/theming/overview") view=ThemingOverviewPage />
+                        <Route path=path!("/theming/presets") view=ThemingPresetsPage />
+                        <Route path=path!("/theming/custom") view=ThemingCustomPage />
 
                         // Core components
                         <Route path=path!("/core/button") view=move || view! { <ComponentPage slug="button" /> } />

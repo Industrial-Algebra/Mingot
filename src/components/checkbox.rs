@@ -62,7 +62,7 @@ pub fn Checkbox(
             .add("height", checkbox_size)
             .add("min-width", checkbox_size)
             .add("min-height", checkbox_size)
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add(
                 "border",
                 format!(
@@ -126,7 +126,7 @@ pub fn Checkbox(
              color: {}; \
              cursor: {}; \
              user-select: none;",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.normal,
             scheme_colors.text,
             if disabled { "not-allowed" } else { "pointer" }
@@ -140,7 +140,7 @@ pub fn Checkbox(
             "font-size: {}; \
              color: {}; \
              margin-top: 0.125rem;",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("gray", 6)
                 .unwrap_or_else(|| "#868e96".to_string())
@@ -154,7 +154,7 @@ pub fn Checkbox(
             "margin-top: 0.25rem; \
              font-size: {}; \
              color: {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             scheme_colors
                 .get_color("red", 6)
                 .unwrap_or_else(|| "#fa5252".to_string())

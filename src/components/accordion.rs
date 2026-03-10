@@ -46,10 +46,10 @@ pub fn Accordion(
                         "border",
                         format!("1px solid {}", scheme_colors.border.clone()),
                     )
-                    .add("border-radius", theme_val.radius.sm);
+                    .add("border-radius", &*theme_val.radius.sm);
             }
             AccordionVariant::Separated => {
-                builder.add("gap", theme_val.spacing.sm);
+                builder.add("gap", &*theme_val.spacing.sm);
             }
         }
 
@@ -103,7 +103,7 @@ pub fn AccordionItem(
                         "border",
                         format!("1px solid {}", scheme_colors.border.clone()),
                     )
-                    .add("border-radius", theme_val.radius.sm);
+                    .add("border-radius", &*theme_val.radius.sm);
             }
         }
 
@@ -131,7 +131,7 @@ pub fn AccordionItem(
              font-weight: {}; \
              color: {}; \
              transition: background-color 0.15s ease;",
-            theme_val.spacing.md,
+            &*theme_val.spacing.md,
             theme_val.spacing.lg,
             theme_val.typography.font_sizes.md,
             theme_val.typography.font_weights.medium,
@@ -160,7 +160,7 @@ pub fn AccordionItem(
         let theme_val = theme.get();
         format!(
             "padding: 0 {} {} {};",
-            theme_val.spacing.lg, theme_val.spacing.md, theme_val.spacing.lg
+            &*theme_val.spacing.lg, theme_val.spacing.md, theme_val.spacing.lg
         )
     };
 

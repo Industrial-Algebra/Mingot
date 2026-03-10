@@ -24,7 +24,7 @@ pub fn Stats(
              background-color: {}; \
              border-radius: {}; \
              border: 1px solid {};",
-            theme_val.spacing.xs,
+            &*theme_val.spacing.xs,
             theme_val.spacing.md,
             theme_val.spacing.lg,
             scheme_colors.background,
@@ -52,7 +52,7 @@ pub fn Stats(
              font-weight: {}; \
              text-transform: uppercase; \
              letter-spacing: 0.5px;",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             text_secondary,
             theme_val.typography.font_weights.medium
         )
@@ -67,7 +67,7 @@ pub fn Stats(
         format!(
             "font-size: {}; \
              color: {};",
-            theme_val.typography.font_sizes.lg, text_secondary
+            &*theme_val.typography.font_sizes.lg, text_secondary
         )
     };
 
@@ -92,7 +92,7 @@ pub fn Stats(
         format!(
             "font-size: {}; \
              color: {};",
-            theme_val.typography.font_sizes.sm, text_secondary
+            &*theme_val.typography.font_sizes.sm, text_secondary
         )
     };
 
@@ -118,7 +118,7 @@ pub fn Stats(
             "font-size: {}; \
              font-weight: {}; \
              color: {};",
-            theme_val.typography.font_sizes.sm, theme_val.typography.font_weights.medium, color
+            &*theme_val.typography.font_sizes.sm, theme_val.typography.font_weights.medium, color
         )
     };
 

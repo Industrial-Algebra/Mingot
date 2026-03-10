@@ -129,6 +129,158 @@ impl ColorScheme {
             },
         );
 
+        // Orange shades
+        colors.insert(
+            "orange".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#fff4e6".to_string(),
+                    "#ffe8cc".to_string(),
+                    "#ffd8a8".to_string(),
+                    "#ffc078".to_string(),
+                    "#ffa94d".to_string(),
+                    "#ff922b".to_string(),
+                    "#fd7e14".to_string(),
+                    "#e8590c".to_string(),
+                    "#d9480f".to_string(),
+                    "#c92a05".to_string(),
+                ],
+            },
+        );
+
+        // Cyan shades
+        colors.insert(
+            "cyan".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#e3fafc".to_string(),
+                    "#c5f6fa".to_string(),
+                    "#99e9f2".to_string(),
+                    "#66d9e8".to_string(),
+                    "#3bc9db".to_string(),
+                    "#22b8cf".to_string(),
+                    "#15aabf".to_string(),
+                    "#1098ad".to_string(),
+                    "#0c8599".to_string(),
+                    "#0b7285".to_string(),
+                ],
+            },
+        );
+
+        // Violet shades
+        colors.insert(
+            "violet".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#f3f0ff".to_string(),
+                    "#e5dbff".to_string(),
+                    "#d0bfff".to_string(),
+                    "#b197fc".to_string(),
+                    "#9775fa".to_string(),
+                    "#845ef7".to_string(),
+                    "#7950f2".to_string(),
+                    "#7048e8".to_string(),
+                    "#6741d9".to_string(),
+                    "#5f3dc4".to_string(),
+                ],
+            },
+        );
+
+        // Pink shades
+        colors.insert(
+            "pink".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#fff0f6".to_string(),
+                    "#ffdeeb".to_string(),
+                    "#fcc2d7".to_string(),
+                    "#faa2c1".to_string(),
+                    "#f783ac".to_string(),
+                    "#f06595".to_string(),
+                    "#e64980".to_string(),
+                    "#d6336c".to_string(),
+                    "#c2255c".to_string(),
+                    "#a61e4d".to_string(),
+                ],
+            },
+        );
+
+        // Teal shades
+        colors.insert(
+            "teal".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#e6fcf5".to_string(),
+                    "#c3fae8".to_string(),
+                    "#96f2d7".to_string(),
+                    "#63e6be".to_string(),
+                    "#38d9a9".to_string(),
+                    "#20c997".to_string(),
+                    "#12b886".to_string(),
+                    "#0ca678".to_string(),
+                    "#099268".to_string(),
+                    "#087f5b".to_string(),
+                ],
+            },
+        );
+
+        // Indigo shades
+        colors.insert(
+            "indigo".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#edf2ff".to_string(),
+                    "#dbe4ff".to_string(),
+                    "#bac8ff".to_string(),
+                    "#91a7ff".to_string(),
+                    "#748ffc".to_string(),
+                    "#5c7cfa".to_string(),
+                    "#4c6ef5".to_string(),
+                    "#4263eb".to_string(),
+                    "#3b5bdb".to_string(),
+                    "#364fc7".to_string(),
+                ],
+            },
+        );
+
+        // Lime shades
+        colors.insert(
+            "lime".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#f4fce3".to_string(),
+                    "#e9fac8".to_string(),
+                    "#d8f5a2".to_string(),
+                    "#c0eb75".to_string(),
+                    "#a9e34b".to_string(),
+                    "#94d82d".to_string(),
+                    "#82c91e".to_string(),
+                    "#74b816".to_string(),
+                    "#66a80f".to_string(),
+                    "#5c940d".to_string(),
+                ],
+            },
+        );
+
+        // Grape shades
+        colors.insert(
+            "grape".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#f8f0fc".to_string(),
+                    "#f3d9fa".to_string(),
+                    "#eebefa".to_string(),
+                    "#e599f7".to_string(),
+                    "#da77f2".to_string(),
+                    "#cc5de8".to_string(),
+                    "#be4bdb".to_string(),
+                    "#ae3ec9".to_string(),
+                    "#9c36b5".to_string(),
+                    "#862e9c".to_string(),
+                ],
+            },
+        );
+
         Self {
             colors,
             white: "#ffffff".to_string(),
@@ -238,6 +390,158 @@ impl ColorScheme {
             },
         );
 
+        // Orange shades (darker for dark mode)
+        colors.insert(
+            "orange".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#4a2a0a".to_string(),
+                    "#5f3510".to_string(),
+                    "#754216".to_string(),
+                    "#8c501c".to_string(),
+                    "#a36022".to_string(),
+                    "#ba7128".to_string(),
+                    "#fd7e14".to_string(),
+                    "#ff922b".to_string(),
+                    "#ffa94d".to_string(),
+                    "#ffc078".to_string(),
+                ],
+            },
+        );
+
+        // Cyan shades (darker for dark mode)
+        colors.insert(
+            "cyan".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#0d3b40".to_string(),
+                    "#104d54".to_string(),
+                    "#156068".to_string(),
+                    "#1a737d".to_string(),
+                    "#1f8691".to_string(),
+                    "#2599a6".to_string(),
+                    "#15aabf".to_string(),
+                    "#22b8cf".to_string(),
+                    "#3bc9db".to_string(),
+                    "#66d9e8".to_string(),
+                ],
+            },
+        );
+
+        // Violet shades (darker for dark mode)
+        colors.insert(
+            "violet".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#2b1a4e".to_string(),
+                    "#362163".to_string(),
+                    "#422978".to_string(),
+                    "#4f318d".to_string(),
+                    "#5c3aa2".to_string(),
+                    "#6944b8".to_string(),
+                    "#7950f2".to_string(),
+                    "#845ef7".to_string(),
+                    "#9775fa".to_string(),
+                    "#b197fc".to_string(),
+                ],
+            },
+        );
+
+        // Pink shades (darker for dark mode)
+        colors.insert(
+            "pink".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#4a1a30".to_string(),
+                    "#5f1f3d".to_string(),
+                    "#7d264f".to_string(),
+                    "#9d2e62".to_string(),
+                    "#c03676".to_string(),
+                    "#e03e8a".to_string(),
+                    "#e64980".to_string(),
+                    "#f06595".to_string(),
+                    "#f783ac".to_string(),
+                    "#faa2c1".to_string(),
+                ],
+            },
+        );
+
+        // Teal shades (darker for dark mode)
+        colors.insert(
+            "teal".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#0d3b2e".to_string(),
+                    "#104d3b".to_string(),
+                    "#156049".to_string(),
+                    "#1a7357".to_string(),
+                    "#1f8666".to_string(),
+                    "#259975".to_string(),
+                    "#12b886".to_string(),
+                    "#20c997".to_string(),
+                    "#38d9a9".to_string(),
+                    "#63e6be".to_string(),
+                ],
+            },
+        );
+
+        // Indigo shades (darker for dark mode)
+        colors.insert(
+            "indigo".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#1a2250".to_string(),
+                    "#212b66".to_string(),
+                    "#29357d".to_string(),
+                    "#314094".to_string(),
+                    "#3a4cab".to_string(),
+                    "#4358c2".to_string(),
+                    "#4c6ef5".to_string(),
+                    "#5c7cfa".to_string(),
+                    "#748ffc".to_string(),
+                    "#91a7ff".to_string(),
+                ],
+            },
+        );
+
+        // Lime shades (darker for dark mode)
+        colors.insert(
+            "lime".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#2a3a0d".to_string(),
+                    "#354d10".to_string(),
+                    "#426015".to_string(),
+                    "#50731a".to_string(),
+                    "#5e861f".to_string(),
+                    "#6c9925".to_string(),
+                    "#82c91e".to_string(),
+                    "#94d82d".to_string(),
+                    "#a9e34b".to_string(),
+                    "#c0eb75".to_string(),
+                ],
+            },
+        );
+
+        // Grape shades (darker for dark mode)
+        colors.insert(
+            "grape".to_string(),
+            ColorShades {
+                shades: vec![
+                    "#371a47".to_string(),
+                    "#45215a".to_string(),
+                    "#54296e".to_string(),
+                    "#633182".to_string(),
+                    "#723a96".to_string(),
+                    "#8244ab".to_string(),
+                    "#be4bdb".to_string(),
+                    "#cc5de8".to_string(),
+                    "#da77f2".to_string(),
+                    "#e599f7".to_string(),
+                ],
+            },
+        );
+
         Self {
             colors,
             white: "#ffffff".to_string(),
@@ -284,6 +588,11 @@ mod tests {
         assert!(!palette.dark.colors.is_empty());
     }
 
+    const ALL_COLOR_NAMES: &[&str] = &[
+        "blue", "gray", "red", "green", "yellow", "orange", "cyan", "violet", "pink", "teal",
+        "indigo", "lime", "grape",
+    ];
+
     #[test]
     fn test_light_scheme_colors() {
         let scheme = ColorScheme::light_default();
@@ -294,12 +603,15 @@ mod tests {
         assert_eq!(scheme.background, "#ffffff");
         assert_eq!(scheme.text, "#000000");
 
-        // Test that color palettes exist
-        assert!(scheme.colors.contains_key("blue"));
-        assert!(scheme.colors.contains_key("gray"));
-        assert!(scheme.colors.contains_key("red"));
-        assert!(scheme.colors.contains_key("green"));
-        assert!(scheme.colors.contains_key("yellow"));
+        // Test that all 13 color palettes exist
+        for name in ALL_COLOR_NAMES {
+            assert!(
+                scheme.colors.contains_key(*name),
+                "Light scheme missing color: {}",
+                name
+            );
+        }
+        assert_eq!(scheme.colors.len(), 13);
     }
 
     #[test]
@@ -312,12 +624,39 @@ mod tests {
         assert_eq!(scheme.background, "#1a1b1e");
         assert_eq!(scheme.text, "#c1c2c5");
 
-        // Test that color palettes exist
-        assert!(scheme.colors.contains_key("blue"));
-        assert!(scheme.colors.contains_key("gray"));
-        assert!(scheme.colors.contains_key("red"));
-        assert!(scheme.colors.contains_key("green"));
-        assert!(scheme.colors.contains_key("yellow"));
+        // Test that all 13 color palettes exist
+        for name in ALL_COLOR_NAMES {
+            assert!(
+                scheme.colors.contains_key(*name),
+                "Dark scheme missing color: {}",
+                name
+            );
+        }
+        assert_eq!(scheme.colors.len(), 13);
+    }
+
+    #[test]
+    fn test_all_palettes_have_10_shades() {
+        let light = ColorScheme::light_default();
+        let dark = ColorScheme::dark_default();
+
+        for name in ALL_COLOR_NAMES {
+            let light_shades = light.colors.get(*name).unwrap();
+            assert_eq!(
+                light_shades.shades.len(),
+                10,
+                "Light {} should have 10 shades",
+                name
+            );
+
+            let dark_shades = dark.colors.get(*name).unwrap();
+            assert_eq!(
+                dark_shades.shades.len(),
+                10,
+                "Dark {} should have 10 shades",
+                name
+            );
+        }
     }
 
     #[test]

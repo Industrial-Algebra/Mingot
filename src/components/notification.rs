@@ -207,7 +207,7 @@ fn NotificationItem(notification: NotificationData) -> impl IntoView {
              opacity: {}; \
              transform: {}; \
              transition: all 0.3s ease;",
-            theme_val.spacing.sm,
+            &*theme_val.spacing.sm,
             theme_val.spacing.md,
             theme_val.spacing.lg,
             bg_color,

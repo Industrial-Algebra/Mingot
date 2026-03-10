@@ -109,7 +109,7 @@ pub fn SegmentedControl(
             .add("flex-direction", if vertical { "column" } else { "row" })
             .add("align-items", "stretch")
             .add("position", "relative")
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add(
                 "background-color",
                 scheme_colors
@@ -157,15 +157,15 @@ pub fn SegmentedControl(
                         .add("justify-content", "center")
                         .add("height", height)
                         .add("padding", padding)
-                        .add("border-radius", theme_val.radius.xs)
+                        .add("border-radius", &*theme_val.radius.xs)
                         .add("border", "none")
-                        .add("font-family", theme_val.typography.font_family)
+                        .add("font-family", &*theme_val.typography.font_family)
                         .add("font-size", match font_size {
-                            "xs" => theme_val.typography.font_sizes.xs,
-                            "sm" => theme_val.typography.font_sizes.sm,
-                            "md" => theme_val.typography.font_sizes.md,
-                            "lg" => theme_val.typography.font_sizes.lg,
-                            _ => theme_val.typography.font_sizes.sm,
+                            "xs" => &*theme_val.typography.font_sizes.xs,
+                            "sm" => &*theme_val.typography.font_sizes.sm,
+                            "md" => &*theme_val.typography.font_sizes.md,
+                            "lg" => &*theme_val.typography.font_sizes.lg,
+                            _ => &*theme_val.typography.font_sizes.sm,
                         })
                         .add("font-weight", theme_val.typography.font_weights.medium.to_string())
                         .add("cursor", if is_disabled { "not-allowed" } else { "pointer" })
@@ -178,7 +178,7 @@ pub fn SegmentedControl(
                         builder
                             .add("background-color", scheme_colors.white.clone())
                             .add("color", scheme_colors.text.clone())
-                            .add("box-shadow", theme_val.shadows.xs);
+                            .add("box-shadow", &*theme_val.shadows.xs);
                     } else {
                         builder
                             .add("background-color", "transparent")

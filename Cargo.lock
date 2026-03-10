@@ -1063,12 +1063,14 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
 name = "mingot"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "leptos",
  "leptos_meta",
  "leptos_router",
  "rust_decimal",
+ "serde",
+ "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "web-sys",

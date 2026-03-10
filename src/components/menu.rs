@@ -165,7 +165,7 @@ pub fn MenuItem(
              transition: background-color 0.15s ease; \
              user-select: none; \
              white-space: nowrap;",
-            theme_val.spacing.sm,
+            &*theme_val.spacing.sm,
             theme_val.spacing.xs,
             theme_val.spacing.sm,
             theme_val.radius.sm,
@@ -261,7 +261,7 @@ pub fn MenuLabel(
              padding: {} {}; \
              text-transform: uppercase; \
              letter-spacing: 0.5px;",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             theme_val.typography.font_weights.bold,
             text_secondary,
             theme_val.spacing.xs,

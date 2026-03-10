@@ -110,7 +110,7 @@ pub fn Progress(
              font-weight: {}; \
              color: #ffffff; \
              padding: 0 {};",
-            theme_val.typography.font_sizes.xs,
+            &*theme_val.typography.font_sizes.xs,
             theme_val.typography.font_weights.bold,
             theme_val.spacing.xs
         )

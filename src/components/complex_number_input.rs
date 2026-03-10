@@ -454,7 +454,7 @@ pub fn ComplexNumberInput(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -477,11 +477,15 @@ pub fn ComplexNumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         let (height, font_size, padding): (&str, &str, &str) = match size {
-            ComplexInputSize::Xs => ("1.625rem", theme_val.typography.font_sizes.xs, "0 0.5rem"),
-            ComplexInputSize::Sm => ("1.875rem", theme_val.typography.font_sizes.sm, "0 0.625rem"),
-            ComplexInputSize::Md => ("2.25rem", theme_val.typography.font_sizes.sm, "0 0.75rem"),
-            ComplexInputSize::Lg => ("2.625rem", theme_val.typography.font_sizes.md, "0 1rem"),
-            ComplexInputSize::Xl => ("3rem", theme_val.typography.font_sizes.lg, "0 1.25rem"),
+            ComplexInputSize::Xs => ("1.625rem", &*theme_val.typography.font_sizes.xs, "0 0.5rem"),
+            ComplexInputSize::Sm => (
+                "1.875rem",
+                &*theme_val.typography.font_sizes.sm,
+                "0 0.625rem",
+            ),
+            ComplexInputSize::Md => ("2.25rem", &*theme_val.typography.font_sizes.sm, "0 0.75rem"),
+            ComplexInputSize::Lg => ("2.625rem", &*theme_val.typography.font_sizes.md, "0 1rem"),
+            ComplexInputSize::Xl => ("3rem", &*theme_val.typography.font_sizes.lg, "0 1.25rem"),
         };
 
         let has_validation_error =
@@ -503,7 +507,7 @@ pub fn ComplexNumberInput(
             .add("font-size", font_size)
             .add("height", height)
             .add("border", format!("1px solid {}", border_color))
-            .add("border-radius", theme_val.radius.sm.to_owned())
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background-color", scheme_colors.background.clone())
             .add("color", scheme_colors.text.clone())
             .add("outline", "none")
@@ -558,7 +562,7 @@ pub fn ComplexNumberInput(
         StyleBuilder::new()
             .add("padding", "0.25rem 0.5rem")
             .add("font-size", "0.75rem")
-            .add("border-radius", theme_val.radius.sm.to_owned())
+            .add("border-radius", &*theme_val.radius.sm)
             .add("border", "1px solid")
             .add(
                 "border-color",
@@ -596,7 +600,7 @@ pub fn ComplexNumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -612,7 +616,7 @@ pub fn ComplexNumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors
@@ -628,7 +632,7 @@ pub fn ComplexNumberInput(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors

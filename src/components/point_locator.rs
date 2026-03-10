@@ -283,7 +283,7 @@ pub fn PointLocator(
         StyleBuilder::new()
             .add("display", "flex")
             .add("flex-direction", "column")
-            .add("gap", theme_val.spacing.xs)
+            .add("gap", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -291,7 +291,7 @@ pub fn PointLocator(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.medium.to_string(),
@@ -311,7 +311,7 @@ pub fn PointLocator(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
+            .add("border-radius", &*theme_val.radius.sm)
             .add("background", scheme_colors.background.clone())
             .add(
                 "cursor",
@@ -338,7 +338,7 @@ pub fn PointLocator(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.sm)
+            .add("font-size", &*theme_val.typography.font_sizes.sm)
             .add("font-family", "monospace")
             .add("color", scheme_colors.text.clone())
             .add("padding", "0.25rem 0.5rem")
@@ -347,8 +347,8 @@ pub fn PointLocator(
                 "border",
                 format!("1px solid {}", scheme_colors.border.clone()),
             )
-            .add("border-radius", theme_val.radius.sm)
-            .add("margin-top", theme_val.spacing.xs)
+            .add("border-radius", &*theme_val.radius.sm)
+            .add("margin-top", &*theme_val.spacing.xs)
             .build()
     };
 
@@ -356,7 +356,7 @@ pub fn PointLocator(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         StyleBuilder::new()
-            .add("font-size", theme_val.typography.font_sizes.xs)
+            .add("font-size", &*theme_val.typography.font_sizes.xs)
             .add(
                 "color",
                 scheme_colors

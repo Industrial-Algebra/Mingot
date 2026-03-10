@@ -78,7 +78,7 @@ pub fn Button(
                     "pointer"
                 },
             )
-            .add("font-family", theme_val.typography.font_family)
+            .add("font-family", &*theme_val.typography.font_family)
             .add(
                 "font-weight",
                 theme_val.typography.font_weights.semibold.to_string(),
@@ -94,31 +94,31 @@ pub fn Button(
                 builder
                     .add("height", "1.875rem")
                     .add("padding", "0 0.875rem")
-                    .add("font-size", theme_val.typography.font_sizes.xs);
+                    .add("font-size", &*theme_val.typography.font_sizes.xs);
             }
             ButtonSize::Sm => {
                 builder
                     .add("height", "2.25rem")
                     .add("padding", "0 1.125rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             ButtonSize::Md => {
                 builder
                     .add("height", "2.625rem")
                     .add("padding", "0 1.375rem")
-                    .add("font-size", theme_val.typography.font_sizes.sm);
+                    .add("font-size", &*theme_val.typography.font_sizes.sm);
             }
             ButtonSize::Lg => {
                 builder
                     .add("height", "3.125rem")
                     .add("padding", "0 1.625rem")
-                    .add("font-size", theme_val.typography.font_sizes.md);
+                    .add("font-size", &*theme_val.typography.font_sizes.md);
             }
             ButtonSize::Xl => {
                 builder
                     .add("height", "3.75rem")
                     .add("padding", "0 2rem")
-                    .add("font-size", theme_val.typography.font_sizes.lg);
+                    .add("font-size", &*theme_val.typography.font_sizes.lg);
             }
         }
 
@@ -160,7 +160,7 @@ pub fn Button(
         if let Some(r) = radius.as_ref() {
             builder.add("border-radius", r);
         } else {
-            builder.add("border-radius", theme_val.radius.sm);
+            builder.add("border-radius", &*theme_val.radius.sm);
         }
 
         // Full width

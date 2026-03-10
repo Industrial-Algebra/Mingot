@@ -75,7 +75,7 @@ pub fn Divider(
                         .add("display", "flex")
                         .add("align-items", "center")
                         .add("justify-content", label_position.as_str())
-                        .add("gap", theme_val.spacing.sm);
+                        .add("gap", &*theme_val.spacing.sm);
                 } else {
                     builder
                         .add(
@@ -85,7 +85,7 @@ pub fn Divider(
                         .add("border-bottom", "none")
                         .add("border-left", "none")
                         .add("border-right", "none")
-                        .add("margin", format!("{} 0", theme_val.spacing.md));
+                        .add("margin", format!("{} 0", &*theme_val.spacing.md));
                 }
             }
             DividerOrientation::Vertical => {
@@ -99,7 +99,7 @@ pub fn Divider(
                     .add("border-right", "none")
                     .add("height", "100%")
                     .add("min-height", "1rem")
-                    .add("margin", format!("0 {}", theme_val.spacing.md));
+                    .add("margin", format!("0 {}", &*theme_val.spacing.md));
             }
         }
 

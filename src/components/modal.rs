@@ -70,7 +70,7 @@ pub fn Modal(
         let theme_val = theme.get();
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
 
-        let padding_val = padding.as_deref().unwrap_or(theme_val.spacing.lg);
+        let padding_val = padding.as_deref().unwrap_or(&*theme_val.spacing.lg);
 
         format!(
             "position: relative; \
@@ -102,7 +102,7 @@ pub fn Modal(
              font-size: {}; \
              font-weight: {}; \
              color: {};",
-            theme_val.spacing.md,
+            &*theme_val.spacing.md,
             theme_val.typography.font_sizes.lg,
             theme_val.typography.font_weights.semibold,
             scheme_colors.text

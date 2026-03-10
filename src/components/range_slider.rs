@@ -136,7 +136,7 @@ pub fn RangeSlider(
             .add("position", "relative")
             .add("width", "100%")
             .add("height", track_height)
-            .add("border-radius", theme_val.radius.xl)
+            .add("border-radius", &*theme_val.radius.xl)
             .add(
                 "background-color",
                 scheme_colors
@@ -171,7 +171,7 @@ pub fn RangeSlider(
                 "width",
                 format!("{}%", right_percentage() - left_percentage()),
             )
-            .add("border-radius", theme_val.radius.xl)
+            .add("border-radius", &*theme_val.radius.xl)
             .add(
                 "background-color",
                 scheme_colors
@@ -222,7 +222,7 @@ pub fn RangeSlider(
                             .unwrap_or_else(|| "#228be6".to_string())
                     ),
                 )
-                .add("box-shadow", theme_val.shadows.sm)
+                .add("box-shadow", &*theme_val.shadows.sm)
                 .add(
                     "cursor",
                     if is_disabled {
@@ -255,7 +255,7 @@ pub fn RangeSlider(
         let scheme_colors = crate::theme::get_scheme_colors(&theme_val);
         format!(
             "display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: {}; font-weight: {}; color: {};",
-            theme_val.typography.font_sizes.sm,
+            &*theme_val.typography.font_sizes.sm,
             theme_val.typography.font_weights.medium,
             scheme_colors.text
         )

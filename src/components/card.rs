@@ -12,13 +12,13 @@ pub enum CardPadding {
 }
 
 impl CardPadding {
-    fn value(&self, theme: &crate::theme::Theme) -> &str {
+    fn value<'a>(&self, theme: &'a crate::theme::Theme) -> &'a str {
         match self {
-            CardPadding::Xs => theme.spacing.xs,
-            CardPadding::Sm => theme.spacing.sm,
-            CardPadding::Md => theme.spacing.md,
-            CardPadding::Lg => theme.spacing.lg,
-            CardPadding::Xl => theme.spacing.xl,
+            CardPadding::Xs => &theme.spacing.xs,
+            CardPadding::Sm => &theme.spacing.sm,
+            CardPadding::Md => &theme.spacing.md,
+            CardPadding::Lg => &theme.spacing.lg,
+            CardPadding::Xl => &theme.spacing.xl,
         }
     }
 }
@@ -74,7 +74,7 @@ pub fn Card(
         if let Some(r) = radius.as_ref() {
             builder.add("border-radius", r);
         } else {
-            builder.add("border-radius", theme_val.radius.md);
+            builder.add("border-radius", &*theme_val.radius.md);
         }
 
         if with_border {
@@ -87,7 +87,7 @@ pub fn Card(
         if let Some(s) = shadow.as_ref() {
             builder.add("box-shadow", s);
         } else {
-            builder.add("box-shadow", theme_val.shadows.sm);
+            builder.add("box-shadow", &*theme_val.shadows.sm);
         }
 
         if let Some(s) = style.as_ref() {
@@ -135,14 +135,14 @@ pub fn CardSection(
         if !inherit_padding {
             builder.add(
                 "margin",
-                format!("-{} -{}", theme_val.spacing.md, theme_val.spacing.md),
+                format!("-{} -{}", &*theme_val.spacing.md, &*theme_val.spacing.md),
             );
         }
 
         if let Some(p) = padding.as_ref() {
             builder.add("padding", p);
         } else if !inherit_padding {
-            builder.add("padding", theme_val.spacing.md);
+            builder.add("padding", &*theme_val.spacing.md);
         }
 
         if with_border {
