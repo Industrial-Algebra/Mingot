@@ -23,6 +23,9 @@ leptos_router = "0.8.12"
 web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Window", "Document", "CssStyleDeclaration", "DomRect", "Element", "Event", "EventTarget", "File", "FileList", "DataTransfer", "ClipboardEvent", "Clipboard", "Navigator", "MediaQueryList"] }
 wasm-bindgen = "0.2"
 
+# Error derive macros for core error types
+thiserror = "2"
+
 # Optional: High-precision decimal arithmetic
 rust_decimal = { version = "1.40", optional = true, default-features = false }
 
