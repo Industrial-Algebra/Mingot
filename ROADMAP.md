@@ -1174,15 +1174,46 @@ mingot = { version = "1.1", features = ["vfx"] }
 - **Breaking changes allowed**: API evolution prioritized over stability
 
 ### 1.0.0 Release Criteria
-- [x] All Phase 1-5 features complete and tested
-- [x] Phase 6 (Theme System) complete
-- [ ] Phase 7 (Node-Based Network UI) complete
-- [ ] Comprehensive documentation
-- [ ] Real-world usage in 3+ production applications
-- [ ] Performance benchmarks meet targets
-- [ ] Accessibility audit complete (WCAG 2.1 AA)
-- [ ] Community adoption and feedback
-- [ ] API stability commitment
+
+> Reviewed June 2026. Next review at 0.9.0 (Phase 8) kickoff. Full kickoff for Phase 7: [`docs/PHASE_7_KICKOFF.md`](docs/PHASE_7_KICKOFF.md).
+
+**Feature completeness**
+- [x] Phase 1–5 complete (precision + scientific/math input components) — v0.6.1
+- [x] Phase 6 complete (theme system: CSS vars, presets, ThemeBuilder, WCAG contrast) — v0.7.0
+- [ ] Phase 7 complete, in three shippable slices:
+  - [ ] 7A — headless precision-graph model (types, validation, cycle detection, precision-flow analysis, serde round-trip)
+  - [ ] 7B — visual node editor (NodeCanvas/Node/NodePort/NodeConnection, pan/zoom, drag-to-connect, keyboard a11y)
+  - [ ] 7C — graph execution engine + built-in precision-preserving node library
+
+**Precision guarantees (core identity)**
+- [ ] Every numeric port/component carries a typed precision requirement, tested at boundaries
+- [ ] Precision-flow analysis detects and surfaces lossy connections (e.g. `Arbitrary → Decimal(2)`)
+- [ ] No public API silently coerces to a lower precision
+- [ ] `rust_decimal` arbitrary-precision path (`high-precision` feature) fully tested
+
+**Quality gates (all enforced in CI)**
+- [x] `cargo fmt --check` clean
+- [x] `cargo clippy --all-features -- -D warnings` — zero warnings
+- [x] Library builds for `wasm32-unknown-unknown`
+- [ ] ≥ 90% coverage on precision-critical modules (node graph, NumberInput, scientific inputs)
+- [ ] Serde round-trip property tests for all serializable state (theme tokens, node graphs)
+
+**Documentation**
+- [ ] 100% of public API items documented; non-trivial functions carry doc tests
+- [ ] Demo site documents every component with a live, runnable example
+- [ ] Node-graph guide + reference (custom-node trait, execution model, serialization format)
+
+**Performance**
+- [ ] < 16 ms input-to-render latency for all form components (60 FPS)
+- [ ] Node editor renders and interacts smoothly with ≥ 250 nodes on reference hardware
+- [ ] WASM binary size held within a documented per-feature budget
+
+**Accessibility**
+- [ ] WCAG 2.1 AA audit passed; node editor fully keyboard-navigable (add / move / connect / delete without a pointer)
+
+**Maturity & adoption**
+- [ ] API stability commitment: no breaking changes without a deprecation cycle
+- [ ] Used in ≥ 3 production applications (Ultramarine-Red + others); ≥ 1 published migration guide
 
 ### Post-1.0
 - **Major (X.0.0)**: Breaking API changes
@@ -1209,7 +1240,8 @@ mingot = { version = "1.1", features = ["vfx"] }
 ### Precision Metrics
 - **Zero precision loss**: No component loses precision silently
 - **Validated range**: All precision types tested at boundaries
-- **Amari integration**: Full coverage of Amari's Number type
+- **Arbitrary precision**: Full coverage of `rust_decimal` via the `high-precision` feature (28–29 significant digits)
+- **Precision propagation**: Node graphs track precision across connections and warn on loss
 - **Error handling**: All precision errors surfaced to users
 
 ---
@@ -1265,8 +1297,8 @@ The community is invited to shape Mingot's future:
 
 ---
 
-**Last Updated**: March 2026
-**Next Review**: June 2026
+**Last Updated**: June 2026
+**Next Review**: 0.9.0 (Phase 8) kickoff
 
 ---
 
