@@ -56,6 +56,19 @@
 //! }
 //! ```
 
+//!
+//! ## Features
+//!
+//! Mingot uses additive feature flags. Rendering modes are mutually
+//! exclusive at use time; precision and token features are opt-in:
+//!
+//! - `csr` (default): client-side rendering via Leptos
+//! - `ssr`: server-side rendering via Leptos
+//! - `hydrate`: hydration for SSR apps
+//! - `high-precision`: enables `NumberInputPrecision::Arbitrary` via
+//!   [`rust_decimal`](https://docs.rs/rust_decimal) (128-bit, 28-29 significant digits)
+//! - `theme-tokens`: serde JSON export/import of design tokens
+
 pub mod components;
 pub mod theme;
 pub mod utils;
