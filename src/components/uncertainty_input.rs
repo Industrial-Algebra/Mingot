@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! UncertaintyInput component for entering and manipulating values with uncertainty.
 //!
 //! This component provides a specialized input for values with uncertainty bounds,

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 use super::{
     BorderScale, Breakpoints, ColorPalette, ColorSchemeMode, ColorShades, FontSizes, FontWeights,
     LayoutTokens, LineHeights, RadiusScale, ShadowScale, Spacing, Theme, Typography,

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! Mingot - The Leptos UI library for applications that demand mathematical precision
 //!
 //! Mingot provides ultra-precision UI components for scientific computing, financial applications,

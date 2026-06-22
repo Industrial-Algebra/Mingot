@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! Tensor input component for multi-dimensional array entry.
 //!
 //! Supports arbitrary-rank tensors with slice navigation and
