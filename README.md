@@ -463,12 +463,21 @@ Mingot's precision components are optimized for real-time applications:
 
 ## License
 
-Mingot is dual-licensed under:
+**Mingot v0.8.0 and later** are licensed under the **GNU Affero General Public License v3.0 only** ([LICENSE-AGPL](LICENSE-AGPL)).
 
-- MIT License ([LICENSE-MIT](LICENSE-MIT))
-- Apache License 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+> **AGPL note:** The AGPL is a strong copyleft license that extends to network
+> use — applications you offer over a network that use Mingot must disclose
+> their corresponding source. Choose Mingot (0.8.0+) accordingly.
 
-Choose the license that best suits your project.
+### Prior releases
+
+Mingot **v0.7.0 and earlier** remain dual-licensed under the permissive
+[MIT](LICENSE-MIT) / [Apache-2.0](LICENSE-APACHE) terms. Those published
+versions (and their git tags) keep that license permanently. New development
+is AGPL-3.0-only.
+
+Mingot is a single-copyright project (Industrial Algebra). See the license
+files for complete terms.
 
 ## Acknowledgments
 
