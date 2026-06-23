@@ -82,6 +82,10 @@ pub mod theme;
 pub mod utils;
 pub mod validation;
 
+/// Precision-aware node graph editor (Phase 7). Enable with the `node-graph` feature.
+#[cfg(feature = "node-graph")]
+pub mod node_graph;
+
 // Re-export commonly used components
 pub use components::*;
 pub use theme::{
