@@ -8,7 +8,7 @@ version = "0.7.0"
 edition = "2021"
 authors = ["Industrial Algebra <noreply@industrial-algebra.org>"]
 description = "Leptos UI library for applications demanding mathematical precision - u64+ integers, arbitrary-precision decimals, zero precision loss"
-license = "MIT OR Apache-2.0"
+license = "AGPL-3.0-only"
 repository = "https://github.com/Industrial-Algebra/Mingot"
 keywords = ["leptos", "ui", "precision", "mathematics", "decimal"]
 categories = ["gui", "web-programming", "science", "mathematics"]
@@ -22,6 +22,9 @@ leptos_meta = "0.8.5"
 leptos_router = "0.8.12"
 web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Window", "Document", "CssStyleDeclaration", "DomRect", "Element", "Event", "EventTarget", "File", "FileList", "DataTransfer", "ClipboardEvent", "Clipboard", "Navigator", "MediaQueryList"] }
 wasm-bindgen = "0.2"
+
+# Error derive macros for core error types
+thiserror = "2"
 
 # Optional: High-precision decimal arithmetic
 rust_decimal = { version = "1.40", optional = true, default-features = false }

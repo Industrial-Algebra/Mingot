@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 pub mod validators;
 
 pub use validators::*;
@@ -5,7 +7,8 @@ pub use validators::*;
 use std::fmt;
 
 /// Validation error with message
-#[derive(Clone, Debug, PartialEq)]
+#[derive(thiserror::Error, Clone, Debug, PartialEq)]
+#[error("{message}")]
 pub struct ValidationError {
     pub message: String,
     pub code: ErrorCode,
@@ -58,12 +61,6 @@ impl ValidationError {
 
     pub fn custom(message: impl Into<String>) -> Self {
         Self::new(message, ErrorCode::Custom)
-    }
-}
-
-impl fmt::Display for ValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.message)
     }
 }
 

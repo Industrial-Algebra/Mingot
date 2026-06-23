@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 use crate::theme::use_theme;
 use leptos::prelude::*;
 use std::collections::HashMap;

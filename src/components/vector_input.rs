@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! Vector input component for row/column vector entry.
 //!
 //! Supports various vector notations with magnitude, direction,

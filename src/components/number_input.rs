@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
@@ -36,29 +38,20 @@ pub enum NumberInputLocale {
     Indian, // 12,34,567.89
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(thiserror::Error, Clone, Debug, PartialEq)]
 pub enum ParseError {
+    #[error("Invalid format: {0}")]
     InvalidFormat(String),
+    #[error("Overflow: {0}")]
     Overflow(String),
+    #[error("Underflow: {0}")]
     Underflow(String),
+    #[error("Too many decimal places (max: {0})")]
     TooManyDecimals(u32),
+    #[error("Negative values not allowed")]
     NegativeNotAllowed,
+    #[error("Decimal values not allowed")]
     DecimalNotAllowed,
-}
-
-impl std::fmt::Display for ParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ParseError::InvalidFormat(msg) => write!(f, "Invalid format: {}", msg),
-            ParseError::Overflow(msg) => write!(f, "Overflow: {}", msg),
-            ParseError::Underflow(msg) => write!(f, "Underflow: {}", msg),
-            ParseError::TooManyDecimals(max) => {
-                write!(f, "Too many decimal places (max: {})", max)
-            }
-            ParseError::NegativeNotAllowed => write!(f, "Negative values not allowed"),
-            ParseError::DecimalNotAllowed => write!(f, "Decimal values not allowed"),
-        }
-    }
 }
 
 // Validation functions

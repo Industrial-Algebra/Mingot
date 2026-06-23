@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! AngleInput - High-precision angle entry with multiple unit support
 //!
 //! Supports degrees, radians, gradians, turns, and DMS (degrees-minutes-seconds) format.

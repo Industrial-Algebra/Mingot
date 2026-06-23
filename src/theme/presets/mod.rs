@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! Built-in theme presets.
 //!
 //! Each preset returns a fully configured [`Theme`](super::Theme) that

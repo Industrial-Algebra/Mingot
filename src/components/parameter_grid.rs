@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 use crate::components::number_input::{NumberInputPrecision, ParseError};
 use crate::components::parameter_slider::{ParameterSliderScale, ParameterSliderSize};
 use crate::theme::use_theme;

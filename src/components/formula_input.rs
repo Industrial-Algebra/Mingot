@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! Formula input component for mathematical expression entry.
 //!
 //! Provides a text input that parses and validates mathematical expressions,
@@ -309,31 +311,24 @@ impl std::fmt::Display for Expression {
 }
 
 /// Parse error types
-#[derive(Clone, Debug, PartialEq)]
+#[derive(thiserror::Error, Clone, Debug, PartialEq)]
 pub enum FormulaParseError {
+    #[error("Unexpected character: '{0}'")]
     UnexpectedCharacter(char),
+    #[error("Unexpected token: {0}")]
     UnexpectedToken(String),
+    #[error("Unmatched parenthesis")]
     UnmatchedParenthesis,
+    #[error("Empty expression")]
     EmptyExpression,
+    #[error("Invalid number: {0}")]
     InvalidNumber(String),
+    #[error("Unknown function: {0}")]
     UnknownFunction(String),
+    #[error("Missing operand")]
     MissingOperand,
+    #[error("Trailing input: {0}")]
     TrailingInput(String),
-}
-
-impl std::fmt::Display for FormulaParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::UnexpectedCharacter(c) => write!(f, "Unexpected character: '{}'", c),
-            Self::UnexpectedToken(t) => write!(f, "Unexpected token: {}", t),
-            Self::UnmatchedParenthesis => write!(f, "Unmatched parenthesis"),
-            Self::EmptyExpression => write!(f, "Empty expression"),
-            Self::InvalidNumber(s) => write!(f, "Invalid number: {}", s),
-            Self::UnknownFunction(s) => write!(f, "Unknown function: {}", s),
-            Self::MissingOperand => write!(f, "Missing operand"),
-            Self::TrailingInput(s) => write!(f, "Trailing input: {}", s),
-        }
-    }
 }
 
 /// Tokenizer for mathematical expressions

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
 use crate::utils::StyleBuilder;
@@ -330,15 +332,11 @@ pub fn PinInput(
                                     update_value(index, String::new());
                                 }
                             }
-                            "ArrowLeft" => {
-                                if index > 0 {
-                                    focus_input_for_keydown(index - 1);
-                                }
+                            "ArrowLeft" if index > 0 => {
+                                focus_input_for_keydown(index - 1);
                             }
-                            "ArrowRight" => {
-                                if index < length - 1 {
-                                    focus_input_for_keydown(index + 1);
-                                }
+                            "ArrowRight" if index < length - 1 => {
+                                focus_input_for_keydown(index + 1);
                             }
                             _ => {}
                         }

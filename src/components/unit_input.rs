@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! UnitInput - Numeric input with unit conversion support
 //!
 //! Supports values with physical units, automatic conversion between compatible units,

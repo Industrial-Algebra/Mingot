@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! EquationEditor component for WYSIWYG mathematical expression editing.
 //!
 //! A structured math editor designed for geometric algebra expressions,

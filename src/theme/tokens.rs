@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: AGPL-3.0-only
 //! Design token export/import for theme interoperability.
 //!
 //! Gated behind the `theme-tokens` feature flag.
