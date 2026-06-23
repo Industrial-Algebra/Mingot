@@ -17,9 +17,9 @@ categories = ["gui", "web-programming", "science", "mathematics"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-leptos = { version = "0.8.12", features = ["csr"] }
-leptos_meta = "0.8.5"
-leptos_router = "0.8.12"
+leptos = { version = "0.8.17", features = ["csr"] }
+leptos_meta = "0.8.6"
+leptos_router = "0.8.13"
 web-sys = { version = "0.3", features = ["HtmlElement", "HtmlInputElement", "Window", "Document", "CssStyleDeclaration", "DomRect", "Element", "Event", "EventTarget", "File", "FileList", "DataTransfer", "ClipboardEvent", "Clipboard", "Navigator", "MediaQueryList"] }
 wasm-bindgen = "0.2"
 
@@ -27,7 +27,7 @@ wasm-bindgen = "0.2"
 thiserror = "2"
 
 # Optional: High-precision decimal arithmetic
-rust_decimal = { version = "1.40", optional = true, default-features = false }
+rust_decimal = { version = "1.42", optional = true, default-features = false }
 
 # Optional: Design tokens export/import
 serde = { version = "1", optional = true, features = ["derive"] }
