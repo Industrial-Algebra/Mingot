@@ -16,7 +16,7 @@
 use std::borrow::Cow;
 
 /// Numeric integer width and signedness carried by an [`PortType::Integer`] port.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum IntKind {
     /// Unsigned 64-bit.
     U64,
@@ -29,7 +29,7 @@ pub enum IntKind {
 }
 
 /// What a port emits (output) or accepts (input).
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum PortType {
     /// A fixed-width integer of a given [`IntKind`].
     Integer(IntKind),
