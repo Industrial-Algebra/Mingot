@@ -1,5 +1,5 @@
 // Copyright (C) 2026 Industrial Algebra
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 //! FractionInput - Exact rational number input with multiple format support
 //!
 //! Supports fraction notation (1/2), decimal (0.5), and mixed numbers (1 1/2).

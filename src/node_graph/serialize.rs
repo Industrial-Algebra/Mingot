@@ -1,5 +1,5 @@
 // Copyright (C) 2026 Industrial Algebra
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 
 //! Serialization of node graphs to/from JSON, with a schema version for
 //! forward-compatible evolution.

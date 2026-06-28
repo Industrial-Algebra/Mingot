@@ -1,5 +1,5 @@
 // Copyright (C) 2026 Industrial Algebra
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 
 //! The node editor canvas: an infinite pannable, zoomable SVG surface that
 //! renders a [`NodeGraph`] and lets the user move nodes and draw connections.

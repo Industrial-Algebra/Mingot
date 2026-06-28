@@ -1,5 +1,5 @@
 // Copyright (C) 2026 Industrial Algebra
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 //! Point locator component for visual point positioning.
 //!
 //! Mathematica-style drag-and-drop point positioning with grid snapping

@@ -5,6 +5,30 @@ All notable changes to Mingot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+#### Relicensing to Apache-2.0 + CLA
+
+- **License**: `AGPL-3.0-only` → `Apache-2.0` (per the IA ecosystem standard)
+  - `Cargo.toml` `license` field updated
+  - `LICENSE-AGPL` and `LICENSE-MIT` removed; `LICENSE-APACHE` retained
+  - All 125 source file SPDX headers changed `AGPL-3.0-only` → `Apache-2.0`
+  - `README.md` License section rewritten; `CONTRIBUTING.md` added
+    referencing the [Industrial Algebra CLA](https://github.com/Industrial-Algebra/.github/blob/main/CLA.md)
+  - Published versions v0.7.0 and earlier (`MIT OR Apache-2.0`) are unaffected;
+    no AGPL version was ever published
+
+### Added
+
+#### Node Graph Editor (Phase 7A + 7B) — `node-graph` feature
+
+- Precision-aware graph data model (typed ports, precision-flow verdicts,
+  cycle detection, whole-graph validation, versioned JSON serialization)
+- SVG visual editor components (NodeCanvas / Node / NodePort / NodeConnection)
+  with pan/zoom viewport geometry
+
 ## [0.7.0] - 2026-03-08
 
 ### Added

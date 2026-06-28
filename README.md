@@ -463,21 +463,29 @@ Mingot's precision components are optimized for real-time applications:
 
 ## License
 
-**Mingot v0.8.0 and later** are licensed under the **GNU Affero General Public License v3.0 only** ([LICENSE-AGPL](LICENSE-AGPL)).
+Mingot is licensed under the **Apache License, Version 2.0**
+([LICENSE-APACHE](LICENSE-APACHE)). Apache-2.0 is a permissive OSS license
+with an express patent grant — suitable for enterprise and commercial use.
 
-> **AGPL note:** The AGPL is a strong copyleft license that extends to network
-> use — applications you offer over a network that use Mingot must disclose
-> their corresponding source. Choose Mingot (0.8.0+) accordingly.
+Every source file carries the header:
 
-### Prior releases
+```text
+// Copyright (C) 2026 Industrial Algebra
+// SPDX-License-Identifier: Apache-2.0
+```
 
-Mingot **v0.7.0 and earlier** remain dual-licensed under the permissive
-[MIT](LICENSE-MIT) / [Apache-2.0](LICENSE-APACHE) terms. Those published
-versions (and their git tags) keep that license permanently. New development
-is AGPL-3.0-only.
+### Contributor License Agreement
 
-Mingot is a single-copyright project (Industrial Algebra). See the license
-files for complete terms.
+Contributions are welcome. All contributors must sign the
+[Industrial Algebra CLA](https://github.com/Industrial-Algebra/.github/blob/main/CLA.md);
+see [CONTRIBUTING.md](CONTRIBUTING.md). The CLA grants IA the right to
+relicense contributions, covering all IA projects with a single signature.
+
+### Historical note
+
+Mingot v0.7.0 and earlier were published as `MIT OR Apache-2.0`; those
+released versions retain their original license permanently. Current
+development is Apache-2.0 only.
 
 ## Acknowledgments
 

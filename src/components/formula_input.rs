@@ -1,5 +1,5 @@
 // Copyright (C) 2026 Industrial Algebra
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 //! Formula input component for mathematical expression entry.
 //!
 //! Provides a text input that parses and validates mathematical expressions,

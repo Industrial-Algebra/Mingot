@@ -1,5 +1,5 @@
 // Copyright (C) 2026 Industrial Algebra
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 
 //! Graph topology for the node editor: nodes (with typed ports) and directed
 //! port-to-port connections, with cycle detection. Execution (7C) requires an

@@ -1,3 +1,8 @@
+> **SUPERSEDED (June 2026):** The AGPL-3.0 relicensing described below was
+> reverted before any AGPL version was published. IA has since standardized on
+> Apache-2.0 + CLA for all projects; see the `chore/relicense-apache` branch
+> and `CONTRIBUTING.md`. This document is retained for history only.
+
 # IA Spec Compliance — Spec Essentials Pass
 
 > **Scope decision (user, 2026-06-20):** Option 2 — licensing + headers + toolchain + thiserror + CI hardening + feature docs now. **Defer** central `error.rs` consolidation (do for Phase 7 new code) and doc-test audit.
