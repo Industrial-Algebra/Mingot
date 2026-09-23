@@ -234,9 +234,9 @@ impl Matrix {
     /// Transpose the matrix
     pub fn transpose(&self) -> Matrix {
         let mut result = Matrix::zeros(self.cols, self.rows);
-        for i in 0..self.rows {
-            for j in 0..self.cols {
-                result.set(j, i, self.data[i][j]);
+        for (i, row) in self.data.iter().enumerate() {
+            for (j, &value) in row.iter().enumerate() {
+                result.set(j, i, value);
             }
         }
         result
