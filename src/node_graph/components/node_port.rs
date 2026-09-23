@@ -66,6 +66,8 @@ pub fn NodePort(
                 stroke-width="2"
                 on:pointerdown=move |ev: ev::PointerEvent| {
                     ev.prevent_default();
+                    // Port grabs start wire drags, not pans.
+                    ev.stop_propagation();
                     if let Some(cb) = on_grab {
                         cb.run((side, index));
                     }

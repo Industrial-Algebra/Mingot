@@ -27,7 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Precision-aware graph data model (typed ports, precision-flow verdicts,
   cycle detection, whole-graph validation, versioned JSON serialization)
 - SVG visual editor components (NodeCanvas / Node / NodePort / NodeConnection)
-  with pan/zoom viewport geometry
+- Interactive canvas: background-drag pan, wheel zoom about the cursor,
+  drag-from-output → drop-on-input connections (port hit-testing)
+- Keyboard accessibility: `Delete` removes selected nodes, arrow keys nudge
+  (`Shift` for fine steps); canvas is focusable (`tabindex`, `role`)
+- Model: `remove_node` (drops the node and every connection touching it) and
+  `disconnect` (keeps derived adjacency consistent across parallel edges)
+- Demo page (`/node-graph`) with a live three-stage precision pipeline
 
 ## [0.7.0] - 2026-03-08
 

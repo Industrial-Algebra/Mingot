@@ -23,6 +23,7 @@ pub fn Node(
     #[prop(optional)] selected: bool,
     #[prop(optional)] on_move: Option<Callback<CanvasPoint>>,
     #[prop(optional)] on_port_grab: Option<Callback<(PortSide, u32)>>,
+    #[prop(optional)] on_select: Option<Callback<()>>,
 ) -> impl IntoView {
     let box_ = NodeBox {
         origin,
@@ -86,8 +87,13 @@ pub fn Node(
                 style=body_style
                 on:pointerdown=move |ev: ev::PointerEvent| {
                     ev.prevent_default();
+                    // Node drags must not double as canvas pans.
+                    ev.stop_propagation();
                     dragging.set_value(true);
                     drag_last.set_value(origin);
+                    if let Some(cb) = on_select {
+                        cb.run(());
+                    }
                 }
                 on:pointermove=move |ev: ev::PointerEvent| {
                     if dragging.get_value() {
