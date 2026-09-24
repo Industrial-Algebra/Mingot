@@ -46,6 +46,17 @@ pub struct PendingConnection {
     pub to_point: CanvasPoint,
 }
 
+/// Canvas-tracked node drag: survives echo-back re-renders (which recreate
+/// `Node` components and would destroy any state stored inside them).
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct NodeDrag {
+    id: NodeId,
+    /// Node origin at press time, in canvas coordinates.
+    drag_origin: CanvasPoint,
+    /// Press position in raw screen (client) coordinates.
+    press_screen: CanvasPoint,
+}
+
 fn node_box(origin: CanvasPoint) -> NodeBox {
     NodeBox {
         origin,
@@ -87,6 +98,8 @@ pub fn NodeCanvas(
     let (pending, set_pending) = signal::<Option<PendingConnection>>(None);
     // Last pointer position while panning the background, in screen units.
     let panning: StoredValue<Option<CanvasPoint>> = StoredValue::new(None);
+    // Active node drag, if any (see [`NodeDrag`]).
+    let drag: StoredValue<Option<NodeDrag>> = StoredValue::new(None);
 
     let mut canvas_style = StyleBuilder::new();
     canvas_style
@@ -102,6 +115,13 @@ pub fn NodeCanvas(
         // propagation before this handler, so this is a background press.
         if ev.button() <= 1 {
             ev.prevent_default();
+            // prevent_default suppresses the browser's default focus
+            // transfer; focus the svg (this handler's target) so keyboard
+            // commands work immediately.
+            if let Some(target) = ev.current_target() {
+                let el: web_sys::SvgElement = target.unchecked_into();
+                let _ = el.focus();
+            }
             panning.set_value(Some(screen_point_of(&ev)));
         }
     };
@@ -132,6 +152,7 @@ pub fn NodeCanvas(
 
     let on_pointerup = move |ev: ev::PointerEvent| {
         panning.set_value(None);
+        drag.set_value(None);
         if let Some(p) = pending.get() {
             set_pending.set(None);
             let world = viewport.get().screen_to_canvas(screen_point_of(&ev));
@@ -162,8 +183,10 @@ pub fn NodeCanvas(
     };
 
     let on_pointerleave = move |_ev: ev::PointerEvent| {
-        // Leaving the surface aborts any in-flight pan or wire drag.
+        // Leaving the surface aborts any in-flight pan, wire drag, or node
+        // drag.
         panning.set_value(None);
+        drag.set_value(None);
         set_pending.set(None);
     };
 
@@ -280,13 +303,39 @@ pub fn NodeCanvas(
                         let is_selected = *selected.get(id).unwrap_or(&false);
                         let node_id = *id;
                         let origin_val = *origin;
-                        let on_move_cb = on_node_move.map(move |cb| {
-                            let id = node_id;
-                            Callback::new(move |pt: CanvasPoint| cb.run((id, pt)))
+                        // Press: focus the canvas (prevent_default killed the
+                        // browser's default), start a canvas-level drag, and
+                        // echo selection. Drag state lives on the canvas so
+                        // the echo-back re-render cannot interrupt the drag.
+                        let on_select_cb = Callback::new(move |press: CanvasPoint| {
+                            drag.set_value(Some(NodeDrag {
+                                id: node_id,
+                                drag_origin: origin_val,
+                                press_screen: press,
+                            }));
+                            if let Some(cb) = on_node_select {
+                                cb.run((node_id, true));
+                            }
                         });
-                        let on_select_cb = on_node_select.map(move |cb| {
-                            let id = node_id;
-                            Callback::new(move |()| cb.run((id, true)))
+                        // Move while pressed: new origin from the cumulative
+                        // screen delta, scaled into canvas coordinates. Read
+                        // the zoom fresh each event so mid-drag zooming is
+                        // handled, and guard that this node owns the drag.
+                        let on_drag_move_cb = Callback::new(move |cur: CanvasPoint| {
+                            let Some(d) = drag.get_value() else {
+                                return;
+                            };
+                            if d.id != node_id {
+                                return;
+                            }
+                            let zoom = viewport.get().zoom;
+                            let next = CanvasPoint::new(
+                                d.drag_origin.x + (cur.x - d.press_screen.x) / zoom,
+                                d.drag_origin.y + (cur.y - d.press_screen.y) / zoom,
+                            );
+                            if let Some(cb) = on_node_move {
+                                cb.run((node_id, next));
+                            }
                         });
                         let on_port_grab_cb = Callback::new(move |(side, idx): (PortSide, u32)| {
                             if side == PortSide::Output {
@@ -305,9 +354,9 @@ pub fn NodeCanvas(
                                 definition=def
                                 origin=origin_val
                                 selected=is_selected
-                                on_move=on_move_cb.unwrap_or_else(|| Callback::new(move |_| {}))
+                                on_select=on_select_cb
+                                on_drag_move=on_drag_move_cb
                                 on_port_grab=on_port_grab_cb
-                                on_select=on_select_cb.unwrap_or_else(|| Callback::new(move |_| {}))
                             />
                         })
                     })

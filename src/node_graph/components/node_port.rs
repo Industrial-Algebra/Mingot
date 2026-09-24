@@ -8,12 +8,23 @@ use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
 use std::borrow::Cow;
+use wasm_bindgen::JsCast;
 
 /// Which side of a node a port sits on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PortSide {
     Input,
     Output,
+}
+
+/// Focus the root `<svg>` that owns `ev`'s current target.
+fn focus_owner_svg(ev: &ev::PointerEvent) {
+    if let Some(target) = ev.current_target() {
+        let el: web_sys::SvgElement = target.unchecked_into();
+        if let Some(svg) = el.owner_svg_element() {
+            let _ = svg.focus();
+        }
+    }
 }
 
 /// Visual style hint for a port, color-coded by [`PortType`].
@@ -58,21 +69,22 @@ pub fn NodePort(
     let handle_style = handle_style.build();
 
     view! {
-        <g class="mingot-node-port" style=handle_style>
-            <circle
-                r="6"
-                fill=fill
-                stroke=stroke
-                stroke-width="2"
-                on:pointerdown=move |ev: ev::PointerEvent| {
-                    ev.prevent_default();
-                    // Port grabs start wire drags, not pans.
-                    ev.stop_propagation();
-                    if let Some(cb) = on_grab {
-                        cb.run((side, index));
-                    }
+        <g
+            class="mingot-node-port"
+            style=handle_style
+            on:pointerdown=move |ev: ev::PointerEvent| {
+                ev.prevent_default();
+                // Port grabs start wire drags — not pans, not node drags. The
+                // handler sits on the group so the label is a grab target
+                // too, and stops the node group from also selecting.
+                ev.stop_propagation();
+                focus_owner_svg(&ev);
+                if let Some(cb) = on_grab {
+                    cb.run((side, index));
                 }
-            />
+            }
+        >
+            <circle r="6" fill=fill stroke=stroke stroke-width="2" />
             <text x=label_x y="4" text-anchor=anchor fill="currentColor" font-size="12">
                 {label.into_owned()}
             </text>

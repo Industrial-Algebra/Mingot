@@ -3,6 +3,17 @@
 
 //! A single node rendered on the canvas: a titled box with input ports on the
 //! left edge and output ports on the right.
+//!
+//! Pointer handlers sit on the whole node group (body, title, and any area
+//! inside the box) so every part of the node is a consistent select/drag
+//! target; port groups stop propagation first and start wire drags instead.
+//!
+//! The node keeps **no drag state**: `prevent_default`-ed presses and any
+//! parent echo-back update (selection, position) re-run the canvas render and
+//! recreate this component, which would destroy local state mid-drag. Instead
+//! the node reports raw pointer coordinates upward — `on_select` carries the
+//! press position and `on_drag_move` the move position while the primary
+//! button is held — and the canvas tracks the drag.
 
 use super::node_port::{NodePort, PortSide};
 use crate::node_graph::layout::{CanvasPoint, NodeBox};
@@ -10,10 +21,21 @@ use crate::node_graph::node::NodeDefinition;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
+use wasm_bindgen::JsCast;
 
 const DEFAULT_WIDTH: f64 = 180.0;
 const DEFAULT_PORT_PITCH: f64 = 26.0;
 const DEFAULT_FIRST_PORT_OFFSET: f64 = 40.0;
+
+/// Focus the root `<svg>` that owns `ev`'s current target.
+fn focus_owner_svg(ev: &ev::PointerEvent) {
+    if let Some(target) = ev.current_target() {
+        let el: web_sys::SvgElement = target.unchecked_into();
+        if let Some(svg) = el.owner_svg_element() {
+            let _ = svg.focus();
+        }
+    }
+}
 
 /// Render a node as an SVG group: a rounded-rect body, a title, and its ports.
 #[component]
@@ -21,9 +43,15 @@ pub fn Node(
     definition: NodeDefinition,
     #[prop(into)] origin: CanvasPoint,
     #[prop(optional)] selected: bool,
-    #[prop(optional)] on_move: Option<Callback<CanvasPoint>>,
+    /// Press anywhere on the node (body, title, label-free areas): raw screen
+    /// (client) coordinates of the press.
+    #[prop(optional)]
+    on_select: Option<Callback<CanvasPoint>>,
+    /// Primary-button drag over the node: raw screen (client) coordinates per
+    /// move event. Fires only while the button is held.
+    #[prop(optional)]
+    on_drag_move: Option<Callback<CanvasPoint>>,
     #[prop(optional)] on_port_grab: Option<Callback<(PortSide, u32)>>,
-    #[prop(optional)] on_select: Option<Callback<()>>,
 ) -> impl IntoView {
     let box_ = NodeBox {
         origin,
@@ -43,9 +71,6 @@ pub fn Node(
     let mut body_style = StyleBuilder::new();
     body_style.add("cursor", "grab");
     let body_style = body_style.build();
-
-    let dragging = StoredValue::new(false);
-    let drag_last = StoredValue::new(origin);
 
     let inputs: Vec<_> = definition
         .inputs
@@ -76,7 +101,32 @@ pub fn Node(
     let title = definition.title.clone().into_owned();
 
     view! {
-        <g transform=format!("translate({} {})", origin.x, origin.y)>
+        <g
+            transform=format!("translate({} {})", origin.x, origin.y)
+            on:pointerdown=move |ev: ev::PointerEvent| {
+                // Whole-group hit area: the title text and inner areas are
+                // select/drag targets just like the body rectangle.
+                ev.prevent_default();
+                ev.stop_propagation();
+                // prevent_default suppresses the browser's default focus
+                // transfer; focus the owning canvas directly so keyboard
+                // commands work right after the press.
+                focus_owner_svg(&ev);
+                if let Some(cb) = on_select {
+                    cb.run(CanvasPoint::new(ev.client_x() as f64, ev.client_y() as f64));
+                }
+            }
+            on:pointermove=move |ev: ev::PointerEvent| {
+                // Report moves only while the primary button is held; the
+                // canvas decides whether a drag is in progress. No local
+                // state, so echo-back re-renders cannot interrupt a drag.
+                if ev.buttons() & 1 != 0 {
+                    if let Some(cb) = on_drag_move {
+                        cb.run(CanvasPoint::new(ev.client_x() as f64, ev.client_y() as f64));
+                    }
+                }
+            }
+        >
             <rect
                 width=DEFAULT_WIDTH
                 height=body_height
@@ -85,31 +135,6 @@ pub fn Node(
                 stroke=stroke
                 stroke-width="2"
                 style=body_style
-                on:pointerdown=move |ev: ev::PointerEvent| {
-                    ev.prevent_default();
-                    // Node drags must not double as canvas pans.
-                    ev.stop_propagation();
-                    dragging.set_value(true);
-                    drag_last.set_value(origin);
-                    if let Some(cb) = on_select {
-                        cb.run(());
-                    }
-                }
-                on:pointermove=move |ev: ev::PointerEvent| {
-                    if dragging.get_value() {
-                        let dx = ev.movement_x() as f64;
-                        let dy = ev.movement_y() as f64;
-                        let last = drag_last.get_value();
-                        let next = CanvasPoint::new(last.x + dx, last.y + dy);
-                        drag_last.set_value(next);
-                        if let Some(cb) = on_move {
-                            cb.run(next);
-                        }
-                    }
-                }
-                on:pointerup=move |_ev: ev::PointerEvent| {
-                    dragging.set_value(false);
-                }
             />
             <text x="10" y="22" fill="var(--mingot-node-title, #111827)" font-size="13" font-weight="600">
                 {title}
