@@ -10,10 +10,10 @@
 //!
 //! The node keeps **no drag state**: `prevent_default`-ed presses and any
 //! parent echo-back update (selection, position) re-run the canvas render and
-//! recreate this component, which would destroy local state mid-drag. Instead
-//! the node reports raw pointer coordinates upward — `on_select` carries the
-//! press position and `on_drag_move` the move position while the primary
-//! button is held — and the canvas tracks the drag.
+//! recreate this component, which would destroy local state mid-drag. The
+//! node reports only the press (`on_select` carries its raw screen position,
+//! after focusing and best-effort pointer-capturing the canvas root); every
+//! move is handled by the canvas root, which tracks the drag.
 
 use super::node_port::{NodePort, PortSide};
 use crate::node_graph::layout::{CanvasPoint, NodeBox};
