@@ -27,12 +27,27 @@ const DEFAULT_WIDTH: f64 = 180.0;
 const DEFAULT_PORT_PITCH: f64 = 26.0;
 const DEFAULT_FIRST_PORT_OFFSET: f64 = 40.0;
 
-/// Focus the root `<svg>` that owns `ev`'s current target.
-fn focus_owner_svg(ev: &ev::PointerEvent) {
+/// Focus the root `<svg>` that owns `ev`'s current target, then best-effort
+/// capture the pointer on it so subsequent moves route to the canvas root
+/// even when they outrun the node.
+///
+/// `pointerId` is read defensively: synthetic events (e.g. MouseEvents
+/// dispatched with a pointer event type in tests) have no pointerId, and
+/// reading it would panic — capture is simply skipped for those.
+fn focus_and_capture_owner_svg(ev: &ev::PointerEvent) {
     if let Some(target) = ev.current_target() {
         let el: web_sys::SvgElement = target.unchecked_into();
         if let Some(svg) = el.owner_svg_element() {
             let _ = svg.focus();
+            let js_ev: wasm_bindgen::JsValue = ev.clone().into();
+            let pointer_id = js_sys::Reflect::get(&js_ev, &"pointerId".into());
+            if let Ok(id) = pointer_id {
+                // `as_f64` is Some only for genuine JS numbers, so synthetic
+                // events (no pointerId -> undefined) skip capture safely.
+                if let Some(pid) = id.as_f64() {
+                    let _ = svg.set_pointer_capture(pid as i32);
+                }
+            }
         }
     }
 }
@@ -44,13 +59,11 @@ pub fn Node(
     #[prop(into)] origin: CanvasPoint,
     #[prop(optional)] selected: bool,
     /// Press anywhere on the node (body, title, label-free areas): raw screen
-    /// (client) coordinates of the press.
+    /// (client) coordinates of the press. Movement is tracked by the canvas
+    /// (its root handler receives every move, and pointer capture is taken
+    /// on the stable root `<svg>`), so the node itself carries no drag state.
     #[prop(optional)]
     on_select: Option<Callback<CanvasPoint>>,
-    /// Primary-button drag over the node: raw screen (client) coordinates per
-    /// move event. Fires only while the button is held.
-    #[prop(optional)]
-    on_drag_move: Option<Callback<CanvasPoint>>,
     #[prop(optional)] on_port_grab: Option<Callback<(PortSide, u32)>>,
 ) -> impl IntoView {
     let box_ = NodeBox {
@@ -108,23 +121,12 @@ pub fn Node(
                 // select/drag targets just like the body rectangle.
                 ev.prevent_default();
                 ev.stop_propagation();
-                // prevent_default suppresses the browser's default focus
-                // transfer; focus the owning canvas directly so keyboard
-                // commands work right after the press.
-                focus_owner_svg(&ev);
                 if let Some(cb) = on_select {
                     cb.run(CanvasPoint::new(ev.client_x() as f64, ev.client_y() as f64));
                 }
-            }
-            on:pointermove=move |ev: ev::PointerEvent| {
-                // Report moves only while the primary button is held; the
-                // canvas decides whether a drag is in progress. No local
-                // state, so echo-back re-renders cannot interrupt a drag.
-                if ev.buttons() & 1 != 0 {
-                    if let Some(cb) = on_drag_move {
-                        cb.run(CanvasPoint::new(ev.client_x() as f64, ev.client_y() as f64));
-                    }
-                }
+                // Focus + pointer capture come last so a failure in either
+                // can never block selection/drag-seeding above.
+                focus_and_capture_owner_svg(&ev);
             }
         >
             <rect

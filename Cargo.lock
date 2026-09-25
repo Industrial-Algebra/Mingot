@@ -987,6 +987,7 @@ checksum = "88904434abc2901f197fe8cc55f0445e7ded921dba5911dad2e2b39b48e663c4"
 name = "mingot"
 version = "0.7.0"
 dependencies = [
+ "js-sys",
  "leptos",
  "leptos_meta",
  "leptos_router",

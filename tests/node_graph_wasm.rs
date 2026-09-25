@@ -56,6 +56,8 @@ struct Harness {
     positions: ReadSignal<BTreeMap<NodeId, CanvasPoint>>,
     selected: ReadSignal<BTreeMap<NodeId, bool>>,
     viewport: ReadSignal<Viewport>,
+    /// Emulates the parent echoing a wheel-driven viewport change.
+    set_viewport: WriteSignal<Viewport>,
     moves: StoredValue<Vec<(NodeId, CanvasPoint)>>,
     host: web_sys::Element,
 }
@@ -119,6 +121,7 @@ fn mount_harness() -> Harness {
         positions,
         selected,
         viewport,
+        set_viewport,
         moves,
         host,
     }
@@ -186,13 +189,15 @@ fn select_then_drag_moves_the_node_across_rerenders() {
     let h = mount_harness();
     let rect = node_body_rect(&h);
 
-    // Press on the node body, then two moves: the first move's echo-back
-    // (selection + position update) re-renders and recreates the Node
-    // components — the drag must survive and accumulate the full delta.
+    // Press on the node body, then two moves on the (never-replaced) svg
+    // root: the first move's echo-back (selection + position update)
+    // re-renders and recreates the Node components — the drag must survive
+    // and accumulate the full delta.
+    let svg = svg_of(&h);
     pointer_event(&rect, "pointerdown", 100, 100);
-    pointer_event(&rect, "pointermove", 120, 105);
-    pointer_event(&rect, "pointermove", 140, 110);
-    pointer_event(&rect, "pointerup", 140, 110);
+    pointer_event(&svg, "pointermove", 120, 105);
+    pointer_event(&svg, "pointermove", 140, 110);
+    pointer_event(&svg, "pointerup", 140, 110);
 
     assert_eq!(
         h.selected.get().get(&NodeId(0)),
@@ -222,9 +227,10 @@ fn dragging_the_title_moves_the_node_and_does_not_pan() {
     let h = mount_harness();
     let title = node_title_text(&h);
 
+    let svg = svg_of(&h);
     pointer_event(&title, "pointerdown", 100, 100);
-    pointer_event(&title, "pointermove", 140, 110);
-    pointer_event(&title, "pointerup", 140, 110);
+    pointer_event(&svg, "pointermove", 140, 110);
+    pointer_event(&svg, "pointerup", 140, 110);
 
     let vp = h.viewport.get();
     assert_eq!(
@@ -267,5 +273,69 @@ fn selecting_a_node_focuses_the_canvas() {
         svg.get_attribute("class").unwrap_or_default()
     );
 
+    h.host.remove();
+}
+
+/// P2 regression: a drag must keep tracking when the pointer outruns the
+/// node and a move lands on the canvas background — the drag is handled by
+/// the never-replaced svg root, not the node's own hit area.
+#[wasm_bindgen_test]
+fn drag_continues_when_pointer_moves_onto_background() {
+    let h = mount_harness();
+    let rect = node_body_rect(&h);
+    let svg = svg_of(&h);
+
+    // Press on the node body, one small move while still over it, then a
+    // large move that lands well outside the node (on the background).
+    pointer_event(&rect, "pointerdown", 100, 100);
+    pointer_event(&rect, "pointermove", 110, 105);
+    pointer_event(&svg, "pointermove", 160, 165);
+    pointer_event(&svg, "pointerup", 160, 165);
+
+    assert_eq!(
+        h.positions.get().get(&NodeId(0)).copied(),
+        Some(CanvasPoint::new(60.0, 65.0)),
+        "drag must accumulate the full (60, 65) delta including the \
+         background segment (zoom 1)"
+    );
+
+    h.host.remove();
+}
+
+/// P2 regression: a mid-drag viewport zoom must only scale *new* movement —
+/// previously applied movement is not recomputed at the new zoom (the zoom
+/// keeps the world point under the cursor fixed, so the node stays put).
+#[wasm_bindgen_test]
+fn drag_rebases_across_mid_drag_zoom() {
+    let h = mount_harness();
+    let rect = node_body_rect(&h);
+    let svg = svg_of(&h);
+
+    pointer_event(&rect, "pointerdown", 100, 100);
+    pointer_event(&svg, "pointermove", 250, 100); // +150 at zoom 1
+    assert_eq!(
+        h.positions.get().get(&NodeId(0)).copied(),
+        Some(CanvasPoint::new(150.0, 0.0)),
+        "pre-zoom displacement is 150 at zoom 1"
+    );
+
+    // Wheel-zoom to 1.1 (emulated by the parent's viewport echo-back).
+    let mut vp = h.viewport.get();
+    vp.zoom = 1.1;
+    h.set_viewport.set(vp);
+
+    // One screen pixel at zoom 1.1 is 1/1.1 world units; the node must
+    // advance by that — not jump backward by recomputing its whole
+    // displacement at the new zoom (which would give 151/1.1 = 137.27).
+    pointer_event(&svg, "pointermove", 251, 100);
+    let moved = h.positions.get().get(&NodeId(0)).copied();
+    let expected = 150.0 + 1.0 / 1.1;
+    let got = moved.map(|p| p.x).unwrap_or(f64::NAN);
+    assert!(
+        (got - expected).abs() < 1e-6,
+        "expected x ≈ {expected}, got {got}"
+    );
+
+    pointer_event(&svg, "pointerup", 251, 100);
     h.host.remove();
 }

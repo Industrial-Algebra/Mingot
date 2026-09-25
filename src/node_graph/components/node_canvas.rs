@@ -48,13 +48,18 @@ pub struct PendingConnection {
 
 /// Canvas-tracked node drag: survives echo-back re-renders (which recreate
 /// `Node` components and would destroy any state stored inside them).
+///
+/// Accumulated incrementally (`origin += (cur - last_screen) / zoom`) rather
+/// than recomputing from the press point, so a mid-drag viewport zoom only
+/// scales *new* movement — the world point under the cursor is fixed by the
+/// zoom, and already-applied node movement must not be rescaled.
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct NodeDrag {
     id: NodeId,
-    /// Node origin at press time, in canvas coordinates.
-    drag_origin: CanvasPoint,
-    /// Press position in raw screen (client) coordinates.
-    press_screen: CanvasPoint,
+    /// Current node origin, in canvas coordinates (updated every move).
+    origin: CanvasPoint,
+    /// Previous move's raw screen (client) position.
+    last_screen: CanvasPoint,
 }
 
 fn node_box(origin: CanvasPoint) -> NodeBox {
@@ -127,6 +132,26 @@ pub fn NodeCanvas(
     };
 
     let on_pointermove = move |ev: ev::PointerEvent| {
+        // Active node drag: handled here on the (never-replaced) root so a
+        // move that outruns the node — landing on the background or another
+        // element — still drives the drag. Pointer capture (taken on press)
+        // routes real-pointer moves here too. Deltas use raw client
+        // coordinates on both ends (the press stores raw client coords), so
+        // any host/page offset cancels out.
+        if let Some(mut d) = drag.get_value() {
+            let client = CanvasPoint::new(ev.client_x() as f64, ev.client_y() as f64);
+            let zoom = viewport.get().zoom;
+            d.origin = CanvasPoint::new(
+                d.origin.x + (client.x - d.last_screen.x) / zoom,
+                d.origin.y + (client.y - d.last_screen.y) / zoom,
+            );
+            d.last_screen = client;
+            drag.set_value(Some(d));
+            if let Some(cb) = on_node_move {
+                cb.run((d.id, d.origin));
+            }
+            return;
+        }
         let screen = screen_point_of(&ev);
         if let Some(last) = panning.get_value() {
             let vp = viewport.get();
@@ -310,31 +335,11 @@ pub fn NodeCanvas(
                         let on_select_cb = Callback::new(move |press: CanvasPoint| {
                             drag.set_value(Some(NodeDrag {
                                 id: node_id,
-                                drag_origin: origin_val,
-                                press_screen: press,
+                                origin: origin_val,
+                                last_screen: press,
                             }));
                             if let Some(cb) = on_node_select {
                                 cb.run((node_id, true));
-                            }
-                        });
-                        // Move while pressed: new origin from the cumulative
-                        // screen delta, scaled into canvas coordinates. Read
-                        // the zoom fresh each event so mid-drag zooming is
-                        // handled, and guard that this node owns the drag.
-                        let on_drag_move_cb = Callback::new(move |cur: CanvasPoint| {
-                            let Some(d) = drag.get_value() else {
-                                return;
-                            };
-                            if d.id != node_id {
-                                return;
-                            }
-                            let zoom = viewport.get().zoom;
-                            let next = CanvasPoint::new(
-                                d.drag_origin.x + (cur.x - d.press_screen.x) / zoom,
-                                d.drag_origin.y + (cur.y - d.press_screen.y) / zoom,
-                            );
-                            if let Some(cb) = on_node_move {
-                                cb.run((node_id, next));
                             }
                         });
                         let on_port_grab_cb = Callback::new(move |(side, idx): (PortSide, u32)| {
@@ -355,7 +360,6 @@ pub fn NodeCanvas(
                                 origin=origin_val
                                 selected=is_selected
                                 on_select=on_select_cb
-                                on_drag_move=on_drag_move_cb
                                 on_port_grab=on_port_grab_cb
                             />
                         })
