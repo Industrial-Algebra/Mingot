@@ -79,6 +79,47 @@ impl NodeGraph {
         }
     }
 
+    /// Remove a node and every connection touching it.
+    ///
+    /// Editor delete operations need this to be total: removing a node must
+    /// never leave dangling edges or stale adjacency. Returns whether the
+    /// node was present.
+    pub fn remove_node(&mut self, id: NodeId) -> bool {
+        if self.nodes.remove(&id).is_none() {
+            return false;
+        }
+        self.connections
+            .retain(|c| c.from_node != id && c.to_node != id);
+        self.forward.remove(&id);
+        for neighbors in self.forward.values_mut() {
+            neighbors.remove(&id);
+        }
+        true
+    }
+
+    /// Remove a recorded connection, keeping derived adjacency consistent.
+    ///
+    /// Node-level adjacency between `from_node` and `to_node` is dropped only
+    /// when no other connection between the same pair remains. Returns
+    /// whether the connection was present.
+    pub fn disconnect(&mut self, conn: Connection) -> bool {
+        let before = self.connections.len();
+        self.connections.retain(|c| *c != conn);
+        if self.connections.len() == before {
+            return false;
+        }
+        let pair_remains = self
+            .connections
+            .iter()
+            .any(|c| c.from_node == conn.from_node && c.to_node == conn.to_node);
+        if !pair_remains {
+            if let Some(neighbors) = self.forward.get_mut(&conn.from_node) {
+                neighbors.remove(&conn.to_node);
+            }
+        }
+        true
+    }
+
     /// Whether the graph currently contains any node-level cycle.
     pub fn has_cycle(&self) -> bool {
         // A cycle exists iff some edge `u -> v` is a self-loop, or `v` can
@@ -224,5 +265,102 @@ mod tests {
         g.connect(Connection::new(NodeId(2), 0, NodeId(3), 1)); // C -> D
         assert!(!g.has_cycle());
         let _ = IntKind::U64; // keep the import meaningful for downstream tests
+    }
+
+    // ---- remove_node / disconnect ----
+
+    #[test]
+    fn remove_node_drops_it_and_connections_touching_it() {
+        // A -> B -> C: removing B must drop B and both edges.
+        let mut g = NodeGraph::new();
+        for id in 0..3 {
+            g.add_node(chainable(id).0, chainable(id).1.clone());
+        }
+        g.connect(Connection::new(NodeId(0), 0, NodeId(1), 0)); // A -> B
+        g.connect(Connection::new(NodeId(1), 0, NodeId(2), 0)); // B -> C
+        assert!(g.remove_node(NodeId(1)));
+        assert_eq!(g.node(NodeId(1)), None);
+        assert_eq!(g.connections(), &[]);
+        let ids: Vec<_> = g.node_ids().collect();
+        assert_eq!(ids, vec![NodeId(0), NodeId(2)]);
+    }
+
+    #[test]
+    fn remove_node_cleans_adjacency_so_no_stale_reachability() {
+        // A -> B and B -> A forms a cycle; removing B must clear it entirely,
+        // including B's stale entries in A's neighbor set.
+        let mut g = NodeGraph::new();
+        for id in 0..2 {
+            g.add_node(chainable(id).0, chainable(id).1.clone());
+        }
+        g.connect(Connection::new(NodeId(0), 0, NodeId(1), 0));
+        g.connect(Connection::new(NodeId(1), 0, NodeId(0), 0));
+        assert!(g.has_cycle());
+        g.remove_node(NodeId(1));
+        assert!(!g.has_cycle());
+        // Self-loops are flagged by definition (`from == to`), independent of
+        // adjacency state; the stale-adjacency behavior is fully covered by
+        // `has_cycle` going false above.
+    }
+
+    #[test]
+    fn remove_absent_node_returns_false_and_is_noop() {
+        let mut g = NodeGraph::new();
+        g.add_node(chainable(0).0, chainable(0).1);
+        assert!(!g.remove_node(NodeId(99)));
+        assert_eq!(g.node_ids().count(), 1);
+    }
+
+    #[test]
+    fn disconnect_removes_only_that_connection() {
+        // Two parallel A -> B edges on different ports: disconnecting one must
+        // keep the other AND keep A -> B adjacency (which the surviving edge
+        // still justifies).
+        let b_def = NodeDefinition::new(
+            "b",
+            vec![
+                PortDef::new("in0", PortType::Decimal(2)),
+                PortDef::new("in1", PortType::Decimal(2)),
+            ],
+            vec![],
+        );
+        let mut g = NodeGraph::new();
+        g.add_node(chainable(0).0, chainable(0).1);
+        g.add_node(NodeId(1), b_def);
+        let c0 = Connection::new(NodeId(0), 0, NodeId(1), 0);
+        let c1 = Connection::new(NodeId(0), 0, NodeId(1), 1);
+        g.connect(c0);
+        g.connect(c1);
+        assert!(g.disconnect(c0));
+        assert_eq!(g.connections(), &[c1]);
+        // The surviving edge still connects A -> B, so B -> A would cycle.
+        assert!(g.would_create_cycle(NodeId(1), NodeId(0)));
+    }
+
+    #[test]
+    fn disconnect_absent_connection_returns_false() {
+        let mut g = NodeGraph::new();
+        g.add_node(chainable(0).0, chainable(0).1);
+        g.add_node(chainable(1).0, chainable(1).1);
+        let conn = Connection::new(NodeId(0), 0, NodeId(1), 0);
+        assert!(!g.disconnect(conn));
+    }
+
+    #[test]
+    fn disconnect_breaks_cycle_adjacency() {
+        // A -> B, B -> A is a cycle; removing the back edge clears it.
+        let mut g = NodeGraph::new();
+        for id in 0..2 {
+            g.add_node(chainable(id).0, chainable(id).1.clone());
+        }
+        let fwd = Connection::new(NodeId(0), 0, NodeId(1), 0);
+        let back = Connection::new(NodeId(1), 0, NodeId(0), 0);
+        g.connect(fwd);
+        g.connect(back);
+        assert!(g.has_cycle());
+        assert!(g.disconnect(back));
+        assert!(!g.has_cycle());
+        // Reconnecting the back edge closes the cycle again.
+        assert!(g.would_create_cycle(NodeId(1), NodeId(0)));
     }
 }

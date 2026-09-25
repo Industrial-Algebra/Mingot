@@ -34,6 +34,14 @@ pub fn get_navigation() -> Vec<NavSection> {
             ],
         },
         NavSection {
+            title: "Node Graph",
+            items: vec![NavItem {
+                label: "Editor",
+                href: "/node-graph",
+                badge: Some("New"),
+            }],
+        },
+        NavSection {
             title: "Theming",
             items: vec![
                 NavItem {

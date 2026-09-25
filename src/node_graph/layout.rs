@@ -21,6 +21,13 @@ impl CanvasPoint {
     pub fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
+
+    /// Euclidean distance to `other`.
+    pub fn distance_to(self, other: CanvasPoint) -> f64 {
+        let dx = self.x - other.x;
+        let dy = self.y - other.y;
+        (dx * dx + dy * dy).sqrt()
+    }
 }
 
 /// Box dimensions of a node as laid out by the editor.
@@ -51,6 +58,35 @@ impl NodeBox {
             self.origin.y + self.first_port_offset + self.port_pitch * idx as f64,
         )
     }
+}
+
+/// Pointer capture radius (canvas units) for dropping a connection on a port.
+pub const DEFAULT_PORT_HIT_RADIUS: f64 = 14.0;
+
+/// Find the input port nearest to `point` within `radius`.
+///
+/// Candidates are `(node id, node box, input port count)` tuples; the canvas
+/// builds them from its graph and position map. Ties resolve to the first
+/// candidate (lowest node id, then lowest port index) via a strict
+/// less-than comparison on the running minimum.
+pub fn hit_test_input_port<I>(
+    candidates: I,
+    point: CanvasPoint,
+    radius: f64,
+) -> Option<(NodeId, u32)>
+where
+    I: IntoIterator<Item = (NodeId, NodeBox, usize)>,
+{
+    let mut best: Option<(f64, NodeId, u32)> = None;
+    for (id, node_box, input_count) in candidates {
+        for idx in 0..input_count {
+            let dist = node_box.input_port_center(idx).distance_to(point);
+            if dist <= radius && best.is_none_or(|(b, _, _)| dist < b) {
+                best = Some((dist, id, idx as u32));
+            }
+        }
+    }
+    best.map(|(_, id, idx)| (id, idx))
 }
 
 /// Pan and zoom of the canvas viewport.
@@ -93,6 +129,19 @@ impl Viewport {
         Self {
             pan: self.pan,
             zoom: self.zoom.clamp(min, max),
+        }
+    }
+
+    /// Zoom by `factor` about a screen point, clamped to `[min, max]`.
+    ///
+    /// The canvas point under the cursor stays fixed: pan is adjusted so the
+    /// cursor's world coordinates are invariant across the zoom change.
+    pub fn zoomed_at(&self, screen: CanvasPoint, factor: f64, min: f64, max: f64) -> Self {
+        let world = self.screen_to_canvas(screen);
+        let new_zoom = (self.zoom * factor).clamp(min, max);
+        Self {
+            pan: CanvasPoint::new(world.x - screen.x / new_zoom, world.y - screen.y / new_zoom),
+            zoom: new_zoom,
         }
     }
 }
@@ -152,6 +201,111 @@ impl NodeLayout {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn distance_to_is_euclidean() {
+        let a = CanvasPoint::new(0.0, 0.0);
+        let b = CanvasPoint::new(3.0, 4.0);
+        assert_eq!(a.distance_to(b), 5.0);
+    }
+
+    #[test]
+    fn hit_test_finds_the_input_port_under_the_pointer() {
+        let a = NodeBox {
+            origin: CanvasPoint::new(0.0, 0.0),
+            width: 180.0,
+            port_pitch: 26.0,
+            first_port_offset: 40.0,
+        };
+        let b = NodeBox {
+            origin: CanvasPoint::new(300.0, 200.0),
+            ..a
+        };
+        let hit = hit_test_input_port(
+            [(NodeId(0), a, 1), (NodeId(1), b, 1)],
+            CanvasPoint::new(296.0, 240.0), // near B's input 0
+            DEFAULT_PORT_HIT_RADIUS,
+        );
+        assert_eq!(hit, Some((NodeId(1), 0)));
+    }
+
+    #[test]
+    fn hit_test_resolves_the_port_index_within_a_node() {
+        let nb = NodeBox {
+            origin: CanvasPoint::new(0.0, 0.0),
+            width: 180.0,
+            port_pitch: 26.0,
+            first_port_offset: 40.0,
+        };
+        // Second input sits at y = first_port_offset + pitch = 66.
+        let hit = hit_test_input_port(
+            [(NodeId(0), nb, 2)],
+            CanvasPoint::new(2.0, 67.0),
+            DEFAULT_PORT_HIT_RADIUS,
+        );
+        assert_eq!(hit, Some((NodeId(0), 1)));
+    }
+
+    #[test]
+    fn hit_test_outside_radius_is_none() {
+        let nb = NodeBox {
+            origin: CanvasPoint::new(0.0, 0.0),
+            width: 180.0,
+            port_pitch: 26.0,
+            first_port_offset: 40.0,
+        };
+        let hit = hit_test_input_port(
+            [(NodeId(0), nb, 1)],
+            CanvasPoint::new(500.0, 500.0),
+            DEFAULT_PORT_HIT_RADIUS,
+        );
+        assert_eq!(hit, None);
+    }
+
+    #[test]
+    fn hit_test_prefers_the_nearest_port_and_first_on_ties() {
+        let nb = NodeBox {
+            origin: CanvasPoint::new(0.0, 0.0),
+            width: 180.0,
+            port_pitch: 26.0,
+            first_port_offset: 40.0,
+        };
+        // Exactly between input 0 (y=40) and input 1 (y=66) of the same node:
+        // a tie must resolve deterministically to the lower index.
+        let hit = hit_test_input_port(
+            [(NodeId(0), nb, 2)],
+            CanvasPoint::new(0.0, 53.0),
+            DEFAULT_PORT_HIT_RADIUS,
+        );
+        assert_eq!(hit, Some((NodeId(0), 0)));
+    }
+
+    #[test]
+    fn zoomed_at_keeps_the_world_point_under_the_cursor_fixed() {
+        let vp = Viewport::default();
+        let s = CanvasPoint::new(100.0, 50.0);
+        let world_before = vp.screen_to_canvas(s);
+        let z = vp.zoomed_at(s, 2.0, 0.1, 4.0);
+        assert_eq!(z.zoom, 2.0);
+        assert_eq!(z.pan, CanvasPoint::new(50.0, 25.0));
+        // The world point under the cursor is unchanged.
+        assert_eq!(z.screen_to_canvas(s), world_before);
+    }
+
+    #[test]
+    fn zoomed_at_clamps_to_range() {
+        let vp = Viewport::default();
+        assert_eq!(
+            vp.zoomed_at(CanvasPoint::new(0.0, 0.0), 100.0, 0.1, 4.0)
+                .zoom,
+            4.0
+        );
+        assert_eq!(
+            vp.zoomed_at(CanvasPoint::new(0.0, 0.0), 0.001, 0.1, 4.0)
+                .zoom,
+            0.1
+        );
+    }
 
     #[test]
     fn node_box_input_ports_descend_on_the_left_edge() {

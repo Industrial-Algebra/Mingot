@@ -22,7 +22,10 @@ pub use components::node_port::{NodePort, PortSide};
 
 pub use connection::Connection;
 pub use graph::{NodeGraph, NodeId};
-pub use layout::{connection_path_d, CanvasPoint, NodeBox, NodeLayout, Viewport};
+pub use layout::{
+    connection_path_d, hit_test_input_port, CanvasPoint, NodeBox, NodeLayout, Viewport,
+    DEFAULT_PORT_HIT_RADIUS,
+};
 pub use node::{NodeDefinition, PortDef};
 pub use precision::{check_connection, ConnectionVerdict, IntKind, PortType};
 pub use serialize::{from_json, to_json, SCHEMA_VERSION};
