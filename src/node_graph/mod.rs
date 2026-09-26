@@ -12,6 +12,7 @@ pub mod exec;
 pub mod graph;
 pub mod layout;
 pub mod node;
+pub mod nodes;
 pub mod precision;
 pub mod serialize;
 pub mod validate;
@@ -31,6 +32,10 @@ pub use layout::{
     DEFAULT_PORT_HIT_RADIUS,
 };
 pub use node::{NodeDefinition, PortDef};
+pub use nodes::{
+    AddDecimal, AddInteger, Constant, DecimalToInt, DivDecimal, DivInteger, IntToDecimal,
+    IntegerCast, ModInteger, MulDecimal, MulInteger, RescaleDecimal, SubDecimal, SubInteger,
+};
 pub use precision::{check_connection, ConnectionVerdict, IntKind, PortType};
 pub use serialize::{from_json, to_json, SCHEMA_VERSION};
 pub use validate::{validate, IssueKind, ValidationIssue, ValidationReport};
