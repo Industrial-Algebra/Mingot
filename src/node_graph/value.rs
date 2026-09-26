@@ -92,6 +92,34 @@ impl PartialEq for Value {
     }
 }
 
+/// Serialize for **result export only** (graphs serialize structure, not
+/// runtime values).
+///
+/// Numerics serialize as JSON strings: integers because i128 exceeds JSON's
+/// safe number range, and decimals to preserve scale/trailing zeros
+/// (`1.00` stays `"1.00"`). `Custom` serializes as a
+/// `{"kind": ..., "summary": ...}` object — intentionally lossy (the
+/// original type is not reconstructable); deserialization is out of scope.
+impl serde::Serialize for Value {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        match self {
+            Value::Integer(v) => serializer.serialize_str(&v.to_string()),
+            Value::Decimal(d) => serializer.serialize_str(&d.to_string()),
+            #[cfg(feature = "high-precision")]
+            Value::Arbitrary(d) => serializer.serialize_str(&d.to_string()),
+            Value::Text(t) => serializer.serialize_str(t),
+            Value::Bool(b) => serializer.serialize_bool(*b),
+            Value::Custom(c) => {
+                let mut map = serializer.serialize_map(Some(2))?;
+                map.serialize_entry("kind", c.kind_name())?;
+                map.serialize_entry("summary", &c.summary())?;
+                map.end()
+            }
+        }
+    }
+}
+
 impl Value {
     /// Whether this value can sit on a port of the declared type *exactly*.
     ///
@@ -183,6 +211,31 @@ mod tests {
             }
             _ => panic!("expected custom values"),
         }
+    }
+
+    #[test]
+    fn numerics_serialize_as_strings_preserving_scale() {
+        let v = Value::Decimal(Decimal::from_str_exact("1.00").unwrap());
+        assert_eq!(serde_json::to_string(&v).unwrap(), "\"1.00\"");
+        let i = Value::Integer(i64::MAX as i128 + 1);
+        assert_eq!(
+            serde_json::to_string(&i).unwrap(),
+            format!("\"{}\"", i64::MAX as i128 + 1)
+        );
+        assert_eq!(serde_json::to_string(&Value::Bool(true)).unwrap(), "true");
+        assert_eq!(
+            serde_json::to_string(&Value::Text("hi".into())).unwrap(),
+            "\"hi\""
+        );
+    }
+
+    #[test]
+    fn custom_serializes_as_kind_and_summary_object() {
+        let v = Value::Custom(Arc::new(SampleMedia { name: "frame-7" }));
+        assert_eq!(
+            serde_json::to_string(&v).unwrap(),
+            "{\"kind\":\"sample\",\"summary\":\"sample:frame-7\"}"
+        );
     }
 
     #[test]
