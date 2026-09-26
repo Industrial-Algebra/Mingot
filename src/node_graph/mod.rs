@@ -8,6 +8,7 @@
 
 pub mod components;
 pub mod connection;
+pub mod exec;
 pub mod graph;
 pub mod layout;
 pub mod node;
@@ -22,6 +23,8 @@ pub use components::node_connection::{ConnectionStyle, NodeConnection};
 pub use components::node_port::{NodePort, PortSide};
 
 pub use connection::Connection;
+#[cfg(feature = "node-graph")]
+pub use exec::{topo_order, Engine, ExecError, ExecutionReport, NodeOp, NodeOutcome, PortSideTag};
 pub use graph::{NodeGraph, NodeId};
 pub use layout::{
     connection_path_d, hit_test_input_port, CanvasPoint, NodeBox, NodeLayout, Viewport,
