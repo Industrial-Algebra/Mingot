@@ -7,6 +7,9 @@ description = "Component documentation and demo site for Mingot"
 
 [dependencies]
 mingot = { path = "..", features = ["high-precision", "theme-tokens", "node-graph"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rust_decimal = { version = "1.42", default-features = false }
 leptos = { version = "0.8.12", features = ["csr"] }
 leptos_router = "0.8.12"
 leptos_meta = "0.8.5"

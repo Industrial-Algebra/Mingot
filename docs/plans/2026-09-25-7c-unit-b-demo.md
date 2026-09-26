@@ -1,3 +1,50 @@
+# Contract B — 7C demo: Run button, report rendering, JSON export
+
+Unit B of Phase 7C. Depends on: Contract A (built-in nodes — landed in the
+working tree by the previous implementer). This is the 7C demo DoD: "a
+working compute graph in the demo (exact decimal arithmetic), with
+serialized results."
+
+**You implement this file exactly.** Contracts win over prose. No git
+commands. Pipe long outputs through grep/tail; timeouts SECONDS (cargo ≤ 600).
+
+## Files
+
+- MODIFY `demo/src/pages/node_graph.rs` — replace with the full final
+  content fenced below (the whole file; nothing else).
+- MODIFY `demo/Cargo.toml` — add the two pinned dependencies below its
+  `[dependencies]` table's `mingot = ...` line, changing nothing else.
+
+No other file may be created, modified, or deleted.
+
+## Context you need
+
+- `mingot::prelude` (already imported in the page) re-exports from
+  `node_graph`: `CanvasPoint, Connection, NodeCanvas, NodeDefinition,
+  NodeGraph, NodeId, PendingConnection, PortDef, PortType, Viewport`.
+  Contract A additionally re-exports from `mingot::node_graph::nodes`
+  (also reachable as `mingot::node_graph::{AddDecimal, Constant, ...}`):
+  `Constant`, `AddDecimal` and friends — all are also root re-exports of
+  `mingot::node_graph` (including `Engine`, `ExecutionReport`,
+  `NodeOutcome`, `NodeOp`, `Value`, `ExecError`), which is how the page
+  imports them (see the fence).
+- `Value` is `Clone` + `serde::Serialize` (numerics serialize as strings
+  preserving scale). `ExecError` implements `Display` (thiserror).
+  `ExecutionReport { pub outcomes: BTreeMap<NodeId, NodeOutcome>, pub
+  values: BTreeMap<(NodeId, u32), Value>, pub errors: Vec<(NodeId,
+  ExecError)> }` and is `Clone`. `NodeOutcome::{Executed, Failed(
+  ExecError), Skipped}` is `Clone + PartialEq`. `NodeId(pub u64)`.
+- The demo's Mingot `Button` component takes `on_click=Callback::new(...)`
+  (see `demo/src/pages/getting_started.rs` for working usage).
+- Leptos 0.8: `signal()` returns `(ReadSignal, WriteSignal)`;
+  `Callback::new` is `leptos::prelude::Callback`. Inside `view!`, a
+  function returning `Option<Vec<_>>` of views renders fine.
+
+## Contracts
+
+### `demo/src/pages/node_graph.rs` — full final content
+
+```rust
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,9 +59,7 @@
 //! `Delete` removes it, arrow keys nudge.
 
 use leptos::prelude::*;
-use mingot::node_graph::{
-    AddDecimal, Constant, Engine, ExecutionReport, NodeOp, NodeOutcome, Value,
-};
+use mingot::node_graph::{AddDecimal, Constant, Engine, ExecutionReport, NodeOp, NodeOutcome, Value};
 use mingot::prelude::*;
 use rust_decimal::Decimal;
 use std::collections::BTreeMap;
@@ -308,3 +353,56 @@ pub fn NodeGraphPage() -> impl IntoView {
         </div>
     }
 }
+```
+
+### `demo/Cargo.toml` — anchored insert
+
+After the line `mingot = { path = "..", features = ["high-precision", "theme-tokens", "node-graph"] }`, add:
+
+```toml
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rust_decimal = { version = "1.42", default-features = false }
+```
+
+Change nothing else. (The page calls `Decimal::from_str_exact` directly,
+so the demo must declare `rust_decimal`; the pin mirrors the library's.)
+
+## Tests
+
+This unit has no new unit tests (the demo crate has no test harness); the
+Completion gates below are the verification. Do not add test files.
+
+## Constraints
+
+- No new crates beyond the two pinned `serde`/`serde_json` entries.
+- No changes to `src/` (the library) — library tests must remain green
+  untouched.
+- License header at the top of the page file exactly as fenced.
+
+## Completion
+
+Run, in the repo root, fixing until all green:
+
+```bash
+cargo +nightly test --all-features 2>&1 | grep -E 'test result|FAILED|error' | tail -6
+cargo +nightly build -p mingot-demo --target wasm32-unknown-unknown 2>&1 | grep -E '^error|warning: unused' | tail -10; echo "WASM-DEMO-EXIT:$?"
+cargo +nightly clippy --all-targets --all-features -- -D warnings 2>&1 | grep -E '^(error|warning)' | tail -8
+cargo +nightly fmt
+cargo +nightly fmt -- --check && echo FMT-OK
+```
+
+Note: the wasm build command's exit code prints as WASM-DEMO-EXIT — it
+must be 0. If `grep` finds nothing the build is clean; the exit code line
+still prints (it belongs to `echo`, not grep).
+
+## Out of scope
+
+- Any file under `src/` (the library). The `tests/node_graph_wasm.rs`
+  browser harness. Routing/sidebar changes (the page is already routed).
+- Executing the demo in a browser. Visual styling beyond what's fenced.
+
+## Finish
+
+Report: files touched, gate results (test counts, wasm exit, clippy,
+fmt), and any ambiguity you resolved and how.

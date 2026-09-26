@@ -48,7 +48,7 @@ ssr = ["leptos/ssr"]
 hydrate = ["leptos/hydrate"]
 high-precision = ["rust_decimal"]
 theme-tokens = ["serde", "serde_json"]
-node-graph = ["serde", "serde_json"]
+node-graph = ["serde", "serde_json", "rust_decimal"]
 
 [profile.wasm-release]
 inherits = "release"
