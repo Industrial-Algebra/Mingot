@@ -50,6 +50,91 @@ fn hold_kind(r: i128, kind: IntKind, op: &'static str) -> Result<Value, ExecErro
     }
 }
 
+/// Largest significand a `Decimal` can hold: 2^96 − 1.
+const MAX_SIG: i128 = 79_228_162_514_264_337_593_543_950_335;
+
+/// 10^k for k ≤ 28 (the decimal scale ceiling); fits i128.
+fn ten_pow(k: u32) -> i128 {
+    10i128.pow(k)
+}
+
+/// Split a decimal into its exact parts: signed significand × 10^-scale.
+///
+/// `Decimal`'s `Display` is positional and never rounds, so stripping the
+/// decimal point from the string yields the exact stored significand (at
+/// most 29 digits, always within i128).
+fn unpack(d: Decimal) -> Result<(i128, u32), ExecError> {
+    let scale = d.scale();
+    let text = d.to_string();
+    let digits = text.replace('.', "");
+    let sig: i128 = digits
+        .parse()
+        .map_err(|_| ExecError::NodeError(format!("decimal {d} is not unpackable").into()))?;
+    Ok((sig, scale))
+}
+
+/// Rebuild a decimal from exact parts; callers guarantee the significand
+/// fits the 96-bit mantissa and the scale is ≤ 28.
+fn pack(sig: i128, scale: u32, op: &'static str) -> Result<Decimal, ExecError> {
+    Decimal::try_from_i128_with_scale(sig, scale).map_err(|_| ExecError::DecimalOverflow { op })
+}
+
+/// Exact addition: align significands at the coarser scale, add in i128,
+/// and require the result to fit the 96-bit mantissa — anything else is
+/// an overflow refusal, never a rounded or saturated sum.
+fn exact_add(a: Decimal, b: Decimal, op: &'static str) -> Result<Decimal, ExecError> {
+    let (sa, ka) = unpack(a)?;
+    let (sb, kb) = unpack(b)?;
+    let k = ka.max(kb);
+    let ma = sa
+        .checked_mul(ten_pow(k - ka))
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    let mb = sb
+        .checked_mul(ten_pow(k - kb))
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    let sum = ma
+        .checked_add(mb)
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    if sum.unsigned_abs() > MAX_SIG as u128 {
+        return Err(ExecError::DecimalOverflow { op });
+    }
+    pack(sum, k, op)
+}
+
+/// Exact subtraction: same discipline as [`exact_add`].
+fn exact_sub(a: Decimal, b: Decimal, op: &'static str) -> Result<Decimal, ExecError> {
+    let (sa, ka) = unpack(a)?;
+    let (sb, kb) = unpack(b)?;
+    let k = ka.max(kb);
+    let ma = sa
+        .checked_mul(ten_pow(k - ka))
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    let mb = sb
+        .checked_mul(ten_pow(k - kb))
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    let diff = ma
+        .checked_sub(mb)
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    if diff.unsigned_abs() > MAX_SIG as u128 {
+        return Err(ExecError::DecimalOverflow { op });
+    }
+    pack(diff, k, op)
+}
+
+/// Exact multiplication: the product significand must fit the 96-bit
+/// mantissa at the summed scale — never a rounded result.
+fn exact_mul(a: Decimal, b: Decimal, op: &'static str) -> Result<Decimal, ExecError> {
+    let (sa, ka) = unpack(a)?;
+    let (sb, kb) = unpack(b)?;
+    let product = sa
+        .checked_mul(sb)
+        .ok_or(ExecError::DecimalOverflow { op })?;
+    if product.unsigned_abs() > MAX_SIG as u128 {
+        return Err(ExecError::DecimalOverflow { op });
+    }
+    pack(product, ka + kb, op)
+}
+
 /// Two decimal inputs at fixed scales, one output at `out`.
 fn two_decimal_def(title: &'static str, a: u32, b: u32, out: PortType) -> NodeDefinition {
     NodeDefinition::new(
@@ -109,7 +194,7 @@ impl NodeOp for AddDecimal {
     }
     fn evaluate(&self, inputs: &[Value]) -> Result<Vec<Value>, ExecError> {
         let [a, b] = decimals(inputs, "add")?;
-        Ok(vec![Value::Decimal(a + b)])
+        Ok(vec![Value::Decimal(exact_add(a, b, "add")?)])
     }
 }
 
@@ -133,7 +218,7 @@ impl NodeOp for SubDecimal {
     }
     fn evaluate(&self, inputs: &[Value]) -> Result<Vec<Value>, ExecError> {
         let [a, b] = decimals(inputs, "sub")?;
-        Ok(vec![Value::Decimal(a - b)])
+        Ok(vec![Value::Decimal(exact_sub(a, b, "sub")?)])
     }
 }
 
@@ -166,11 +251,7 @@ impl NodeOp for MulDecimal {
     }
     fn evaluate(&self, inputs: &[Value]) -> Result<Vec<Value>, ExecError> {
         let [a, b] = decimals(inputs, "mul")?;
-        a.checked_mul(b)
-            .map(|p| vec![Value::Decimal(p)])
-            .ok_or(ExecError::NodeError(
-                "decimal multiplication overflow".into(),
-            ))
+        Ok(vec![Value::Decimal(exact_mul(a, b, "mul")?)])
     }
 }
 
@@ -195,9 +276,15 @@ impl NodeOp for DivDecimal {
     }
     fn evaluate(&self, inputs: &[Value]) -> Result<Vec<Value>, ExecError> {
         let [a, b] = decimals(inputs, "div")?;
+        if b.is_zero() {
+            return Err(ExecError::DivideByZero);
+        }
+        // Division produces the maximal 28-place quotient by design
+        // ("precision is born, not lost"); only an unrepresentable
+        // quotient overflows.
         match a.checked_div(b) {
             Some(q) => Ok(vec![quotient_value(q)]),
-            None => Err(ExecError::DivideByZero),
+            None => Err(ExecError::DecimalOverflow { op: "div" }),
         }
     }
 }
@@ -573,6 +660,127 @@ mod tests {
         assert_eq!(
             report.outcomes[&NodeId(2)],
             NodeOutcome::Failed(ExecError::DivideByZero)
+        );
+    }
+
+    #[test]
+    fn add_overflow_is_structured_not_panic() {
+        // sig 2^96-1 + 1 cannot be represented: DecimalOverflow, no panic.
+        let report = run_binary(
+            (
+                Value::Decimal(dec("79228162514264337593543950335")),
+                PortType::Decimal(0),
+            ),
+            (Value::Decimal(dec("1")), PortType::Decimal(0)),
+            Box::new(AddDecimal::new(0, 0)),
+        );
+        assert_eq!(
+            report.outcomes[&NodeId(2)],
+            NodeOutcome::Failed(ExecError::DecimalOverflow { op: "add" })
+        );
+    }
+
+    #[test]
+    fn add_silent_saturation_is_refused() {
+        // MAX + 0.1 saturates silently in rust_decimal: refuse it.
+        let report = run_binary(
+            (
+                Value::Decimal(dec("79228162514264337593543950335")),
+                PortType::Decimal(0),
+            ),
+            (Value::Decimal(dec("0.1")), PortType::Decimal(1)),
+            Box::new(AddDecimal::new(0, 1)),
+        );
+        assert_eq!(
+            report.outcomes[&NodeId(2)],
+            NodeOutcome::Failed(ExecError::DecimalOverflow { op: "add" })
+        );
+    }
+
+    #[test]
+    fn add_exact_near_max_passes() {
+        // (MAX - 1) + 1 = MAX exactly: must pass.
+        let report = run_binary(
+            (
+                Value::Decimal(dec("79228162514264337593543950334")),
+                PortType::Decimal(0),
+            ),
+            (Value::Decimal(dec("1")), PortType::Decimal(0)),
+            Box::new(AddDecimal::new(0, 0)),
+        );
+        assert!(report.is_success(), "{report:?}");
+        assert_eq!(
+            report.values[&(NodeId(2), 0)],
+            Value::Decimal(dec("79228162514264337593543950335"))
+        );
+    }
+
+    #[test]
+    fn sub_overflow_is_structured() {
+        let report = run_binary(
+            (
+                Value::Decimal(dec("-79228162514264337593543950335")),
+                PortType::Decimal(0),
+            ),
+            (Value::Decimal(dec("1")), PortType::Decimal(0)),
+            Box::new(SubDecimal::new(0, 0)),
+        );
+        assert_eq!(
+            report.outcomes[&NodeId(2)],
+            NodeOutcome::Failed(ExecError::DecimalOverflow { op: "sub" })
+        );
+    }
+
+    #[test]
+    fn mul_rounded_result_is_refused() {
+        // 1e27.1 * 1.01 needs a 31-digit significand: rust_decimal rounds
+        // silently (checked_mul returns Some at the wrong scale) — refuse.
+        let report = run_binary(
+            (
+                Value::Decimal(dec("1000000000000000000000000000.1")),
+                PortType::Decimal(1),
+            ),
+            (Value::Decimal(dec("1.01")), PortType::Decimal(2)),
+            Box::new(MulDecimal::new(1, 2).unwrap()),
+        );
+        assert_eq!(
+            report.outcomes[&NodeId(2)],
+            NodeOutcome::Failed(ExecError::DecimalOverflow { op: "mul" })
+        );
+    }
+
+    #[test]
+    fn mul_exact_full_width_passes() {
+        // 29-digit significand * 1 is exactly representable: must pass.
+        let report = run_binary(
+            (
+                Value::Decimal(dec("79228162514264337593543950335")),
+                PortType::Decimal(0),
+            ),
+            (Value::Decimal(dec("1")), PortType::Decimal(0)),
+            Box::new(MulDecimal::new(0, 0).unwrap()),
+        );
+        assert!(report.is_success(), "{report:?}");
+        assert_eq!(
+            report.values[&(NodeId(2), 0)],
+            Value::Decimal(dec("79228162514264337593543950335"))
+        );
+    }
+
+    #[test]
+    fn div_overflow_labels_decimal_overflow_not_zero() {
+        // MAX / 0.1 overflows the quotient: not a division by zero.
+        let report = run_binary(
+            (
+                Value::Decimal(dec("79228162514264337593543950335")),
+                PortType::Decimal(0),
+            ),
+            (Value::Decimal(dec("0.1")), PortType::Decimal(1)),
+            Box::new(DivDecimal::new(0, 1)),
+        );
+        assert_eq!(
+            report.outcomes[&NodeId(2)],
+            NodeOutcome::Failed(ExecError::DecimalOverflow { op: "div" })
         );
     }
 

@@ -80,6 +80,16 @@ pub enum ExecError {
     IntegerOverflow { op: &'static str },
     #[error("division by zero")]
     DivideByZero,
+    #[error("connection references node {} which is not in the graph", .id.0)]
+    UnknownNode { id: NodeId },
+    #[error(
+        "input {} of node {} already has a producer; ambiguous input cardinality",
+        conn.to_input,
+        conn.to_node.0
+    )]
+    DuplicateProducer { conn: Connection },
+    #[error("decimal {op} result cannot be represented exactly")]
+    DecimalOverflow { op: &'static str },
     #[error("{0}")]
     NodeError(Cow<'static, str>),
 }
@@ -204,8 +214,20 @@ impl Engine {
                 return Err(ExecError::OrphanOp { id });
             }
         }
-        // Every connection must reference real ports of the ops' definitions.
+        // Every connection must reference existing nodes (the model permits
+        // dangling endpoints while drafting), real ports of the ops'
+        // definitions, and at most one producer per positional input.
+        let mut producers: BTreeSet<(NodeId, u32)> = BTreeSet::new();
         for conn in graph.connections() {
+            if graph.node(conn.from_node).is_none() {
+                return Err(ExecError::UnknownNode { id: conn.from_node });
+            }
+            if graph.node(conn.to_node).is_none() {
+                return Err(ExecError::UnknownNode { id: conn.to_node });
+            }
+            if !producers.insert((conn.to_node, conn.to_input)) {
+                return Err(ExecError::DuplicateProducer { conn: *conn });
+            }
             let from_def = ops
                 .get(&conn.from_node)
                 .expect("checked above")
@@ -315,11 +337,21 @@ impl Engine {
                     return;
                 }
             }
-            let value = report
+            let mut value = report
                 .values
                 .get(&(conn.from_node, conn.from_output))
                 .expect("upstream executed: value recorded")
                 .clone();
+            // The lattice accepts Decimal(n) -> Arbitrary as exact; the
+            // destination's runtime representation is Arbitrary, so
+            // materialize the widening rather than forwarding a Decimal
+            // into an Arbitrary-declared input.
+            #[cfg(feature = "high-precision")]
+            if matches!(dst_ty, PortType::Arbitrary) {
+                if let Value::Decimal(d) = value {
+                    value = Value::Arbitrary(d);
+                }
+            }
             inputs[conn.to_input as usize] = value;
         }
 
@@ -739,6 +771,98 @@ mod tests {
             .errors
             .iter()
             .any(|(_, e)| matches!(e, ExecError::Cycle)));
+    }
+
+    #[test]
+    fn build_rejects_connection_to_absent_node() {
+        let mut g = NodeGraph::new();
+        g.add_node(NodeId(0), constant(0, "1.00", 2).1.definition().clone());
+        g.connect(Connection::new(NodeId(0), 0, NodeId(99), 0));
+        let mut ops = BTreeMap::new();
+        ops.insert(constant(0, "1.00", 2).0, constant(0, "1.00", 2).1);
+        assert_eq!(
+            Engine::build(g, ops).err(),
+            Some(ExecError::UnknownNode { id: NodeId(99) })
+        );
+    }
+
+    #[test]
+    fn build_rejects_connection_from_absent_node() {
+        let mut g = NodeGraph::new();
+        g.add_node(NodeId(0), sink(0, 2).1.definition().clone());
+        g.connect(Connection::new(NodeId(99), 0, NodeId(0), 0));
+        let mut ops = BTreeMap::new();
+        ops.insert(sink(0, 2).0, sink(0, 2).1);
+        assert_eq!(
+            Engine::build(g, ops).err(),
+            Some(ExecError::UnknownNode { id: NodeId(99) })
+        );
+    }
+
+    #[test]
+    fn build_rejects_duplicate_producer_on_one_input() {
+        let mut g = NodeGraph::new();
+        g.add_node(NodeId(0), constant(0, "10.00", 2).1.definition().clone());
+        g.add_node(NodeId(1), constant(1, "2.50", 2).1.definition().clone());
+        g.add_node(NodeId(2), sink(2, 2).1.definition().clone());
+        g.connect(Connection::new(NodeId(0), 0, NodeId(2), 0));
+        let second = Connection::new(NodeId(1), 0, NodeId(2), 0);
+        g.connect(second);
+        let mut ops = BTreeMap::new();
+        ops.insert(constant(0, "10.00", 2).0, constant(0, "10.00", 2).1);
+        ops.insert(constant(1, "2.50", 2).0, constant(1, "2.50", 2).1);
+        ops.insert(sink(2, 2).0, sink(2, 2).1);
+        assert_eq!(
+            Engine::build(g, ops).err(),
+            Some(ExecError::DuplicateProducer { conn: second })
+        );
+    }
+
+    #[cfg(feature = "high-precision")]
+    #[test]
+    fn decimal_to_arbitrary_edge_materializes_value() {
+        // The lattice accepts Decimal(n) -> Arbitrary as exact; the engine
+        // must materialize the runtime widening so ops with Arbitrary ports
+        // receive (and may echo) Value::Arbitrary.
+        struct EchoArbitrary {
+            def: NodeDefinition,
+        }
+        impl NodeOp for EchoArbitrary {
+            fn definition(&self) -> &NodeDefinition {
+                &self.def
+            }
+            fn evaluate(&self, inputs: &[Value]) -> Result<Vec<Value>, ExecError> {
+                Ok(vec![inputs[0].clone()])
+            }
+        }
+        let mut g = NodeGraph::new();
+        let c = FnNode::boxed(
+            NodeDefinition::new(
+                "const",
+                vec![],
+                vec![PortDef::new("out", PortType::Decimal(2))],
+            ),
+            vec![Value::Decimal(Decimal::from_str_exact("1.00").unwrap())],
+        );
+        let echo = EchoArbitrary {
+            def: NodeDefinition::new(
+                "echo",
+                vec![PortDef::new("in", PortType::Arbitrary)],
+                vec![PortDef::new("out", PortType::Arbitrary)],
+            ),
+        };
+        g.add_node(NodeId(0), c.definition().clone());
+        g.add_node(NodeId(1), echo.def.clone());
+        g.connect(Connection::new(NodeId(0), 0, NodeId(1), 0));
+        let mut ops: BTreeMap<NodeId, Box<dyn NodeOp>> = BTreeMap::new();
+        ops.insert(NodeId(0), c);
+        ops.insert(NodeId(1), Box::new(echo));
+        let report = Engine::build(g, ops).unwrap().execute();
+        assert!(report.is_success(), "{report:?}");
+        assert!(matches!(
+            report.values.get(&(NodeId(1), 0)),
+            Some(Value::Arbitrary(_))
+        ));
     }
 
     #[test]
