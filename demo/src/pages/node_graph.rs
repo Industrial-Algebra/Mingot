@@ -2,13 +2,71 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //! Node graph editor demo: a small precision pipeline (Constant → Add →
-//! Result) wired through every NodeCanvas callback. Pan with background drag,
-//! zoom with the wheel, drag from an output port and drop on an input port to
-//! connect, click a node to select, `Delete` removes it, arrow keys nudge.
+//! Result) wired through every NodeCanvas callback, plus a **Run** button
+//! executing the graph on the 7C engine (exact decimal arithmetic,
+//! refuse-to-fire numerics contract) with the structured
+//! [`ExecutionReport`] rendered and exported as JSON.
+//!
+//! Pan with background drag, zoom with the wheel, drag from an output
+//! port and drop on an input port to connect, click a node to select,
+//! `Delete` removes it, arrow keys nudge.
 
 use leptos::prelude::*;
+use mingot::node_graph::{
+    AddDecimal, Constant, Engine, ExecutionReport, NodeOp, NodeOutcome, Value,
+};
 use mingot::prelude::*;
+use rust_decimal::Decimal;
 use std::collections::BTreeMap;
+
+/// Demo-local terminal op: consumes one decimal, produces nothing. The
+/// value it received is still visible in the report's `values` map
+/// because the *upstream* node's output is what gets recorded.
+struct RunSink {
+    def: mingot::node_graph::NodeDefinition,
+}
+
+impl NodeOp for RunSink {
+    fn definition(&self) -> &mingot::node_graph::NodeDefinition {
+        &self.def
+    }
+    fn evaluate(&self, _inputs: &[Value]) -> Result<Vec<Value>, mingot::node_graph::ExecError> {
+        Ok(vec![])
+    }
+}
+
+/// Serialize one engine run for export.
+#[derive(serde::Serialize)]
+struct ExportReport {
+    nodes: Vec<ExportNode>,
+    errors: Vec<String>,
+}
+
+#[derive(serde::Serialize)]
+struct ExportNode {
+    node: u64,
+    outcome: String,
+    value: Option<Value>,
+}
+
+fn outcome_label(outcome: &NodeOutcome) -> String {
+    match outcome {
+        NodeOutcome::Executed => "executed".to_string(),
+        NodeOutcome::Failed(e) => format!("failed: {e}"),
+        NodeOutcome::Skipped => "skipped".to_string(),
+    }
+}
+
+fn value_label(value: &Value) -> String {
+    match value {
+        Value::Integer(v) => v.to_string(),
+        Value::Decimal(d) => d.to_string(),
+        Value::Arbitrary(d) => d.to_string(),
+        Value::Text(t) => t.to_string(),
+        Value::Bool(b) => b.to_string(),
+        Value::Custom(c) => c.summary(),
+    }
+}
 
 #[component]
 pub fn NodeGraphPage() -> impl IntoView {
@@ -18,6 +76,8 @@ pub fn NodeGraphPage() -> impl IntoView {
     let (selected, set_selected) = signal(BTreeMap::<NodeId, bool>::new());
     let (viewport, set_viewport) = signal(Viewport::default());
     let (last_report, set_last_report) = signal("No edits yet.".to_string());
+    let (exec_report, set_exec_report) = signal(Option::<ExecutionReport>::None);
+    let (exec_json, set_exec_json) = signal(String::new());
 
     // Seed the demo graph: c0 (out) -> a0 (in0), c1 (out) -> a0 (in1),
     // a0 (out) -> r0 (in0). Decimal(2) everywhere, all connections Ok.
@@ -112,6 +172,63 @@ pub fn NodeGraphPage() -> impl IntoView {
         set_viewport.set(vp);
     });
 
+    // -- Run: execute the graph on the 7C engine ---------------------------
+    let on_run = Callback::new(move |_| {
+        let g = graph.get_untracked();
+        let mut ops: BTreeMap<NodeId, Box<dyn NodeOp>> = BTreeMap::new();
+        let dec = |s: &str| Decimal::from_str_exact(s).expect("demo constants are exact");
+        for (id, text) in [(NodeId(0), "10.00"), (NodeId(1), "2.50")] {
+            if g.node(id).is_some() {
+                let op: Box<dyn NodeOp> =
+                    Constant::with_type(Value::Decimal(dec(text)), PortType::Decimal(2))
+                        .map(|c| Box::new(c) as Box<dyn NodeOp>)
+                        .expect("seeded constant is valid");
+                ops.insert(id, op);
+            }
+        }
+        if g.node(NodeId(2)).is_some() {
+            ops.insert(NodeId(2), Box::new(AddDecimal::new(2, 2)));
+        }
+        if g.node(NodeId(3)).is_some() {
+            ops.insert(
+                NodeId(3),
+                Box::new(RunSink {
+                    def: NodeDefinition::new(
+                        "Result",
+                        vec![PortDef::new("in", PortType::Decimal(2))],
+                        vec![],
+                    ),
+                }),
+            );
+        }
+        match Engine::build(g, ops) {
+            Ok(engine) => {
+                let report = engine.execute();
+                let export = ExportReport {
+                    nodes: report
+                        .outcomes
+                        .iter()
+                        .map(|(id, o)| ExportNode {
+                            node: id.0,
+                            outcome: outcome_label(o),
+                            value: report.values.get(&(*id, 0)).cloned(),
+                        })
+                        .collect(),
+                    errors: report.errors.iter().map(|(_, e)| e.to_string()).collect(),
+                };
+                let json = serde_json::to_string_pretty(&export).unwrap_or_default();
+                set_exec_json.set(json);
+                set_exec_report.set(Some(report));
+                set_last_report.set("Run complete.".to_string());
+            }
+            Err(e) => {
+                set_last_report.set(format!("engine build failed: {e}"));
+                set_exec_report.set(None);
+                set_exec_json.set(String::new());
+            }
+        }
+    });
+
     let report = move || {
         let g = graph.get();
         format!(
@@ -121,6 +238,22 @@ pub fn NodeGraphPage() -> impl IntoView {
             g.connections().len(),
             viewport.get().zoom
         )
+    };
+
+    let exec_lines = move || {
+        exec_report.get().map(|r| {
+            r.outcomes
+                .iter()
+                .map(|(id, o)| {
+                    let value = r
+                        .values
+                        .get(&(*id, 0))
+                        .map(|v| format!(" = {}", value_label(v)))
+                        .unwrap_or_default();
+                    format!("#{}: {}{}", id.0, outcome_label(o), value)
+                })
+                .collect::<Vec<_>>()
+        })
     };
 
     view! {
@@ -147,6 +280,31 @@ pub fn NodeGraphPage() -> impl IntoView {
                     on_viewport_change=on_viewport_change
                 />
             </div>
+            <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+                <Button on_click=on_run>"Run graph"</Button>
+                <span class="demo-hint">
+                    "Executes with the 7C engine: exact decimal arithmetic; lossy or
+                     incompatible edges refuse to fire."
+                </span>
+            </div>
+            {move || {
+                exec_lines()
+                    .map(|lines| {
+                        view! {
+                            <div style="margin-top: 12px;">
+                                <h3>"Execution report"</h3>
+                                <ul>
+                                    {lines
+                                        .into_iter()
+                                        .map(|l| view! { <li>{l}</li> })
+                                        .collect::<Vec<_>>()}
+                                </ul>
+                                <h3>"Result JSON"</h3>
+                                <pre class="demo-hint" style="text-align: left;">{exec_json.get()}</pre>
+                            </div>
+                        }
+                    })
+            }}
         </div>
     }
 }

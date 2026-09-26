@@ -1,5 +1,10 @@
 # Phase 7C — Execution Engine & Built-in Nodes (TDD Plan)
 
+> **Status: IMPLEMENTED** (2026-09-26, commits 6b9f98e…+): value/exec
+> hand-written TDD; `nodes/` + demo via Mercury dispatch (deepseek-flash)
+> from contracts `2026-09-25-7c-unit-a-nodes.md` / `-unit-b-demo.md`,
+> verified in-session. Demo DoD met. This doc remains the design record.
+
 **Date:** 2026-09-25
 **Branch:** `feature/0.8.0-node-graph-7c` (off `develop` @ cec15ac)
 **Target:** v0.8.0 (supersedes PHASE_7_KICKOFF.md's provisional 0.8.1 — ratified via D1: consumers build apps on running graphs)

@@ -21,7 +21,7 @@ use rust_decimal::Decimal;
 use std::borrow::Cow;
 use std::sync::Arc;
 
-/// Category of a runtime value, mirroring [`PortType`](crate::node_graph::precision::PortType)
+/// Category of a runtime value, mirroring [`PortType`]
 /// categories for engine-side coherence checks.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ValueKind {
