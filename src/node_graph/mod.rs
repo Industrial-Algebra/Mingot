@@ -14,6 +14,7 @@ pub mod node;
 pub mod precision;
 pub mod serialize;
 pub mod validate;
+pub mod value;
 
 pub use components::node_canvas::{NodeCanvas, PendingConnection};
 pub use components::node_component::Node;
@@ -30,3 +31,4 @@ pub use node::{NodeDefinition, PortDef};
 pub use precision::{check_connection, ConnectionVerdict, IntKind, PortType};
 pub use serialize::{from_json, to_json, SCHEMA_VERSION};
 pub use validate::{validate, IssueKind, ValidationIssue, ValidationReport};
+pub use value::{CustomValueBox, Value, ValueKind};
