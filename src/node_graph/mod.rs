@@ -8,12 +8,15 @@
 
 pub mod components;
 pub mod connection;
+pub mod exec;
 pub mod graph;
 pub mod layout;
 pub mod node;
+pub mod nodes;
 pub mod precision;
 pub mod serialize;
 pub mod validate;
+pub mod value;
 
 pub use components::node_canvas::{NodeCanvas, PendingConnection};
 pub use components::node_component::Node;
@@ -21,12 +24,19 @@ pub use components::node_connection::{ConnectionStyle, NodeConnection};
 pub use components::node_port::{NodePort, PortSide};
 
 pub use connection::Connection;
+#[cfg(feature = "node-graph")]
+pub use exec::{topo_order, Engine, ExecError, ExecutionReport, NodeOp, NodeOutcome, PortSideTag};
 pub use graph::{NodeGraph, NodeId};
 pub use layout::{
     connection_path_d, hit_test_input_port, CanvasPoint, NodeBox, NodeLayout, Viewport,
     DEFAULT_PORT_HIT_RADIUS,
 };
 pub use node::{NodeDefinition, PortDef};
+pub use nodes::{
+    AddDecimal, AddInteger, Constant, DecimalToInt, DivDecimal, DivInteger, IntToDecimal,
+    IntegerCast, ModInteger, MulDecimal, MulInteger, RescaleDecimal, SubDecimal, SubInteger,
+};
 pub use precision::{check_connection, ConnectionVerdict, IntKind, PortType};
 pub use serialize::{from_json, to_json, SCHEMA_VERSION};
 pub use validate::{validate, IssueKind, ValidationIssue, ValidationReport};
+pub use value::{CustomValueBox, Value, ValueKind};

@@ -5,7 +5,7 @@
 //!
 //! A [`NodeDefinition`] is the blueprint for a node — a title plus its input
 //! and output [`PortDef`]s. Concrete nodes in a graph are instances keyed by
-//! [`NodeId`] (see [`crate::node_graph::graph::NodeGraph`]). The definition
+//! [`crate::node_graph::graph::NodeId`] (see [`crate::node_graph::graph::NodeGraph`]). The definition
 //! carries enough structure for the 7C execution layer to hang a `NodeOp`
 //! trait off later without rework.
 

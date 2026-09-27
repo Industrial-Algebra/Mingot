@@ -19,7 +19,7 @@ pub struct NodeId(pub u64);
 ///
 /// Stores node [`NodeDefinition`]s keyed by [`NodeId`] and the [`Connection`]s
 /// between their ports. A derived node-level adjacency map backs cycle
-/// detection; precision compatibility is checked in [`validate`](crate::node_graph::validate).
+/// detection; precision compatibility is checked in [`validate()`](crate::node_graph::validate::validate).
 #[derive(Clone, Debug, Default)]
 pub struct NodeGraph {
     nodes: BTreeMap<NodeId, NodeDefinition>,
@@ -59,7 +59,7 @@ impl NodeGraph {
     /// Record a port-to-port connection and update the node-level adjacency.
     ///
     /// Structural and precision validation is performed by
-    /// [`validate`](crate::node_graph::validate); this only records the edge.
+    /// [`validate()`](crate::node_graph::validate::validate); this only records the edge.
     /// Returns whether the connection was new.
     pub fn connect(&mut self, conn: Connection) -> bool {
         let added = self

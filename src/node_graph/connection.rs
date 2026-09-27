@@ -12,7 +12,7 @@ use crate::node_graph::graph::NodeId;
 
 /// A directed wire from `(from_node, from_output)` to `(to_node, to_input)`.
 ///
-/// Port indices are positional within the source/target [`NodeDefinition`]'s
+/// Port indices are positional within the source/target [`crate::node_graph::node::NodeDefinition`]'s
 /// `outputs` / `inputs` vectors.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct Connection {

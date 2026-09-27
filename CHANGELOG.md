@@ -35,6 +35,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `disconnect` (keeps derived adjacency consistent across parallel edges)
 - Demo page (`/node-graph`) with a live three-stage precision pipeline
 
+#### Execution Engine (Phase 7C) — `node-graph` feature
+
+- **Refuse-to-fire numerics contract**: executing a `Lossy` or
+  `Incompatible` edge is a runtime error in a structured
+  `ExecutionReport` — never a silent narrowing; failures skip
+  transitively downstream nodes; cycles fail structurally
+- `Value` runtime data type: `Integer(i128)`, `Decimal`, `Arbitrary`
+  (high-precision), `Text`, `Bool`, and an open `Custom(Arc<dyn
+  CustomValue>)` hatch; strict `matches(&PortType)` range/scale checks;
+  serializes for result export (numerics as precision-preserving strings)
+- `NodeOp` trait + Kahn topological ordering + `Engine::build/execute`:
+  unconnected inputs fail (no defaults), ops are held to their declared
+  output port types (`PortTypeMismatch` / `OutputCountMismatch`)
+- Built-in pure node library (`nodes/`): `Constant` (derived or declared
+  port type), precision-preserving arithmetic (Add/Sub at max scale, Mul
+  at the exact-product scale with a 28-digit ceiling, Div at the widest
+  decimal, checked integer ops with `IntegerOverflow`/`DivideByZero`),
+  and the sanctioned conversion nodes — `RescaleDecimal` (banker's),
+  `IntegerCast` (range-checked), `IntToDecimal` / `DecimalToInt` — the
+  only places precision changes
+- Demo (`/node-graph`): **Run** button executing the graph, structured
+  execution report rendering, and JSON result export
+- Pure kernel discipline: `value.rs`, `exec.rs`, `nodes/` have zero
+  Leptos/wasm references (natively testable)
+
 ## [0.7.0] - 2026-03-08
 
 ### Added
