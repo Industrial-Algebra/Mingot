@@ -117,9 +117,14 @@ All `src/**/*.rs` carry the Apache-2.0 SPDX header.
 - ✗ **README Amari residue** — 5 mentions of a nonexistent "Amari
   integration feature" (lines 225, 370, 389, 456, 494). Fix before
   0.8.0: Mingot's arbitrary precision is rust_decimal, not Amari.
-- ? **equation_editor "GA-notation" residue** — NOT FOUND under
-  Gaussian/Gauss/augmented/row-reduce/GA terms; likely already cleaned or
-  misremembered. Unconfirmed; needs the operator's specific recollection.
+- ✓ **equation_editor GA-notation** — confirmed as Hestenes geometric
+  algebra notation (wedge/geometric products, ⟨M⟩ₖ grade projection,
+  e/γ basis conventions, rotor sandwich), render-only by design
+  (`to_latex`/`to_unicode`). One real defect found and fixed:
+  `GradeProjection::symbol()` (the palette/insert surface) emitted empty
+  brackets `⟨⟩ₖ` — invalid Hestenes notation — and a test had pinned the
+  broken form while the full renderers were correct. Now `⟨M⟩ₖ` with a
+  shared `grade_subscript` helper; grades ≥ 10 render `ₙ`.
 - ✗ `validate()` lacks a duplicate-producer issue (noted in PR #69);
   the engine refuses at build — add the static arm for parity.
 

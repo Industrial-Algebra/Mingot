@@ -204,22 +204,28 @@ impl GradeProjection {
         Self { grade }
     }
 
-    /// Get the subscript notation (⟨M⟩ₖ)
+    /// Get the subscript notation (⟨M⟩ₖ) — the generic multivector
+    /// operand `M` stands in on palette/insert surfaces; the full
+    /// renderers substitute the actual operand.
     pub fn symbol(&self) -> String {
-        let subscript = match self.grade {
-            0 => "₀",
-            1 => "₁",
-            2 => "₂",
-            3 => "₃",
-            4 => "₄",
-            5 => "₅",
-            6 => "₆",
-            7 => "₇",
-            8 => "₈",
-            9 => "₉",
-            _ => "ₙ",
-        };
-        format!("⟨⟩{}", subscript)
+        format!("⟨M⟩{}", grade_subscript(self.grade))
+    }
+}
+
+/// Subscript digit(s) for a grade (Hestenes uses ⟨M⟩ₙ generically).
+fn grade_subscript(grade: u8) -> &'static str {
+    match grade {
+        0 => "₀",
+        1 => "₁",
+        2 => "₂",
+        3 => "₃",
+        4 => "₄",
+        5 => "₅",
+        6 => "₆",
+        7 => "₇",
+        8 => "₈",
+        9 => "₉",
+        _ => "ₙ",
     }
 }
 
@@ -524,20 +530,7 @@ impl EquationNode {
                 }
             },
             Self::GradeProjection { grade, operand } => {
-                let subscript = match grade {
-                    0 => "₀",
-                    1 => "₁",
-                    2 => "₂",
-                    3 => "₃",
-                    4 => "₄",
-                    5 => "₅",
-                    6 => "₆",
-                    7 => "₇",
-                    8 => "₈",
-                    9 => "₉",
-                    _ => "ₙ",
-                };
-                format!("⟨{}⟩{}", operand.to_unicode(), subscript)
+                format!("⟨{}⟩{}", operand.to_unicode(), grade_subscript(*grade))
             }
             Self::RotorApplication { rotor, operand } => {
                 format!(
@@ -1282,9 +1275,10 @@ mod tests {
 
     #[test]
     fn test_grade_projection_symbol() {
-        assert_eq!(GradeProjection::new(0).symbol(), "⟨⟩₀");
-        assert_eq!(GradeProjection::new(1).symbol(), "⟨⟩₁");
-        assert_eq!(GradeProjection::new(2).symbol(), "⟨⟩₂");
+        assert_eq!(GradeProjection::new(0).symbol(), "⟨M⟩₀");
+        assert_eq!(GradeProjection::new(1).symbol(), "⟨M⟩₁");
+        assert_eq!(GradeProjection::new(2).symbol(), "⟨M⟩₂");
+        assert_eq!(GradeProjection::new(10).symbol(), "⟨M⟩ₙ");
     }
 
     #[test]
