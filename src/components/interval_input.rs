@@ -237,7 +237,18 @@ fn format_number(value: f64) -> String {
 }
 
 /// Parse an interval from string notation
-pub fn parse_interval(input: &str) -> Result<Interval, String> {
+/// Errors parsing an interval literal (see [`parse_interval`]).
+#[derive(Clone, Debug, PartialEq, thiserror::Error)]
+pub enum IntervalError {
+    #[error("Expected format: [min, max]")]
+    BracketMismatch,
+    #[error("Invalid interval format. Use [a, b], (a, b), [a, b), or (a, b]")]
+    InvalidFormat,
+    #[error("Invalid number: {0}")]
+    InvalidBound(std::borrow::Cow<'static, str>),
+}
+
+pub fn parse_interval(input: &str) -> Result<Interval, IntervalError> {
     let trimmed = input.trim();
 
     // Try to parse mathematical notation: [a, b], (a, b), [a, b), (a, b]
@@ -259,7 +270,7 @@ pub fn parse_interval(input: &str) -> Result<Interval, String> {
         let parts: Vec<&str> = inner.split(',').collect();
 
         if parts.len() != 2 {
-            return Err("Expected format: [min, max]".to_string());
+            return Err(IntervalError::BracketMismatch);
         }
 
         let min_str = parts[0].trim();
@@ -271,11 +282,11 @@ pub fn parse_interval(input: &str) -> Result<Interval, String> {
         return Ok(Interval::new(min, max, bounds));
     }
 
-    Err("Invalid interval format. Use [a, b], (a, b), [a, b), or (a, b]".to_string())
+    Err(IntervalError::InvalidFormat)
 }
 
 /// Parse a single bound value
-fn parse_bound(s: &str) -> Result<Option<f64>, String> {
+fn parse_bound(s: &str) -> Result<Option<f64>, IntervalError> {
     let trimmed = s.trim().to_lowercase();
 
     if trimmed == "-∞"
@@ -300,7 +311,7 @@ fn parse_bound(s: &str) -> Result<Option<f64>, String> {
     trimmed
         .parse::<f64>()
         .map(Some)
-        .map_err(|_| format!("Invalid number: {}", s))
+        .map_err(|_| IntervalError::InvalidBound(s.to_string().into()))
 }
 
 /// Display format for intervals
@@ -753,6 +764,26 @@ mod tests {
     fn test_interval_to_set_notation() {
         let closed = Interval::closed(0.0, 10.0);
         assert_eq!(closed.to_set_notation(), "{x | 0 ≤ x ≤ 10}");
+    }
+
+    #[test]
+    fn parse_interval_errors_are_structured() {
+        assert!(matches!(
+            parse_interval("[1, 2, 3]"),
+            Err(IntervalError::BracketMismatch)
+        ));
+        assert!(matches!(
+            parse_interval("[0, 10"),
+            Err(IntervalError::InvalidFormat)
+        ));
+        assert!(matches!(
+            parse_interval("nonsense"),
+            Err(IntervalError::InvalidFormat)
+        ));
+        assert!(matches!(
+            parse_interval("[abc, 10]"),
+            Err(IntervalError::InvalidBound(_))
+        ));
     }
 
     #[test]

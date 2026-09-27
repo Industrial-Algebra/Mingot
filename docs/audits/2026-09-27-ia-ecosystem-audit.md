@@ -128,6 +128,37 @@ All `src/**/*.rs` carry the Apache-2.0 SPDX header.
 - ✗ `validate()` lacks a duplicate-producer issue (noted in PR #69);
   the engine refuses at build — add the static arm for parity.
 
+## Remediation status (2026-09-27, branch feature/0.8.0-audit-remediation)
+
+1. ✓ **Critical — Fraction**: `new`/`from_mixed` return
+   `Result<Self, FractionError>` (`ZeroDenominator`); the parse path
+   (`"1/0"`, `"1 2/0"`) now yields `None` → invalid-state UI instead of a
+   panic. Breaking change, changelog'd; demo registry examples updated.
+2. ✓ **High — String errors**: `formula_input::evaluate` returns
+   `Result<f64, FormulaParseError>` (new variants `UnknownOperator`,
+   `UnknownUnaryOperator`, `FunctionArity`, `UndefinedVariable`);
+   `parse_interval`/`parse_bound` return `Result<_, IntervalError>`
+   (`BracketMismatch`, `InvalidFormat`, `InvalidBound`). Display strings
+   preserved. Zero `Result<_, String>` remains in `src/`.
+3. ✓ **High — README**: all five Amari-integration sites rewritten to
+   rust_decimal reality; ecosystem link corrected to the
+   Industrial-Algebra org URL.
+4. ✓ **Medium — error homes**: documented as the deliberate per-domain
+   convention in lib.rs ("Error handling" section) rather than forcing a
+   cfg-riddled `error.rs`; audit category 3 re-judged as conforming to
+   the documented convention.
+5. ✓ **Medium — validate()**: `IssueKind::DuplicateProducer` added
+   (reports every connection beyond the first on a positional input),
+   mirroring the engine's build refusal. TDD'd.
+6. ⚠ **Medium — echo-back deep pass**: investigated. `notification` is
+   clean (context-internal state). **Five components take writable-signal
+   props** — `select.rs:51`, `popover.rs:16`, `equation_editor.rs:635`,
+   `angle_input.rs:326`, `matrix_input.rs:375` (all
+   `Option<RwSignal<T>>` value props, two-way). Converting to
+   read-signal-in / intent-callback-out changes state ownership during
+   editing — a per-component design pass, scoped as its own unit before
+   0.8.0, not batched here.
+
 ## Recommendations (pre-0.8.0 fix pass, by severity)
 
 1. **Critical** — `Fraction::new`/`from_mixed`: return `Result`

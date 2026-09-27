@@ -234,7 +234,7 @@ impl Expression {
     }
 
     /// Evaluate the expression with given variable values
-    pub fn evaluate(&self, variables: &HashMap<String, f64>) -> Result<f64, String> {
+    pub fn evaluate(&self, variables: &HashMap<String, f64>) -> Result<f64, FormulaParseError> {
         match self {
             Expression::Number(n) => Ok(*n),
             Expression::Variable(name) => {
@@ -246,7 +246,7 @@ impl Expression {
                     _ => variables
                         .get(name)
                         .copied()
-                        .ok_or_else(|| format!("Undefined variable: {}", name)),
+                        .ok_or_else(|| FormulaParseError::UndefinedVariable(name.clone())),
                 }
             }
             Expression::BinaryOp { op, left, right } => {
@@ -259,7 +259,7 @@ impl Expression {
                     '/' => l / r,
                     '^' => l.powf(r),
                     '%' => l % r,
-                    _ => return Err(format!("Unknown operator: {}", op)),
+                    _ => return Err(FormulaParseError::UnknownOperator(op.to_string())),
                 })
             }
             Expression::UnaryOp { op, operand } => {
@@ -267,15 +267,14 @@ impl Expression {
                 Ok(match op {
                     '-' => -val,
                     '+' => val,
-                    _ => return Err(format!("Unknown unary operator: {}", op)),
+                    _ => return Err(FormulaParseError::UnknownUnaryOperator(op.to_string())),
                 })
             }
             Expression::FunctionCall { function, args } => {
                 if args.len() != 1 {
-                    return Err(format!(
-                        "Function {} expects 1 argument, got {}",
-                        function.name(),
-                        args.len()
+                    return Err(FormulaParseError::FunctionArity(
+                        function.name().to_string(),
+                        args.len(),
                     ));
                 }
                 let arg = args[0].evaluate(variables)?;
@@ -329,6 +328,14 @@ pub enum FormulaParseError {
     MissingOperand,
     #[error("Trailing input: {0}")]
     TrailingInput(String),
+    #[error("Unknown operator: {0}")]
+    UnknownOperator(String),
+    #[error("Unknown unary operator: {0}")]
+    UnknownUnaryOperator(String),
+    #[error("Function {0} expects 1 argument, got {1}")]
+    FunctionArity(String, usize),
+    #[error("Undefined variable: {0}")]
+    UndefinedVariable(String),
 }
 
 /// Tokenizer for mathematical expressions
@@ -974,6 +981,24 @@ mod tests {
     fn test_parse_nested_parens() {
         let expr = parse_expression("((1 + 2) * 3)").unwrap();
         assert!(matches!(expr, Expression::BinaryOp { op: '*', .. }));
+    }
+
+    #[test]
+    fn test_evaluate_errors_are_structured() {
+        use super::Expression;
+        // Evaluate-side variants are reachable only through the AST, so
+        // construct them by hand and pin the variant shapes.
+        let undefined = Expression::Variable("x".to_string());
+        assert!(matches!(
+            undefined.evaluate(&HashMap::new()),
+            Err(FormulaParseError::UndefinedVariable(v)) if v == "x"
+        ));
+        let sum = Expression::BinaryOp {
+            op: '+',
+            left: Box::new(Expression::Number(1.0)),
+            right: Box::new(Expression::Number(2.0)),
+        };
+        assert_eq!(sum.evaluate(&HashMap::new()), Ok(3.0));
     }
 
     #[test]

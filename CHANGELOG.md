@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### Audit remediation (breaking)
+
+- **Breaking**: `Fraction::new` and `Fraction::from_mixed` now return
+  `Result<Self, FractionError>` — a zero denominator (user-reachable
+  input, e.g. typing `1/0`) is a `ZeroDenominator` error instead of a
+  panic; the fraction parse path surfaces it as an invalid-input state
+- **Breaking**: `formula_input::evaluate` returns
+  `Result<f64, FormulaParseError>` (variants `UnknownOperator`,
+  `UnknownUnaryOperator`, `FunctionArity`, `UndefinedVariable`); messages
+  unchanged
+- **Breaking**: `parse_interval`/`parse_bound` return
+  `Result<_, IntervalError>` (`BracketMismatch`, `InvalidFormat`,
+  `InvalidBound`); no public `Result<_, String>` APIs remain
+- `validate()` now reports `IssueKind::DuplicateProducer` for positional
+  inputs driven by multiple connections (static arm of the engine's
+  build-time refusal)
+- README: all five stale "Amari integration" references rewritten to the
+  rust_decimal reality; ecosystem link corrected
+- lib.rs documents the per-domain error-home convention
+
 #### Relicensing to Apache-2.0 + CLA
 
 - **License**: `AGPL-3.0-only` → `Apache-2.0` (per the IA ecosystem standard)
