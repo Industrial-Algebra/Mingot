@@ -189,6 +189,17 @@ impl ExecutionReport {
     }
 }
 
+/// Materialize the lattice's one exact cross-representation edge:
+/// `Decimal(n) -> Arbitrary` (verdict `Ok`), whose destination's runtime
+/// representation is [`Value::Arbitrary`].
+#[cfg(feature = "high-precision")]
+fn materialize_widening(value: Value, dst_ty: &PortType) -> Value {
+    match (value, dst_ty) {
+        (Value::Decimal(d), PortType::Arbitrary) => Value::Arbitrary(d),
+        (value, _) => value,
+    }
+}
+
 /// A built, runnable graph: topology plus the operation registry.
 pub struct Engine {
     graph: NodeGraph,
@@ -337,7 +348,7 @@ impl Engine {
                     return;
                 }
             }
-            let mut value = report
+            let value = report
                 .values
                 .get(&(conn.from_node, conn.from_output))
                 .expect("upstream executed: value recorded")
@@ -345,13 +356,11 @@ impl Engine {
             // The lattice accepts Decimal(n) -> Arbitrary as exact; the
             // destination's runtime representation is Arbitrary, so
             // materialize the widening rather than forwarding a Decimal
-            // into an Arbitrary-declared input.
+            // into an Arbitrary-declared input. (Feature-gated shadowing
+            // keeps the binding immutable in configurations without the
+            // mutation.)
             #[cfg(feature = "high-precision")]
-            if matches!(dst_ty, PortType::Arbitrary) {
-                if let Value::Decimal(d) = value {
-                    value = Value::Arbitrary(d);
-                }
-            }
+            let value = materialize_widening(value, dst_ty);
             inputs[conn.to_input as usize] = value;
         }
 
