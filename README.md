@@ -491,7 +491,7 @@ development is Apache-2.0 only.
 
 - **Mantine UI**: API design inspiration
 - **Leptos**: Reactive foundation
-- **rust_decimal**: Arbitrary-precision decimal arithmetic
+- **rust_decimal**: Bounded-precision decimal arithmetic (96-bit mantissa, 28–29 significant digits)
 - **Industrial Algebra**: Primary development and use cases
 
 ## Links

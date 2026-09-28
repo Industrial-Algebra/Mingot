@@ -12,9 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Audit remediation (breaking)
 
 - **Breaking**: `Fraction::new` and `Fraction::from_mixed` now return
-  `Result<Self, FractionError>` — a zero denominator (user-reachable
-  input, e.g. typing `1/0`) is a `ZeroDenominator` error instead of a
-  panic; the fraction parse path surfaces it as an invalid-input state
+  `Result<Self, FractionError>` — a zero denominator is a
+  `ZeroDenominator` error instead of a constructor panic, for
+  programmatic callers. (The UI parse path already rejected zero
+  denominators as invalid input; demo behavior is unchanged.) Known
+  remaining panic surface, tracked for a follow-up:
+  `from_mixed` multiplication overflow at the `i64` extremes
 - **Breaking**: `formula_input::evaluate` returns
   `Result<f64, FormulaParseError>` (variants `UnknownOperator`,
   `UnknownUnaryOperator`, `FunctionArity`, `UndefinedVariable`); messages

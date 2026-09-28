@@ -131,9 +131,19 @@ All `src/**/*.rs` carry the Apache-2.0 SPDX header.
 ## Remediation status (2026-09-27, branch feature/0.8.0-audit-remediation)
 
 1. ✓ **Critical — Fraction**: `new`/`from_mixed` return
-   `Result<Self, FractionError>` (`ZeroDenominator`); the parse path
-   (`"1/0"`, `"1 2/0"`) now yields `None` → invalid-state UI instead of a
-   panic. Breaking change, changelog'd; demo registry examples updated.
+   `Result<Self, FractionError>` (`ZeroDenominator`). Correction
+   (review): the UI parse path was already guarded — both
+   `parse_simple_fraction` and `parse_mixed_number` returned `None` on a
+   zero denominator before this change, and the demo reverts invalid
+   text on blur, so no UI behavior changed. The fix converts the public
+   constructors themselves from panics to structured errors, for
+   programmatic callers. Breaking change, changelog'd; demo registry
+   examples updated.
+   **Tracked separately (pre-existing, reproduced in Chrome via the
+   demo)**: `Fraction::from_mixed(i64::MAX, 1, 2)` panics on
+   multiplication overflow and `from_mixed(i64::MIN, 1, 2)` panics in
+   `abs()` — mixed-number arithmetic needs checked conversion; also
+   present on the base commit, out of scope for this remediation.
 2. ✓ **High — String errors**: `formula_input::evaluate` returns
    `Result<f64, FormulaParseError>` (new variants `UnknownOperator`,
    `UnknownUnaryOperator`, `FunctionArity`, `UndefinedVariable`);
