@@ -222,7 +222,7 @@ pub enum NumberInputPrecision {
     I64,           // Signed 64-bit
     I128,          // Signed 128-bit
     Decimal(u32),  // Fixed decimal places (e.g., Decimal(8) for financial)
-    Arbitrary,     // Unlimited precision with Amari (requires feature)
+    Arbitrary,     // Full rust_decimal precision, 28 fractional digits (requires feature)
 }
 ```
 
@@ -367,7 +367,7 @@ cargo test
 # Run precision-specific tests
 cargo test number_input
 
-# Run with Amari integration (requires feature)
+# Run with the high-precision stack enabled
 cargo test --features high-precision
 ```
 
@@ -386,7 +386,7 @@ Mingot is built for the Industrial Algebra ecosystem but welcomes contributions 
 ### Development Priorities
 
 1. **Precision Components**: New components for high-precision numeric input
-2. **Amari Integration**: Deeper integration with Amari's mathematical capabilities
+2. **Node-Graph Library**: Broader built-in node coverage for the execution engine
 3. **Domain-Specific Tools**: Financial, scientific, and engineering-focused components
 4. **Performance**: Optimizing precision operations for real-time applications
 
@@ -453,7 +453,7 @@ Mingot's precision components are optimized for real-time applications:
 - **Input latency**: < 16ms (60 FPS responsive)
 - **Validation overhead**: Minimal (stdlib parsing is fast)
 - **WASM binary size**: Optimized with LTO and opt-level='z'
-- **Amari integration**: Zero-cost when feature disabled
+- **High-precision stack**: Zero-cost when the feature is disabled
 
 ## Browser Compatibility
 
@@ -491,7 +491,7 @@ development is Apache-2.0 only.
 
 - **Mantine UI**: API design inspiration
 - **Leptos**: Reactive foundation
-- **Amari**: Arbitrary-precision mathematics
+- **rust_decimal**: Bounded-precision decimal arithmetic (96-bit mantissa, 28–29 significant digits)
 - **Industrial Algebra**: Primary development and use cases
 
 ## Links
@@ -499,7 +499,7 @@ development is Apache-2.0 only.
 - **Documentation**: https://docs.rs/mingot
 - **Crate**: https://crates.io/crates/mingot
 - **Repository**: https://github.com/Industrial-Algebra/Mingot
-- **Amari**: https://github.com/justinelliottcobb/Amari
+- **Amari** (ecosystem): https://github.com/Industrial-Algebra/Amari
 - **Leptos**: https://leptos.dev
 
 ---

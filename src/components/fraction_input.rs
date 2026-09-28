@@ -39,16 +39,26 @@ impl Default for Fraction {
     }
 }
 
+/// Errors constructing a [`Fraction`].
+#[derive(Clone, Copy, Debug, PartialEq, thiserror::Error)]
+pub enum FractionError {
+    #[error("denominator cannot be zero")]
+    ZeroDenominator,
+}
+
 impl Fraction {
-    /// Create a new fraction
-    pub fn new(numerator: i64, denominator: i64) -> Self {
+    /// Create a new fraction.
+    ///
+    /// Returns [`FractionError::ZeroDenominator`] rather than panicking —
+    /// a zero denominator is user-reachable input.
+    pub fn new(numerator: i64, denominator: i64) -> Result<Self, FractionError> {
         if denominator == 0 {
-            panic!("Denominator cannot be zero");
+            return Err(FractionError::ZeroDenominator);
         }
-        Self {
+        Ok(Self {
             numerator,
             denominator,
-        }
+        })
     }
 
     /// Create a fraction from a whole number
@@ -59,19 +69,21 @@ impl Fraction {
         }
     }
 
-    /// Create a fraction from a mixed number (whole + fraction)
-    pub fn from_mixed(whole: i64, numerator: i64, denominator: i64) -> Self {
+    /// Create a fraction from a mixed number (whole + fraction).
+    ///
+    /// Returns [`FractionError::ZeroDenominator`] rather than panicking.
+    pub fn from_mixed(whole: i64, numerator: i64, denominator: i64) -> Result<Self, FractionError> {
         if denominator == 0 {
-            panic!("Denominator cannot be zero");
+            return Err(FractionError::ZeroDenominator);
         }
         let sign = if whole < 0 || numerator < 0 { -1 } else { 1 };
         let whole_abs = whole.abs();
         let num_abs = numerator.abs();
 
-        Self {
+        Ok(Self {
             numerator: sign * (whole_abs * denominator.abs() + num_abs),
             denominator: denominator.abs(),
-        }
+        })
     }
 
     /// Compute the greatest common divisor using Euclidean algorithm
@@ -275,7 +287,7 @@ fn parse_mixed_number(input: &str) -> Option<Fraction> {
         return None;
     }
 
-    Some(Fraction::from_mixed(whole, num, den))
+    Fraction::from_mixed(whole, num, den).ok()
 }
 
 fn parse_simple_fraction(input: &str) -> Option<Fraction> {
@@ -292,7 +304,7 @@ fn parse_simple_fraction(input: &str) -> Option<Fraction> {
         return None;
     }
 
-    Some(Fraction::new(num, den))
+    Fraction::new(num, den).ok()
 }
 
 fn parse_decimal_to_fraction(input: &str) -> Option<Fraction> {
@@ -668,8 +680,26 @@ mod tests {
     use super::*;
 
     #[test]
+    fn new_rejects_zero_denominator() {
+        assert!(matches!(
+            Fraction::new(1, 0),
+            Err(FractionError::ZeroDenominator)
+        ));
+        assert!(matches!(
+            Fraction::from_mixed(1, 2, 0),
+            Err(FractionError::ZeroDenominator)
+        ));
+    }
+
+    #[test]
+    fn parsing_zero_denominator_yields_none_not_panic() {
+        assert_eq!(parse_fraction("1/0"), None);
+        assert_eq!(parse_fraction("1 2/0"), None);
+    }
+
+    #[test]
     fn test_fraction_new() {
-        let f = Fraction::new(3, 4);
+        let f = Fraction::new(3, 4).unwrap();
         assert_eq!(f.numerator, 3);
         assert_eq!(f.denominator, 4);
     }
@@ -683,37 +713,37 @@ mod tests {
 
     #[test]
     fn test_fraction_from_mixed() {
-        let f = Fraction::from_mixed(1, 1, 2);
+        let f = Fraction::from_mixed(1, 1, 2).unwrap();
         assert_eq!(f.numerator, 3);
         assert_eq!(f.denominator, 2);
 
-        let f = Fraction::from_mixed(2, 3, 4);
+        let f = Fraction::from_mixed(2, 3, 4).unwrap();
         assert_eq!(f.numerator, 11);
         assert_eq!(f.denominator, 4);
     }
 
     #[test]
     fn test_fraction_simplify() {
-        let f = Fraction::new(4, 8).simplify();
+        let f = Fraction::new(4, 8).unwrap().simplify();
         assert_eq!(f.numerator, 1);
         assert_eq!(f.denominator, 2);
 
-        let f = Fraction::new(6, 9).simplify();
+        let f = Fraction::new(6, 9).unwrap().simplify();
         assert_eq!(f.numerator, 2);
         assert_eq!(f.denominator, 3);
 
         // Negative denominator should be normalized
-        let f = Fraction::new(3, -4).simplify();
+        let f = Fraction::new(3, -4).unwrap().simplify();
         assert_eq!(f.numerator, -3);
         assert_eq!(f.denominator, 4);
     }
 
     #[test]
     fn test_fraction_to_decimal() {
-        let f = Fraction::new(1, 2);
+        let f = Fraction::new(1, 2).unwrap();
         assert!((f.to_decimal() - 0.5).abs() < 0.0001);
 
-        let f = Fraction::new(3, 4);
+        let f = Fraction::new(3, 4).unwrap();
         assert!((f.to_decimal() - 0.75).abs() < 0.0001);
     }
 
@@ -734,31 +764,31 @@ mod tests {
 
     #[test]
     fn test_fraction_to_string() {
-        let f = Fraction::new(3, 4);
+        let f = Fraction::new(3, 4).unwrap();
         assert_eq!(f.to_fraction_string(), "3/4");
 
-        let f = Fraction::new(4, 1);
+        let f = Fraction::new(4, 1).unwrap();
         assert_eq!(f.to_fraction_string(), "4");
 
-        let f = Fraction::new(-3, 4);
+        let f = Fraction::new(-3, 4).unwrap();
         assert_eq!(f.to_fraction_string(), "-3/4");
     }
 
     #[test]
     fn test_fraction_to_mixed_string() {
-        let f = Fraction::new(3, 2);
+        let f = Fraction::new(3, 2).unwrap();
         assert_eq!(f.to_mixed_string(), "1 1/2");
 
-        let f = Fraction::new(7, 4);
+        let f = Fraction::new(7, 4).unwrap();
         assert_eq!(f.to_mixed_string(), "1 3/4");
 
-        let f = Fraction::new(4, 1);
+        let f = Fraction::new(4, 1).unwrap();
         assert_eq!(f.to_mixed_string(), "4");
 
-        let f = Fraction::new(1, 2);
+        let f = Fraction::new(1, 2).unwrap();
         assert_eq!(f.to_mixed_string(), "1/2");
 
-        let f = Fraction::new(-5, 2);
+        let f = Fraction::new(-5, 2).unwrap();
         assert_eq!(f.to_mixed_string(), "-2 1/2");
     }
 

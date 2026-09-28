@@ -3606,7 +3606,7 @@ fn fraction_input_doc() -> ComponentDoc {
             PropDoc {
                 name: "default_value",
                 prop_type: "Fraction",
-                default: Some("Fraction::new(0, 1)"),
+                default: Some("Fraction::new(0, 1).unwrap()"),
                 description: "Default fraction value",
                 required: false,
             },
@@ -3661,9 +3661,9 @@ fn fraction_input_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let frac1 = RwSignal::new(Fraction::new(3, 4));
-            let frac2 = RwSignal::new(Fraction::new(7, 4));
-            let frac3 = RwSignal::new(Fraction::new(6, 8));
+            let frac1 = RwSignal::new(Fraction::new(3, 4).unwrap());
+            let frac2 = RwSignal::new(Fraction::new(7, 4).unwrap());
+            let frac3 = RwSignal::new(Fraction::new(6, 8).unwrap());
             view! {
                 <DemoBlock title="Fraction Input">
                     <Stack spacing="lg">

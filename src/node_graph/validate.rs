@@ -10,6 +10,7 @@
 
 use crate::node_graph::connection::Connection;
 use crate::node_graph::graph::NodeGraph;
+use crate::node_graph::graph::NodeId;
 use crate::node_graph::precision::{check_connection, ConnectionVerdict};
 
 /// One problem found while validating a graph.
@@ -36,6 +37,9 @@ pub enum IssueKind {
     Incompatible,
     /// The graph contains a cycle.
     Cycle,
+    /// Two or more connections drive the same positional input; the
+    /// engine refuses such graphs at build time.
+    DuplicateProducer,
 }
 
 /// The outcome of validating a graph: every issue found, in encounter order.
@@ -58,6 +62,12 @@ impl ValidationReport {
 
 /// Validate `graph`, returning a report of every structural, precision, and
 /// cycle issue found.
+///
+/// Mirrors the engine's build-time refusals: dangling endpoints, port
+/// ranges, precision verdicts — and input cardinality: a positional input
+/// with more than one producer is reported for every connection beyond
+/// the first (the engine refuses the whole graph; drawing stays
+/// permissive).
 pub fn validate(graph: &NodeGraph) -> ValidationReport {
     let mut issues = Vec::new();
 
@@ -135,6 +145,22 @@ pub fn validate(graph: &NodeGraph) -> ValidationReport {
                 message: reason.into_owned(),
                 connection: Some(*conn),
             }),
+        }
+    }
+
+    // Cardinality: a positional input with multiple producers is
+    // ambiguous — the engine refuses it at build time (7C review).
+    let mut driven: std::collections::BTreeSet<(NodeId, u32)> = std::collections::BTreeSet::new();
+    for conn in graph.connections() {
+        if !driven.insert((conn.to_node, conn.to_input)) {
+            issues.push(ValidationIssue {
+                kind: IssueKind::DuplicateProducer,
+                message: format!(
+                    "input {} of node {} already has a producer",
+                    conn.to_input, conn.to_node.0
+                ),
+                connection: Some(*conn),
+            });
         }
     }
 
@@ -247,6 +273,36 @@ mod tests {
                 .any(|i| i.kind == IssueKind::TargetPortOutOfRange),
             "expected TargetPortOutOfRange, got {:?}",
             report.issues
+        );
+    }
+
+    #[test]
+    fn duplicate_producer_on_one_input_is_reported() {
+        let mut g = NodeGraph::new();
+        for id in 0..3 {
+            g.add_node(decimal_node(id, 2).0, decimal_node(id, 2).1);
+        }
+        g.connect(Connection::new(NodeId(0), 0, NodeId(2), 0));
+        let second = Connection::new(NodeId(1), 0, NodeId(2), 0);
+        g.connect(second);
+        let report = validate(&g);
+        let dup: Vec<_> = report
+            .issues()
+            .iter()
+            .filter(|i| i.kind == IssueKind::DuplicateProducer)
+            .collect();
+        assert_eq!(dup.len(), 1, "got {:?}", report.issues);
+        assert_eq!(dup[0].connection, Some(second));
+        // Distinct inputs must not trip the check.
+        g.connect(Connection::new(NodeId(1), 0, NodeId(0), 0));
+        let report = validate(&g);
+        assert_eq!(
+            report
+                .issues()
+                .iter()
+                .filter(|i| i.kind == IssueKind::DuplicateProducer)
+                .count(),
+            1
         );
     }
 
