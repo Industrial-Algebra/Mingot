@@ -128,6 +128,56 @@ All `src/**/*.rs` carry the Apache-2.0 SPDX header.
 - ✗ `validate()` lacks a duplicate-producer issue (noted in PR #69);
   the engine refuses at build — add the static arm for parity.
 
+## Remediation status (2026-09-27, branch feature/0.8.0-audit-remediation)
+
+1. ✓ **Critical — Fraction**: `new`/`from_mixed` return
+   `Result<Self, FractionError>` (`ZeroDenominator`). Correction
+   (review): the UI parse path was already guarded — both
+   `parse_simple_fraction` and `parse_mixed_number` returned `None` on a
+   zero denominator before this change, and the demo reverts invalid
+   text on blur, so no UI behavior changed. The fix converts the public
+   constructors themselves from panics to structured errors, for
+   programmatic callers. Breaking change, changelog'd; demo registry
+   examples updated.
+   **Tracked separately (pre-existing, reproduced in Chrome via the
+   demo)**: `Fraction::from_mixed(i64::MAX, 1, 2)` panics on
+   multiplication overflow and `from_mixed(i64::MIN, 1, 2)` panics in
+   `abs()` — mixed-number arithmetic needs checked conversion; also
+   present on the base commit, out of scope for this remediation.
+2. ✓ **High — String errors**: `formula_input::evaluate` returns
+   `Result<f64, FormulaParseError>` (new variants `UnknownOperator`,
+   `UnknownUnaryOperator`, `FunctionArity`, `UndefinedVariable`);
+   `parse_interval`/`parse_bound` return `Result<_, IntervalError>`
+   (`BracketMismatch`, `InvalidFormat`, `InvalidBound`). Display strings
+   preserved. Zero `Result<_, String>` remains in `src/`.
+3. ✓ **High — README**: all five Amari-integration sites rewritten to
+   rust_decimal reality; ecosystem link corrected to the
+   Industrial-Algebra org URL.
+4. ✓ **Medium — error homes**: documented as the deliberate per-domain
+   convention in lib.rs ("Error handling" section) rather than forcing a
+   cfg-riddled `error.rs`; audit category 3 re-judged as conforming to
+   the documented convention.
+5. ✓ **Medium — validate()**: `IssueKind::DuplicateProducer` added
+   (reports every connection beyond the first on a positional input),
+   mirroring the engine's build refusal. TDD'd.
+6. ⚠ **Medium — echo-back deep pass**: investigated, then re-scoped
+   after review (the original five-component list was non-exhaustive).
+   `notification` is clean (context-internal state). **Twelve components
+   take writable-signal props** (16 prop sites, all `RwSignal<T>`):
+   `select.rs:51` (value), `popover.rs:16` (opened),
+   `accordion.rs:78` (opened), `tabs.rs:22` (active),
+   `switch.rs:30` (checked), `banner.rs:51` (opened),
+   `table.rs:96-97,515-522` (sort_column/sort_direction/current_page),
+   `textarea.rs:29` (value), `checkbox.rs:19` (checked),
+   `radio.rs:20,237` (checked, _value),
+   `equation_editor.rs:635` (value), `angle_input.rs:326` (value),
+   `matrix_input.rs:375` (value), plus `number_input.rs:983` (optional
+   `value: Option<RwSignal<String>>` alongside its callbacks — dual
+   pattern, not purely two-way). Converting to read-signal-in /
+   intent-callback-out changes state ownership during editing — a
+   per-component design pass, scoped as its own unit before 0.8.0, not
+   batched here.
+
 ## Recommendations (pre-0.8.0 fix pass, by severity)
 
 1. **Critical** — `Fraction::new`/`from_mixed`: return `Result`
