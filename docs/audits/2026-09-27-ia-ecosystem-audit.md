@@ -160,14 +160,23 @@ All `src/**/*.rs` carry the Apache-2.0 SPDX header.
 5. ✓ **Medium — validate()**: `IssueKind::DuplicateProducer` added
    (reports every connection beyond the first on a positional input),
    mirroring the engine's build refusal. TDD'd.
-6. ⚠ **Medium — echo-back deep pass**: investigated. `notification` is
-   clean (context-internal state). **Five components take writable-signal
-   props** — `select.rs:51`, `popover.rs:16`, `equation_editor.rs:635`,
-   `angle_input.rs:326`, `matrix_input.rs:375` (all
-   `Option<RwSignal<T>>` value props, two-way). Converting to
-   read-signal-in / intent-callback-out changes state ownership during
-   editing — a per-component design pass, scoped as its own unit before
-   0.8.0, not batched here.
+6. ⚠ **Medium — echo-back deep pass**: investigated, then re-scoped
+   after review (the original five-component list was non-exhaustive).
+   `notification` is clean (context-internal state). **Twelve components
+   take writable-signal props** (16 prop sites, all `RwSignal<T>`):
+   `select.rs:51` (value), `popover.rs:16` (opened),
+   `accordion.rs:78` (opened), `tabs.rs:22` (active),
+   `switch.rs:30` (checked), `banner.rs:51` (opened),
+   `table.rs:96-97,515-522` (sort_column/sort_direction/current_page),
+   `textarea.rs:29` (value), `checkbox.rs:19` (checked),
+   `radio.rs:20,237` (checked, _value),
+   `equation_editor.rs:635` (value), `angle_input.rs:326` (value),
+   `matrix_input.rs:375` (value), plus `number_input.rs:983` (optional
+   `value: Option<RwSignal<String>>` alongside its callbacks — dual
+   pattern, not purely two-way). Converting to read-signal-in /
+   intent-callback-out changes state ownership during editing — a
+   per-component design pass, scoped as its own unit before 0.8.0, not
+   batched here.
 
 ## Recommendations (pre-0.8.0 fix pass, by severity)
 
