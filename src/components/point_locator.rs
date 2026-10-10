@@ -6,6 +6,7 @@
 //! and precision coordinate display.
 
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -126,8 +127,9 @@ fn format_number(value: f64, precision: usize) -> String {
 #[component]
 pub fn PointLocator(
     /// Current point value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<Point2D>>,
+    value: Option<ReadSignal<Point2D>>,
 
     /// Callback when point changes
     #[prop(optional, into)]
@@ -188,7 +190,7 @@ pub fn PointLocator(
     let theme = use_theme();
 
     // Internal state
-    let internal_point = value.unwrap_or_else(|| RwSignal::new(Point2D::new(0.0, 0.0)));
+    let internal_point = echo_signal(value, Point2D::new(0.0, 0.0));
     let is_dragging = RwSignal::new(false);
     let mouse_pos = RwSignal::new(None::<Point2D>);
 

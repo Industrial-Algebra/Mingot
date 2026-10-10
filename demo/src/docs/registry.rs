@@ -305,8 +305,8 @@ fn number_input_doc() -> ComponentDoc {
         ],
         demo: || {
             let u64_value = RwSignal::new(String::new());
-            let controls_value = RwSignal::new("100".to_string());
-            let format_value = RwSignal::new("1234567.89".to_string());
+            let (controls_value, _) = signal("100".to_string());
+            let (format_value, _) = signal("1234567.89".to_string());
 
             view! {
                 <div>
@@ -1265,10 +1265,17 @@ fn tabs_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "active",
-                prop_type: "RwSignal<String>",
+                prop_type: "Option<ReadSignal<String>>",
                 default: None,
-                description: "Signal controlling the active tab value",
-                required: true,
+                description: "Optional external active tab value (read-only)",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Fires with the newly-activated tab value",
+                required: false,
             },
             PropDoc {
                 name: "variant",
@@ -1286,10 +1293,10 @@ fn tabs_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let active = RwSignal::new("first".to_string());
+            let (active, set_active) = signal("first".to_string());
             view! {
-                <DemoBlock title="Tabs" code=r#"let active = RwSignal::new("first".to_string());
-<Tabs active=active>
+                <DemoBlock title="Tabs" code=r#"let (active, set_active) = signal("first".to_string());
+<Tabs active=active on_change=Callback::new(move |v| set_active.set(v))>
     <TabsList>
         <TabsTab value="first">"First"</TabsTab>
         <TabsTab value="second">"Second"</TabsTab>
@@ -1297,7 +1304,10 @@ fn tabs_doc() -> ComponentDoc {
     <TabsPanel value="first">"First content"</TabsPanel>
     <TabsPanel value="second">"Second content"</TabsPanel>
 </Tabs>"#>
-                    <Tabs active=active>
+                    <Tabs
+                        active=active
+                        on_change=Callback::new(move |v: String| set_active.set(v))
+                    >
                         <TabsList>
                             <TabsTab value="first">"First"</TabsTab>
                             <TabsTab value="second">"Second"</TabsTab>
@@ -1365,7 +1375,7 @@ fn checkbox_doc() -> ComponentDoc {
                 <DemoBlock title="Checkbox">
                     <Stack spacing="md">
                         <Checkbox
-                            checked=checked
+                            checked=checked.read_only()
                             label="Accept terms and conditions"
                             on_change=Callback::new(move |v| checked.set(v))
                         />
@@ -1516,9 +1526,9 @@ fn select_doc() -> ComponentDoc {
             },
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<String>>",
+                prop_type: "Option<ReadSignal<String>>",
                 default: None,
-                description: "Currently selected value",
+                description: "Optional external selected value (read-only)",
                 required: false,
             },
             PropDoc {
@@ -1530,7 +1540,7 @@ fn select_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let value = RwSignal::new(String::new());
+            let (value, set_value) = signal(String::new());
             view! {
                 <DemoBlock title="Select" code=r#"<Select
     label="Choose a framework"
@@ -1551,7 +1561,7 @@ fn select_doc() -> ComponentDoc {
                                 SelectOption::new("yew", "Yew"),
                                 SelectOption::new("dioxus", "Dioxus"),
                             ]
-                            on_change=Callback::new(move |v| value.set(v))
+                            on_change=Callback::new(move |v: String| set_value.set(v))
                         />
                     </div>
                 </DemoBlock>
@@ -1601,7 +1611,7 @@ fn switch_doc() -> ComponentDoc {
             view! {
                 <DemoBlock title="Switch">
                     <Switch
-                        checked=checked
+                        checked=checked.read_only()
                         label="Enable notifications"
                         on_change=Callback::new(move |v| checked.set(v))
                     />
@@ -3553,7 +3563,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Degrees (default)"</Text>
                             <AngleInput
-                                value=angle1
+                                value=angle1.read_only()
                                 on_change=Callback::new(move |v| angle1.set(v))
                                 label="Rotation Angle".to_string()
                             />
@@ -3561,7 +3571,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Radians display"</Text>
                             <AngleInput
-                                value=angle2
+                                value=angle2.read_only()
                                 unit=AngleUnit::Radians
                                 label="Phase Angle".to_string()
                             />
@@ -3569,7 +3579,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"DMS format"</Text>
                             <AngleInput
-                                value=angle3
+                                value=angle3.read_only()
                                 unit=AngleUnit::DMS
                                 label="Geographic Coordinate".to_string()
                             />
@@ -3577,7 +3587,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"With normalization (0-360)"</Text>
                             <AngleInput
-                                value=angle4
+                                value=angle4.read_only()
                                 normalization=AngleNormalization::ZeroTo360
                                 label="Compass Heading".to_string()
                             />
@@ -3670,14 +3680,14 @@ fn fraction_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Simple fraction"</Text>
                             <FractionInput
-                                value=frac1
+                                value=frac1.read_only()
                                 label="Fraction".to_string()
                             />
                         </div>
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Mixed number display"</Text>
                             <FractionInput
-                                value=frac2
+                                value=frac2.read_only()
                                 display_format=FractionDisplayFormat::MixedNumber
                                 label="Mixed Number".to_string()
                             />
@@ -3685,7 +3695,7 @@ fn fraction_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Auto-simplification"</Text>
                             <FractionInput
-                                value=frac3
+                                value=frac3.read_only()
                                 label="Enter 6/8 to see simplification".to_string()
                             />
                         </div>
@@ -3705,7 +3715,7 @@ fn unit_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<UnitValue>>",
+                prop_type: "Option<ReadSignal<UnitValue>>",
                 default: None,
                 description: "Current value with unit (controlled)",
                 required: false,
@@ -4018,7 +4028,7 @@ fn interval_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Interval>>",
+                prop_type: "Option<ReadSignal<Interval>>",
                 default: None,
                 description: "The current interval value",
                 required: false,
@@ -4068,7 +4078,7 @@ fn coordinate_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Coordinates>>",
+                prop_type: "Option<ReadSignal<Coordinates>>",
                 default: None,
                 description: "The current coordinate value",
                 required: false,
@@ -4121,7 +4131,7 @@ fn point_locator_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Point2D>>",
+                prop_type: "Option<ReadSignal<Point2D>>",
                 default: None,
                 description: "The current point value",
                 required: false,
@@ -4189,7 +4199,7 @@ fn matrix_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Matrix>>",
+                prop_type: "Option<ReadSignal<Matrix>>",
                 default: None,
                 description: "Controlled matrix value",
                 required: false,
@@ -4260,13 +4270,14 @@ fn matrix_input_doc() -> ComponentDoc {
                 <DemoBlock title="Matrix Input" code=r#"let matrix = RwSignal::new(Matrix::identity(3));
 
 <MatrixInput
-    value=matrix
+    value=matrix.read_only()
+    on_change=Callback::new(move |m| matrix.set(m))
     show_operations=true
     allow_resize=true
 />"#>
                     <Stack spacing="md">
                         <MatrixInput
-                            value=matrix
+                            value=matrix.read_only()
                             show_operations=true
                             allow_resize=true
                         />
@@ -4286,7 +4297,7 @@ fn vector_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Vector>>",
+                prop_type: "Option<ReadSignal<Vector>>",
                 default: None,
                 description: "Controlled vector value",
                 required: false,
@@ -4350,13 +4361,14 @@ fn vector_input_doc() -> ComponentDoc {
                 <DemoBlock title="Vector Input" code=r#"let vector = RwSignal::new(Vector::new(vec![1.0, 2.0, 3.0]));
 
 <VectorInput
-    value=vector
+    value=vector.read_only()
+    on_change=Callback::new(move |v| vector.set(v))
     notation=VectorNotation::Column
     show_magnitude=true
 />"#>
                     <Stack spacing="md">
                         <VectorInput
-                            value=vector
+                            value=vector.read_only()
                             notation=VectorNotation::Column
                             show_magnitude=true
                         />
@@ -4376,7 +4388,7 @@ fn tensor_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Tensor>>",
+                prop_type: "Option<ReadSignal<Tensor>>",
                 default: None,
                 description: "Controlled tensor value",
                 required: false,
@@ -4450,12 +4462,13 @@ let data: Vec<f64> = (1..=12).map(|x| x as f64).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![3, 4]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="2D Tensor (3 × 4)"
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_2d
+                            value=tensor_2d.read_only()
                             label="2D Tensor (3 × 4)"
                             show_stats=true
                         />
@@ -4466,12 +4479,13 @@ let data: Vec<f64> = (0..24).map(|x| x as f64).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 3, 4]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_3d
+                            value=tensor_3d.read_only()
                             label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
                             show_stats=true
                         />
@@ -4483,12 +4497,13 @@ let data: Vec<f64> = (0..36).map(|x| x as f64).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 3, 3]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_4d
+                            value=tensor_4d.read_only()
                             label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
                             show_stats=true
                         />
@@ -4500,13 +4515,14 @@ let data: Vec<f64> = (0..48).map(|x| x as f64 * 0.1).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 2, 2, 3]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="5D Tensor (2 × 2 × 2 × 2 × 3)"
     precision=2
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_5d
+                            value=tensor_5d.read_only()
                             label="5D Tensor (2 × 2 × 2 × 2 × 3)"
                             precision=2
                             show_stats=true
@@ -4717,7 +4733,7 @@ fn formula_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<String>>",
+                prop_type: "Option<ReadSignal<String>>",
                 default: None,
                 description: "Controlled formula string value",
                 required: false,
@@ -4837,7 +4853,7 @@ fn equation_editor_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "RwSignal<EquationNode>",
+                prop_type: "Option<ReadSignal<EquationNode>>",
                 default: Some("Placeholder"),
                 description: "Current equation value as an AST node",
                 required: false,
@@ -4993,11 +5009,11 @@ fn equation_editor_doc() -> ComponentDoc {
                     </DemoBlock>
 
                     <DemoBlock title="Read-only Display" code=r#"// Create an equation programmatically
-let equation = EquationNode::BinaryOp {
+let (equation, set_equation) = signal(EquationNode::BinaryOp {
     op: GeometricOp::WedgeProduct,
     left: Box::new(EquationNode::Variable("a".to_string())),
     right: Box::new(EquationNode::Variable("b".to_string())),
-};
+});
 
 <EquationEditor value=equation read_only=true show_latex=true />"#>
                         <EquationEditor

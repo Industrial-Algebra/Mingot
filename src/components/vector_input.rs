@@ -7,6 +7,7 @@
 
 use crate::components::input::InputSize;
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -316,8 +317,9 @@ fn format_number(value: f64) -> String {
 #[component]
 pub fn VectorInput(
     /// Current vector value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<Vector>>,
+    value: Option<ReadSignal<Vector>>,
 
     /// Callback when vector changes
     #[prop(optional, into)]
@@ -366,7 +368,7 @@ pub fn VectorInput(
     let theme = use_theme();
 
     // Internal state
-    let internal_vector = value.unwrap_or_else(|| RwSignal::new(Vector::zeros(dimensions)));
+    let internal_vector = echo_signal(value, Vector::zeros(dimensions));
 
     // Update vector when component changes
     let update_component = move |index: usize, value: String| {
@@ -405,7 +407,11 @@ pub fn VectorInput(
         let vec = internal_vector.get();
         let mut new_components = vec.components.clone();
         new_components.push(0.0);
-        internal_vector.set(Vector::new(new_components));
+        let new_vec = Vector::new(new_components);
+        internal_vector.set(new_vec.clone());
+        if let Some(cb) = on_change {
+            cb.run(new_vec);
+        }
     };
 
     // Remove dimension
@@ -414,7 +420,11 @@ pub fn VectorInput(
         if vec.dimensions() > 1 {
             let mut new_components = vec.components.clone();
             new_components.pop();
-            internal_vector.set(Vector::new(new_components));
+            let new_vec = Vector::new(new_components);
+            internal_vector.set(new_vec.clone());
+            if let Some(cb) = on_change {
+                cb.run(new_vec);
+            }
         }
     };
 

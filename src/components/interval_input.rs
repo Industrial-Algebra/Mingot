@@ -6,6 +6,7 @@
 
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 
@@ -328,8 +329,9 @@ pub enum IntervalFormat {
 #[component]
 pub fn IntervalInput(
     /// Current interval value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<Interval>>,
+    value: Option<ReadSignal<Interval>>,
 
     /// Callback when interval changes
     #[prop(optional, into)]
@@ -378,8 +380,7 @@ pub fn IntervalInput(
     let theme = use_theme();
 
     // Internal state
-    let internal_value =
-        value.unwrap_or_else(|| RwSignal::new(Interval::new(Some(0.0), Some(1.0), bounds)));
+    let internal_value = echo_signal(value, Interval::new(Some(0.0), Some(1.0), bounds));
     let min_input = RwSignal::new(
         internal_value
             .get_untracked()

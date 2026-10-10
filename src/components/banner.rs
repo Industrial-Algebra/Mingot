@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 
@@ -48,7 +49,9 @@ pub fn Banner(
     #[prop(optional)] position: Option<BannerPosition>,
     #[prop(optional)] with_border: bool,
     #[prop(optional)] dismissible: bool,
-    #[prop(optional)] opened: Option<RwSignal<bool>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    opened: Option<ReadSignal<bool>>,
     #[prop(optional)] on_close: Option<Callback<()>>,
     #[prop(optional, into)] icon: Option<String>,
     #[prop(optional, into)] padding: Option<String>,
@@ -60,7 +63,7 @@ pub fn Banner(
     let variant = variant.unwrap_or(BannerVariant::Info);
     let position = position.unwrap_or(BannerPosition::Static);
 
-    let is_opened = opened.unwrap_or_else(|| RwSignal::new(true));
+    let is_opened = echo_signal(opened, true);
 
     let banner_styles = move || {
         let theme_val = theme.get();

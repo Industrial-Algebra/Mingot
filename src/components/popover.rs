@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -11,9 +12,19 @@ pub enum PopoverPosition {
     Right,
 }
 
+/// Context carrying the popover's intent callback so `PopoverTarget` (which
+/// only receives the open-state signal) can fire it on toggle.
+#[derive(Clone)]
+struct PopoverOnChange(Option<Callback<bool>>);
+
 #[component]
 pub fn Popover(
-    #[prop(optional)] opened: Option<RwSignal<bool>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    opened: Option<ReadSignal<bool>>,
+    /// Fires with the new opened state when the popover is toggled.
+    #[prop(optional)]
+    on_change: Option<Callback<bool>>,
     #[prop(optional)] position: Option<PopoverPosition>,
     #[prop(optional)] with_arrow: bool,
     #[prop(optional, into)] width: Option<String>,
@@ -21,10 +32,11 @@ pub fn Popover(
     #[prop(optional, into)] style: Option<String>,
     children: Children,
 ) -> impl IntoView {
-    let is_opened = opened.unwrap_or_else(|| RwSignal::new(false));
+    let is_opened = echo_signal(opened, false);
     let position = position.unwrap_or(PopoverPosition::Bottom);
 
     provide_context::<RwSignal<bool>>(is_opened);
+    provide_context(PopoverOnChange(on_change));
     provide_context::<Signal<PopoverPosition>>(Signal::derive(move || position));
     provide_context::<Signal<bool>>(Signal::derive(move || with_arrow));
     provide_context::<Signal<Option<String>>>(Signal::derive(move || width.clone()));
@@ -56,9 +68,13 @@ pub fn PopoverTarget(
     children: Children,
 ) -> impl IntoView {
     let is_opened = use_context::<RwSignal<bool>>().unwrap_or_else(|| RwSignal::new(false));
+    let on_change = use_context::<PopoverOnChange>();
 
     let handle_click = move |_| {
         is_opened.update(|o| *o = !*o);
+        if let Some(PopoverOnChange(Some(cb))) = on_change.clone() {
+            cb.run(is_opened.get_untracked());
+        }
     };
 
     let target_styles = "cursor: pointer;".to_string();

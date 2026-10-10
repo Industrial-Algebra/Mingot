@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -26,7 +27,9 @@ pub fn Textarea(
     #[prop(optional)] variant: Option<TextareaVariant>,
     #[prop(optional)] size: Option<TextareaSize>,
     #[prop(optional, into)] placeholder: Option<String>,
-    #[prop(optional)] value: Option<RwSignal<String>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    value: Option<ReadSignal<String>>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
@@ -49,7 +52,7 @@ pub fn Textarea(
     let size = size.unwrap_or(TextareaSize::Md);
     let rows = rows.unwrap_or(3);
 
-    let textarea_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
+    let textarea_value = echo_signal(value, String::new());
 
     let error_clone = error.clone();
     let textarea_styles = move || {

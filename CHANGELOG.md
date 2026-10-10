@@ -48,6 +48,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rust_decimal reality; ecosystem link corrected
 - lib.rs documents the per-domain error-home convention
 
+#### Echo-back component API convention (breaking)
+
+- **Breaking**: Boolean-toggle components (`Switch`, `Checkbox`, `Radio`,
+  `Popover`, `AccordionItem`, `Banner`) now take optional `ReadSignal` value
+  props instead of `RwSignal` — read-signals in, intent-callbacks out; the
+  parent owns state. `Popover` and `AccordionItem` gain `on_change:
+  Option<Callback<bool>>`. Controlled usage changes from
+  `checked=signal(...)` to `checked=read` (the `ReadSignal` half of `signal(..)`;
+  `Some(read)` is not accepted by the prop macro) + `on_change=Callback::new(move |v| set.set(v))`.
+  Uncontrolled usage is unchanged. See docs/plans/2026-10-09-echo-back.md.
+
+- **Breaking**: Text and index components (`Select`, `Textarea`,
+  `FormulaInput`, `NumberInput`, `RadioGroup`, `Tabs`, `Table`,
+  `TableWithPagination`) take optional `ReadSignal` value props instead of
+  `RwSignal` (read-signals in, intent-callbacks out). `Tabs.active` and
+  `TableWithPagination.current_page` become optional and gain callbacks
+  (`on_change`, `on_page_change`); sort props on both table variants are
+  read-only. `RadioGroup`'s underscored `_value`/`_on_change`
+  placeholders are promoted to real `value`/`on_change` props with
+  group-managed context state (no coordinated children yet); the unused
+  `_name` placeholder is **deleted** — there is no `name` prop. Controlled
+  usage:
+  `value=read` (bare `ReadSignal`; `Some(..)` is rejected by the prop macro) +
+  `on_change=Callback::new(move |v| set.set(v))`.
+
+- **Breaking**: Structured scientific inputs (`AngleInput`, `IntervalInput`,
+  `VectorInput`, `CoordinateInput`, `TensorInput`, `MatrixInput`,
+  `PointLocator`, `UnitInput`, `FractionInput`, `EquationEditor`) take
+  optional `ReadSignal` value props instead of `RwSignal`; external value
+  changes now sync inward automatically via the shared `echo_signal` helper.
+  Commit callbacks (`on_change` family) unchanged.
+
 #### Relicensing to Apache-2.0 + CLA
 
 - **License**: `AGPL-3.0-only` → `Apache-2.0` (per the IA ecosystem standard)

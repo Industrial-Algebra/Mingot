@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -17,7 +18,9 @@ pub enum RadioSize {
 #[component]
 pub fn Radio(
     #[prop(into)] value: String,
-    #[prop(optional)] checked: Option<RwSignal<bool>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    checked: Option<ReadSignal<bool>>,
     #[prop(optional, into)] name: Option<String>,
     #[prop(optional)] size: Option<RadioSize>,
     #[prop(optional, into)] color: Option<String>,
@@ -33,7 +36,7 @@ pub fn Radio(
     let size = size.unwrap_or(RadioSize::Md);
     let color = color.unwrap_or_else(|| "blue".to_string());
 
-    let is_checked = checked.unwrap_or_else(|| RwSignal::new(false));
+    let is_checked = echo_signal(checked, false);
 
     let error_clone = error.clone();
     let color_clone = color.clone();
@@ -232,17 +235,51 @@ pub fn Radio(
     }
 }
 
+/// Context carrying the radio group's intent callback so future coordinated
+/// `Radio` children can report selection changes to the parent.
 #[component]
 pub fn RadioGroup(
-    #[prop(optional)] _value: Option<RwSignal<String>>,
-    #[prop(optional, into)] _name: Option<String>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    value: Option<ReadSignal<String>>,
     #[prop(optional, into)] label: Option<String>,
     #[prop(optional, into)] description: Option<String>,
     #[prop(optional, into)] error: Option<String>,
-    #[prop(optional)] _on_change: Option<Callback<String>>,
+    /// Fires with the selected value when the group's internal selection
+    /// signal changes (e.g. a future coordinated `Radio` child writing the
+    /// group context), except when the change mirrors the external signal
+    /// (seed/sync guard prevents a parent→child→parent echo loop).
+    #[prop(optional)]
+    on_change: Option<Callback<String>>,
     children: Children,
 ) -> impl IntoView {
     let theme = use_theme();
+
+    let group_value = echo_signal(value, String::new());
+    provide_context::<RwSignal<String>>(group_value);
+
+    // Group echo-back: the internal selection signal is provided to (future)
+    // coordinated children via context; when it changes — other than by
+    // mirroring the external signal — fire `on_change`. The seed/sync guard
+    // prevents a parent→child→parent echo loop, and the first run is skipped
+    // so mount does not report the initial value.
+    if let Some(cb) = on_change {
+        let external = value;
+        let mut first_run = true;
+        Effect::new(move |_| {
+            let v = group_value.get();
+            if first_run {
+                first_run = false;
+                return;
+            }
+            let mirrors_external = external
+                .as_ref()
+                .is_some_and(|ext| ext.get_untracked() == v);
+            if !mirrors_external {
+                cb.run(v.clone());
+            }
+        });
+    }
 
     let label_styles = move || {
         let theme_val = theme.get();

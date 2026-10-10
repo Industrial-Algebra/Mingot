@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 
@@ -75,7 +76,10 @@ pub fn Accordion(
 pub fn AccordionItem(
     #[prop(into)] _value: String,
     #[prop(into)] label: String,
-    #[prop(optional)] opened: Option<RwSignal<bool>>,
+    #[prop(optional)] opened: Option<ReadSignal<bool>>,
+    /// Fires with the new opened state when the item is toggled.
+    #[prop(optional)]
+    on_change: Option<Callback<bool>>,
     #[prop(optional, into)] class: Option<String>,
     #[prop(optional, into)] style: Option<String>,
     children: Children,
@@ -84,7 +88,7 @@ pub fn AccordionItem(
     let variant = use_context::<Signal<AccordionVariant>>()
         .unwrap_or(Signal::derive(move || AccordionVariant::Default));
 
-    let is_opened = opened.unwrap_or_else(|| RwSignal::new(false));
+    let is_opened = echo_signal(opened, false);
 
     let item_styles = move || {
         let theme_val = theme.get();
@@ -168,6 +172,9 @@ pub fn AccordionItem(
 
     let handle_toggle = move |_| {
         is_opened.update(|opened| *opened = !*opened);
+        if let Some(callback) = on_change {
+            callback.run(is_opened.get_untracked());
+        }
     };
 
     let class_str = format!("mingot-accordion-item {}", class.unwrap_or_default());
