@@ -5009,11 +5009,11 @@ fn equation_editor_doc() -> ComponentDoc {
                     </DemoBlock>
 
                     <DemoBlock title="Read-only Display" code=r#"// Create an equation programmatically
-let equation = EquationNode::BinaryOp {
+let (equation, set_equation) = signal(EquationNode::BinaryOp {
     op: GeometricOp::WedgeProduct,
     left: Box::new(EquationNode::Variable("a".to_string())),
     right: Box::new(EquationNode::Variable("b".to_string())),
-};
+});
 
 <EquationEditor value=equation read_only=true show_latex=true />"#>
                         <EquationEditor
