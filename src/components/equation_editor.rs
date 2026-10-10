@@ -6,6 +6,7 @@
 //! with support for Amari library operations.
 
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 use wasm_bindgen::JsCast;
@@ -631,8 +632,9 @@ pub enum EquationEditorSize {
 #[component]
 pub fn EquationEditor(
     /// Current equation value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<EquationNode>>,
+    value: Option<ReadSignal<EquationNode>>,
     /// Callback when equation changes
     #[prop(optional, into)]
     on_change: Option<Callback<EquationNode>>,
@@ -664,7 +666,7 @@ pub fn EquationEditor(
     let theme = use_theme();
 
     // Internal state
-    let equation = value.unwrap_or_else(|| RwSignal::new(EquationNode::Placeholder));
+    let equation = echo_signal(value, EquationNode::Placeholder);
     let active_category = RwSignal::new(ToolbarCategory::Geometric);
     let input_text = RwSignal::new(String::new());
     let is_focused = RwSignal::new(false);

@@ -7,6 +7,7 @@
 
 use crate::components::input::InputSize;
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -371,8 +372,9 @@ impl MatrixOperation {
 #[component]
 pub fn MatrixInput(
     /// Current matrix value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<Matrix>>,
+    value: Option<ReadSignal<Matrix>>,
 
     /// Callback when matrix changes
     #[prop(optional, into)]
@@ -425,7 +427,7 @@ pub fn MatrixInput(
     let theme = use_theme();
 
     // Internal state
-    let internal_matrix = value.unwrap_or_else(|| RwSignal::new(Matrix::zeros(rows, cols)));
+    let internal_matrix = echo_signal(value, Matrix::zeros(rows, cols));
 
     // Currently focused cell
     let focused_cell: RwSignal<Option<(usize, usize)>> = RwSignal::new(None);

@@ -71,6 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `value=read` (bare `ReadSignal`; `Some(..)` is rejected by the prop macro) +
   `on_change=Callback::new(move |v| set.set(v))`.
 
+- **Breaking**: Structured scientific inputs (`AngleInput`, `IntervalInput`,
+  `VectorInput`, `CoordinateInput`, `TensorInput`, `MatrixInput`,
+  `PointLocator`, `UnitInput`, `FractionInput`, `EquationEditor`) take
+  optional `ReadSignal` value props instead of `RwSignal`; external value
+  changes now sync inward automatically via the shared `echo_signal` helper.
+  Commit callbacks (`on_change` family) unchanged.
+
 #### Relicensing to Apache-2.0 + CLA
 
 - **License**: `AGPL-3.0-only` → `Apache-2.0` (per the IA ecosystem standard)

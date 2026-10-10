@@ -7,6 +7,7 @@
 
 use crate::components::input::InputSize;
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 
@@ -264,8 +265,9 @@ fn format_number(value: f64) -> String {
 #[component]
 pub fn TensorInput(
     /// Current tensor value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<Tensor>>,
+    value: Option<ReadSignal<Tensor>>,
 
     /// Callback when tensor changes
     #[prop(optional, into)]
@@ -307,7 +309,7 @@ pub fn TensorInput(
 
     // Internal state
     let initial_shape = shape.unwrap_or_else(|| vec![2, 3, 4]);
-    let internal_tensor = value.unwrap_or_else(|| RwSignal::new(Tensor::zeros(initial_shape)));
+    let internal_tensor = echo_signal(value, Tensor::zeros(initial_shape));
 
     // Current slice indices (for dimensions beyond 2)
     let slice_indices: RwSignal<Vec<usize>> = RwSignal::new(Vec::new());

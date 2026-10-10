@@ -3563,7 +3563,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Degrees (default)"</Text>
                             <AngleInput
-                                value=angle1
+                                value=angle1.read_only()
                                 on_change=Callback::new(move |v| angle1.set(v))
                                 label="Rotation Angle".to_string()
                             />
@@ -3571,7 +3571,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Radians display"</Text>
                             <AngleInput
-                                value=angle2
+                                value=angle2.read_only()
                                 unit=AngleUnit::Radians
                                 label="Phase Angle".to_string()
                             />
@@ -3579,7 +3579,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"DMS format"</Text>
                             <AngleInput
-                                value=angle3
+                                value=angle3.read_only()
                                 unit=AngleUnit::DMS
                                 label="Geographic Coordinate".to_string()
                             />
@@ -3587,7 +3587,7 @@ fn angle_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"With normalization (0-360)"</Text>
                             <AngleInput
-                                value=angle4
+                                value=angle4.read_only()
                                 normalization=AngleNormalization::ZeroTo360
                                 label="Compass Heading".to_string()
                             />
@@ -3680,14 +3680,14 @@ fn fraction_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Simple fraction"</Text>
                             <FractionInput
-                                value=frac1
+                                value=frac1.read_only()
                                 label="Fraction".to_string()
                             />
                         </div>
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Mixed number display"</Text>
                             <FractionInput
-                                value=frac2
+                                value=frac2.read_only()
                                 display_format=FractionDisplayFormat::MixedNumber
                                 label="Mixed Number".to_string()
                             />
@@ -3695,7 +3695,7 @@ fn fraction_input_doc() -> ComponentDoc {
                         <div>
                             <Text size=TextSize::Sm color="dimmed">"Auto-simplification"</Text>
                             <FractionInput
-                                value=frac3
+                                value=frac3.read_only()
                                 label="Enter 6/8 to see simplification".to_string()
                             />
                         </div>
@@ -3715,7 +3715,7 @@ fn unit_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<UnitValue>>",
+                prop_type: "Option<ReadSignal<UnitValue>>",
                 default: None,
                 description: "Current value with unit (controlled)",
                 required: false,
@@ -4028,7 +4028,7 @@ fn interval_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Interval>>",
+                prop_type: "Option<ReadSignal<Interval>>",
                 default: None,
                 description: "The current interval value",
                 required: false,
@@ -4078,7 +4078,7 @@ fn coordinate_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Coordinates>>",
+                prop_type: "Option<ReadSignal<Coordinates>>",
                 default: None,
                 description: "The current coordinate value",
                 required: false,
@@ -4131,7 +4131,7 @@ fn point_locator_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Point2D>>",
+                prop_type: "Option<ReadSignal<Point2D>>",
                 default: None,
                 description: "The current point value",
                 required: false,
@@ -4199,7 +4199,7 @@ fn matrix_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Matrix>>",
+                prop_type: "Option<ReadSignal<Matrix>>",
                 default: None,
                 description: "Controlled matrix value",
                 required: false,
@@ -4276,7 +4276,7 @@ fn matrix_input_doc() -> ComponentDoc {
 />"#>
                     <Stack spacing="md">
                         <MatrixInput
-                            value=matrix
+                            value=matrix.read_only()
                             show_operations=true
                             allow_resize=true
                         />
@@ -4296,7 +4296,7 @@ fn vector_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Vector>>",
+                prop_type: "Option<ReadSignal<Vector>>",
                 default: None,
                 description: "Controlled vector value",
                 required: false,
@@ -4366,7 +4366,7 @@ fn vector_input_doc() -> ComponentDoc {
 />"#>
                     <Stack spacing="md">
                         <VectorInput
-                            value=vector
+                            value=vector.read_only()
                             notation=VectorNotation::Column
                             show_magnitude=true
                         />
@@ -4386,7 +4386,7 @@ fn tensor_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<Tensor>>",
+                prop_type: "Option<ReadSignal<Tensor>>",
                 default: None,
                 description: "Controlled tensor value",
                 required: false,
@@ -4465,7 +4465,7 @@ let tensor = RwSignal::new(Tensor::from_data(data, vec![3, 4]).unwrap());
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_2d
+                            value=tensor_2d.read_only()
                             label="2D Tensor (3 × 4)"
                             show_stats=true
                         />
@@ -4481,7 +4481,7 @@ let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 3, 4]).unwrap());
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_3d
+                            value=tensor_3d.read_only()
                             label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
                             show_stats=true
                         />
@@ -4498,7 +4498,7 @@ let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 3, 3]).unwrap());
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_4d
+                            value=tensor_4d.read_only()
                             label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
                             show_stats=true
                         />
@@ -4516,7 +4516,7 @@ let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 2, 2, 3]).unwrap()
     show_stats=true
 />"#>
                         <TensorInput
-                            value=tensor_5d
+                            value=tensor_5d.read_only()
                             label="5D Tensor (2 × 2 × 2 × 2 × 3)"
                             precision=2
                             show_stats=true
@@ -4847,7 +4847,7 @@ fn equation_editor_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "RwSignal<EquationNode>",
+                prop_type: "Option<ReadSignal<EquationNode>>",
                 default: Some("Placeholder"),
                 description: "Current equation value as an AST node",
                 required: false,

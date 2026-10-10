@@ -7,6 +7,7 @@
 
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 use std::f64::consts::PI;
@@ -274,8 +275,9 @@ fn format_coord_number(value: f64, precision: usize) -> String {
 #[component]
 pub fn CoordinateInput(
     /// Current coordinate value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional, into)]
-    value: Option<RwSignal<Coordinates>>,
+    value: Option<ReadSignal<Coordinates>>,
 
     /// Callback when coordinates change
     #[prop(optional, into)]
@@ -325,8 +327,10 @@ pub fn CoordinateInput(
 
     // Internal state
     let current_system = RwSignal::new(system);
-    let internal_value = value
-        .unwrap_or_else(|| RwSignal::new(Coordinates::new(vec![0.0; system.dimensions()], system)));
+    let internal_value = echo_signal(
+        value,
+        Coordinates::new(vec![0.0; system.dimensions()], system),
+    );
 
     // Input signals for each coordinate
     let coord_inputs: Vec<RwSignal<String>> = (0..3)

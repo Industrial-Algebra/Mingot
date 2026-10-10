@@ -24,8 +24,8 @@
 use leptos::mount::mount_to;
 use leptos::prelude::*;
 use mingot::{
-    AccordionItem, MingotProvider, Popover, PopoverDropdown, PopoverTarget, Select, SelectOption,
-    Switch, Tabs, TabsList, TabsTab,
+    AccordionItem, Matrix, MatrixInput, MingotProvider, Popover, PopoverDropdown, PopoverTarget,
+    Select, SelectOption, Switch, Tabs, TabsList, TabsTab,
 };
 use wasm_bindgen::JsCast;
 use wasm_bindgen_test::*;
@@ -74,6 +74,31 @@ fn dropdown_style(host: &web_sys::HtmlElement) -> String {
         .expect("popover dropdown rendered")
         .get_attribute("style")
         .unwrap_or_default()
+}
+
+/// Current `value` of the Nth matrix cell input (row-major order).
+fn cell_value(host: &web_sys::HtmlElement, index: usize) -> String {
+    cell_input(host, index).value()
+}
+
+/// The Nth matrix cell input element (row-major order).
+fn cell_input(host: &web_sys::HtmlElement, index: usize) -> web_sys::HtmlInputElement {
+    host.query_selector(&format!(
+        ".mingot-matrix-input input:nth-child({})",
+        index + 1
+    ))
+    .expect("query failed")
+    .expect("matrix cell rendered")
+    .unchecked_into::<web_sys::HtmlInputElement>()
+}
+
+/// Set the Nth matrix cell input to `text` and dispatch an `input` event, as a
+/// user typing would.
+fn type_into_cell(host: &web_sys::HtmlElement, index: usize, text: &str) {
+    let cell = cell_input(host, index);
+    cell.set_value(text);
+    let ev = web_sys::Event::new("input").expect("synthetic input event");
+    let _ = cell.dispatch_event(&ev);
 }
 
 /// Switch: a click fires `on_change` with the new value and moves the *internal*
@@ -393,6 +418,72 @@ async fn select_on_change_fires_and_external_syncs() {
     assert_eq!(
         ext.get_untracked(),
         "b".to_string(),
+        "component must not write the parent's external signal"
+    );
+
+    host.remove();
+}
+
+/// MatrixInput: an external `ReadSignal<Matrix>` seeds the rendered cells and
+/// syncs inward; typing in a cell fires `on_change` with the updated matrix and
+/// does not write the external signal.
+#[wasm_bindgen_test]
+async fn matrix_input_external_syncs_and_on_change_fires() {
+    let (ext, set_ext) = signal(Matrix::identity(2));
+    let (fired, set_fired) = signal(None::<Matrix>);
+
+    let host = host_element();
+    mount_to(host.clone(), move || {
+        view! {
+            <MingotProvider>
+                <MatrixInput
+                    value=ext
+                    rows=2
+                    cols=2
+                    on_change=Callback::new(move |m: Matrix| set_fired.set(Some(m)))
+                />
+            </MingotProvider>
+        }
+    })
+    .forget();
+    settle().await;
+
+    // External matrix seeds the rendered cells (row-major: 1,0,0,1).
+    assert_eq!(cell_value(&host, 0), "1", "cell (0,0) seeds from external");
+    assert_eq!(cell_value(&host, 1), "0", "cell (0,1) seeds from external");
+    assert_eq!(cell_value(&host, 2), "0", "cell (1,0) seeds from external");
+    assert_eq!(cell_value(&host, 3), "1", "cell (1,1) seeds from external");
+
+    // External change propagates inward without a user event.
+    let mut updated = Matrix::zeros(2, 2);
+    updated.set(0, 0, 5.0);
+    set_ext.set(updated);
+    settle().await;
+    assert_eq!(
+        cell_value(&host, 0),
+        "5",
+        "external change must sync inward"
+    );
+
+    // Typing into a cell fires on_change with the updated matrix but does not
+    // write the external signal.
+    type_into_cell(&host, 1, "7");
+    settle().await;
+
+    let fired_matrix = fired.get_untracked().expect("on_change must fire");
+    assert_eq!(
+        fired_matrix.get(0, 1),
+        Some(7.0),
+        "on_change must carry the edited matrix"
+    );
+    assert_eq!(
+        fired_matrix.get(0, 0),
+        Some(5.0),
+        "on_change matrix keeps prior synced state"
+    );
+    assert_eq!(
+        ext.get_untracked().get(0, 1),
+        Some(0.0),
         "component must not write the parent's external signal"
     );
 

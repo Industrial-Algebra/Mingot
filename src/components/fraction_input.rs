@@ -7,6 +7,7 @@
 
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -323,8 +324,9 @@ fn parse_decimal_to_fraction(input: &str) -> Option<Fraction> {
 #[component]
 pub fn FractionInput(
     /// Current fraction value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional)]
-    value: Option<RwSignal<Fraction>>,
+    value: Option<ReadSignal<Fraction>>,
 
     /// Callback when value changes
     #[prop(optional)]
@@ -399,7 +401,7 @@ pub fn FractionInput(
     let size = size.unwrap_or(InputSize::Md);
 
     // Internal fraction value
-    let fraction_value = value.unwrap_or_else(|| RwSignal::new(Fraction::default()));
+    let fraction_value = echo_signal(value, Fraction::default());
 
     // Current display format
     let current_format = RwSignal::new(display_format);

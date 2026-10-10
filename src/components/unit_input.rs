@@ -7,6 +7,7 @@
 
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -375,8 +376,9 @@ fn parse_unit_value(input: &str, available_units: &[Unit]) -> Option<UnitValue> 
 #[component]
 pub fn UnitInput(
     /// Current unit value
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional)]
-    value: Option<RwSignal<UnitValue>>,
+    value: Option<ReadSignal<UnitValue>>,
 
     /// Callback when value changes
     #[prop(optional)]
@@ -450,8 +452,7 @@ pub fn UnitInput(
     let default_unit = units.first().cloned().unwrap_or_else(length::meter);
 
     // Internal unit value
-    let unit_value =
-        value.unwrap_or_else(|| RwSignal::new(UnitValue::new(0.0, default_unit.clone())));
+    let unit_value = echo_signal(value, UnitValue::new(0.0, default_unit.clone()));
 
     // Text representation for editing
     let display_text = RwSignal::new(String::new());

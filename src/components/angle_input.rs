@@ -7,6 +7,7 @@
 
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -322,8 +323,9 @@ fn parse_angle_to_degrees(input: &str, unit: AngleUnit) -> Option<f64> {
 #[component]
 pub fn AngleInput(
     /// Current angle value in degrees (internal representation)
+    /// External controlled value (read-only); echo-back convention.
     #[prop(optional)]
-    value: Option<RwSignal<f64>>,
+    value: Option<ReadSignal<f64>>,
 
     /// Callback when value changes
     #[prop(optional)]
@@ -395,7 +397,7 @@ pub fn AngleInput(
     let normalization = normalization.unwrap_or_default();
 
     // Internal value in degrees
-    let angle_value = value.unwrap_or_else(|| RwSignal::new(0.0));
+    let angle_value = echo_signal(value, 0.0);
 
     // Current display unit (can be changed via selector)
     let current_unit = RwSignal::new(unit);
