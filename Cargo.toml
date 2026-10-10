@@ -37,6 +37,9 @@ serde_json = { version = "1", optional = true }
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
 serde_json = "1"
+# Native effect tests (echo-back harness) need a global executor; version
+# feature-unified with reactive_graph's any_spawner 0.3.
+any_spawner = "0.3"
 # Feature-unified with the leptos stack for the browser test harness:
 # synthetic pointer events need the MouseEvent init dict.
 web-sys = { version = "0.3", features = ["MouseEventInit"] }
