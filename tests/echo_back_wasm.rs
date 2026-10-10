@@ -23,7 +23,10 @@
 
 use leptos::mount::mount_to;
 use leptos::prelude::*;
-use mingot::{AccordionItem, MingotProvider, Popover, PopoverDropdown, PopoverTarget, Switch};
+use mingot::{
+    AccordionItem, MingotProvider, Popover, PopoverDropdown, PopoverTarget, Select, SelectOption,
+    Switch, Tabs, TabsList, TabsTab,
+};
 use wasm_bindgen::JsCast;
 use wasm_bindgen_test::*;
 
@@ -239,6 +242,157 @@ async fn accordion_item_toggle_fires_on_change() {
     );
     assert!(
         !ext.get_untracked(),
+        "component must not write the parent's external signal"
+    );
+
+    host.remove();
+}
+
+/// The inline `style` attribute of the tab header matching `selector`.
+fn tab_style(host: &web_sys::HtmlElement, selector: &str) -> String {
+    host.query_selector(selector)
+        .expect("query failed")
+        .expect("tab rendered")
+        .get_attribute("style")
+        .unwrap_or_default()
+}
+
+/// Tabs: an external active value seeds and syncs inward; clicking a tab fires
+/// `on_change` and does not write the external signal.
+#[wasm_bindgen_test]
+async fn tabs_external_active_syncs_and_on_change_fires() {
+    let (ext, set_ext) = signal("a".to_string());
+    let (fired, set_fired) = signal(None::<String>);
+
+    let host = host_element();
+    mount_to(host.clone(), move || {
+        view! {
+            <MingotProvider>
+                <Tabs
+                    active=ext
+                    on_change=Callback::new(move |v: String| set_fired.set(Some(v)))
+                >
+                    <TabsList>
+                        <TabsTab value="a">"A"</TabsTab>
+                        <TabsTab value="b">"B"</TabsTab>
+                    </TabsList>
+                </Tabs>
+            </MingotProvider>
+        }
+    })
+    .forget();
+    settle().await;
+
+    // "a" is active: its style carries the active underline; "b" is transparent.
+    assert!(
+        tab_style(&host, ".mingot-tabs-tab:nth-child(1)").contains("margin-bottom: -2px"),
+        "tab a should be active initially; style={}",
+        tab_style(&host, ".mingot-tabs-tab:nth-child(1)")
+    );
+    assert!(
+        tab_style(&host, ".mingot-tabs-tab:nth-child(2)").contains("transparent"),
+        "tab b should be inactive initially; style={}",
+        tab_style(&host, ".mingot-tabs-tab:nth-child(2)")
+    );
+
+    // External change propagates inward without a click.
+    set_ext.set("b".to_string());
+    settle().await;
+    assert!(
+        tab_style(&host, ".mingot-tabs-tab:nth-child(1)").contains("transparent"),
+        "external b must sync inward (a inactive); style={}",
+        tab_style(&host, ".mingot-tabs-tab:nth-child(1)")
+    );
+    assert!(
+        tab_style(&host, ".mingot-tabs-tab:nth-child(2)").contains("margin-bottom: -2px"),
+        "external b must sync inward (b active); style={}",
+        tab_style(&host, ".mingot-tabs-tab:nth-child(2)")
+    );
+
+    // Clicking tab "a" fires on_change("a") and moves the internal state.
+    let tab_a = host
+        .query_selector(".mingot-tabs-tab:nth-child(1)")
+        .expect("query failed")
+        .expect("tab a rendered");
+    click(&tab_a);
+    settle().await;
+
+    assert_eq!(
+        fired.get_untracked(),
+        Some("a".to_string()),
+        "clicking tab a must fire on_change(\"a\")"
+    );
+    assert!(
+        tab_style(&host, ".mingot-tabs-tab:nth-child(1)").contains("margin-bottom: -2px"),
+        "internal state must reflect the clicked tab; style={}",
+        tab_style(&host, ".mingot-tabs-tab:nth-child(1)")
+    );
+    assert_eq!(
+        ext.get_untracked(),
+        "b".to_string(),
+        "component must not write the parent's external signal"
+    );
+
+    host.remove();
+}
+
+/// Select: an external value seeds and syncs inward; a change on the native
+/// select fires `on_change` and does not write the external signal.
+#[wasm_bindgen_test]
+async fn select_on_change_fires_and_external_syncs() {
+    let (ext, set_ext) = signal("a".to_string());
+    let (fired, set_fired) = signal(None::<String>);
+
+    let host = host_element();
+    mount_to(host.clone(), move || {
+        view! {
+            <MingotProvider>
+                <Select
+                    value=ext
+                    options=vec![
+                        SelectOption::new("a", "A"),
+                        SelectOption::new("b", "B"),
+                    ]
+                    on_change=Callback::new(move |v: String| set_fired.set(Some(v)))
+                />
+            </MingotProvider>
+        }
+    })
+    .forget();
+    settle().await;
+
+    let select = host
+        .query_selector(".mingot-select")
+        .expect("query failed")
+        .expect("select rendered")
+        .unchecked_into::<web_sys::HtmlSelectElement>();
+
+    // External value seeds the rendered selection.
+    assert_eq!(
+        select.value(),
+        "a",
+        "external value must seed the rendered selection"
+    );
+
+    // External change propagates inward without a user event.
+    set_ext.set("b".to_string());
+    settle().await;
+    assert_eq!(select.value(), "b", "external value must sync inward");
+
+    // A native change fires on_change but does not write the external signal.
+    select.set_value("a");
+    let ev = web_sys::Event::new("change").expect("synthetic change event");
+    let _ = select.dispatch_event(&ev);
+    settle().await;
+
+    assert_eq!(
+        fired.get_untracked(),
+        Some("a".to_string()),
+        "change must fire on_change(\"a\")"
+    );
+    assert_eq!(
+        ext.get_untracked(),
+        "b".to_string(),
         "component must not write the parent's external signal"
     );
 

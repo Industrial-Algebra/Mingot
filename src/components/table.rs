@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 use crate::components::{Button, ButtonVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 use std::sync::Arc;
@@ -93,8 +94,12 @@ pub fn Table<T>(
     #[prop(optional)] highlight_on_hover: bool,
     #[prop(optional)] with_border: bool,
     #[prop(optional)] with_column_borders: bool,
-    #[prop(optional)] sort_column: Option<RwSignal<Option<String>>>,
-    #[prop(optional)] sort_direction: Option<RwSignal<SortDirection>>,
+    /// External sort column (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    sort_column: Option<ReadSignal<Option<String>>>,
+    /// External sort direction (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    sort_direction: Option<ReadSignal<SortDirection>>,
     #[prop(optional)] on_sort: Option<Callback<(String, SortDirection)>>,
     #[prop(optional, into)] empty_message: Option<String>,
 ) -> impl IntoView
@@ -103,9 +108,8 @@ where
 {
     let theme = use_theme();
 
-    let current_sort_column = sort_column.unwrap_or_else(|| RwSignal::new(None));
-    let current_sort_direction =
-        sort_direction.unwrap_or_else(|| RwSignal::new(SortDirection::None));
+    let current_sort_column = echo_signal(sort_column, None);
+    let current_sort_direction = echo_signal(sort_direction, SortDirection::None);
 
     let handle_header_click = move |column_key: String, sortable: bool| {
         if !sortable {
@@ -512,20 +516,31 @@ pub fn TablePagination(
 pub fn TableWithPagination<T>(
     #[prop(into)] columns: Vec<TableColumn<T>>,
     #[prop(into)] data: Signal<Vec<T>>,
-    #[prop(into)] current_page: RwSignal<usize>,
+    /// External current page (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    current_page: Option<ReadSignal<usize>>,
+    /// Fires with the new page when pagination changes.
+    #[prop(optional)]
+    on_page_change: Option<Callback<usize>>,
     #[prop(into)] page_size: Signal<usize>,
     #[prop(optional)] striped: bool,
     #[prop(optional)] highlight_on_hover: bool,
     #[prop(optional)] with_border: bool,
     #[prop(optional)] with_column_borders: bool,
-    #[prop(optional)] sort_column: Option<RwSignal<Option<String>>>,
-    #[prop(optional)] sort_direction: Option<RwSignal<SortDirection>>,
+    /// External sort column (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    sort_column: Option<ReadSignal<Option<String>>>,
+    /// External sort direction (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    sort_direction: Option<ReadSignal<SortDirection>>,
     #[prop(optional)] on_sort: Option<Callback<(String, SortDirection)>>,
     #[prop(optional, into)] empty_message: Option<String>,
 ) -> impl IntoView
 where
     T: Clone + Send + Sync + 'static,
 {
+    let current_page = echo_signal(current_page, 0);
+    let on_page = on_page_change;
     let total_items = Signal::derive(move || data.get().len());
     let total_pages = Signal::derive(move || {
         let total = total_items.get();
@@ -623,6 +638,9 @@ where
                             total_pages=total_pages
                             on_page_change=Callback::new(move |page: usize| {
                                 current_page.set(page);
+                                if let Some(cb) = on_page {
+                                    cb.run(page);
+                                }
                             })
                         />
                     }.into_any()

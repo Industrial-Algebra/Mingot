@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -48,7 +49,9 @@ pub fn Select(
     #[prop(optional)] variant: Option<SelectVariant>,
     #[prop(optional)] size: Option<SelectSize>,
     #[prop(optional, into)] placeholder: Option<String>,
-    #[prop(optional)] value: Option<RwSignal<String>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    value: Option<ReadSignal<String>>,
     #[prop(optional)] disabled: bool,
     #[prop(optional, into)] error: Option<String>,
     #[prop(optional)] required: bool,
@@ -63,7 +66,7 @@ pub fn Select(
     let variant = variant.unwrap_or(SelectVariant::Default);
     let size = size.unwrap_or(SelectSize::Md);
 
-    let select_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
+    let select_value = echo_signal(value, String::new());
 
     let error_clone = error.clone();
     let select_styles = move || {

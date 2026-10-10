@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 
@@ -17,9 +18,19 @@ pub enum TabsOrientation {
     Vertical,
 }
 
+/// Context carrying the tab group's intent callback so `TabsTab` (which only
+/// receives the active-state signal) can fire it on activation.
+#[derive(Clone)]
+struct TabsOnChange(Option<Callback<String>>);
+
 #[component]
 pub fn Tabs(
-    #[prop(into)] active: RwSignal<String>,
+    /// External active-tab value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    active: Option<ReadSignal<String>>,
+    /// Fires with the newly-activated tab value.
+    #[prop(optional)]
+    on_change: Option<Callback<String>>,
     #[prop(optional)] variant: Option<TabsVariant>,
     #[prop(optional)] orientation: Option<TabsOrientation>,
     #[prop(optional)] grow: bool,
@@ -30,8 +41,11 @@ pub fn Tabs(
     let variant = variant.unwrap_or(TabsVariant::Default);
     let orientation = orientation.unwrap_or(TabsOrientation::Horizontal);
 
+    let active = echo_signal(active, String::new());
+
     // Provide context
     provide_context::<RwSignal<String>>(active);
+    provide_context(TabsOnChange(on_change));
     provide_context::<Signal<TabsVariant>>(Signal::derive(move || variant));
     provide_context::<Signal<TabsOrientation>>(Signal::derive(move || orientation));
     provide_context::<Signal<bool>>(Signal::derive(move || grow));
@@ -244,6 +258,9 @@ pub fn TabsTab(
 
     let handle_click = move |_| {
         active.set(value.clone());
+        if let Some(TabsOnChange(Some(cb))) = use_context::<TabsOnChange>() {
+            cb.run(value.clone());
+        }
     };
 
     let class_str = format!("mingot-tabs-tab {}", class.unwrap_or_default());

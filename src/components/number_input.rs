@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 use crate::components::input::{InputSize, InputVariant};
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -980,7 +981,9 @@ fn is_valid_char(
 #[component]
 pub fn NumberInput(
     // Core value handling
-    #[prop(optional)] value: Option<RwSignal<String>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    value: Option<ReadSignal<String>>,
     #[prop(optional)] on_change: Option<Callback<String>>,
     #[prop(optional)] on_valid_change: Option<Callback<Result<String, ParseError>>>,
 
@@ -1110,7 +1113,7 @@ pub fn NumberInput(
     #[cfg(not(feature = "high-precision"))]
     let allow_decimal = allow_decimal || matches!(precision, NumberInputPrecision::Decimal(_));
 
-    let number_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
+    let number_value = echo_signal(value, String::new());
 
     // Undo/redo state management
     let undo_stack: RwSignal<Vec<String>> = RwSignal::new(Vec::new());

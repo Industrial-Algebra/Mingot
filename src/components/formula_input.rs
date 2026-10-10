@@ -6,6 +6,7 @@
 //! supports variables, and recognizes common functions.
 
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::prelude::*;
 use std::collections::{HashMap, HashSet};
@@ -594,9 +595,9 @@ pub struct FormulaResult {
 /// Formula input component
 #[component]
 pub fn FormulaInput(
-    /// Current formula value
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
     #[prop(optional, into)]
-    value: Option<RwSignal<String>>,
+    value: Option<ReadSignal<String>>,
 
     /// Callback when formula changes
     #[prop(optional, into)]
@@ -641,7 +642,7 @@ pub fn FormulaInput(
     let theme = use_theme();
 
     // Internal state
-    let internal_value = value.unwrap_or_else(|| RwSignal::new(String::new()));
+    let internal_value = echo_signal(value, String::new());
     let parse_result: RwSignal<Option<FormulaResult>> = RwSignal::new(None);
 
     // Parse on input change

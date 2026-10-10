@@ -305,8 +305,8 @@ fn number_input_doc() -> ComponentDoc {
         ],
         demo: || {
             let u64_value = RwSignal::new(String::new());
-            let controls_value = RwSignal::new("100".to_string());
-            let format_value = RwSignal::new("1234567.89".to_string());
+            let (controls_value, _) = signal("100".to_string());
+            let (format_value, _) = signal("1234567.89".to_string());
 
             view! {
                 <div>
@@ -1265,10 +1265,17 @@ fn tabs_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "active",
-                prop_type: "RwSignal<String>",
+                prop_type: "Option<ReadSignal<String>>",
                 default: None,
-                description: "Signal controlling the active tab value",
-                required: true,
+                description: "Optional external active tab value (read-only)",
+                required: false,
+            },
+            PropDoc {
+                name: "on_change",
+                prop_type: "Option<Callback<String>>",
+                default: None,
+                description: "Fires with the newly-activated tab value",
+                required: false,
             },
             PropDoc {
                 name: "variant",
@@ -1286,10 +1293,10 @@ fn tabs_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let active = RwSignal::new("first".to_string());
+            let (active, set_active) = signal("first".to_string());
             view! {
-                <DemoBlock title="Tabs" code=r#"let active = RwSignal::new("first".to_string());
-<Tabs active=active>
+                <DemoBlock title="Tabs" code=r#"let (active, set_active) = signal("first".to_string());
+<Tabs active=active on_change=Callback::new(move |v| set_active.set(v))>
     <TabsList>
         <TabsTab value="first">"First"</TabsTab>
         <TabsTab value="second">"Second"</TabsTab>
@@ -1297,7 +1304,10 @@ fn tabs_doc() -> ComponentDoc {
     <TabsPanel value="first">"First content"</TabsPanel>
     <TabsPanel value="second">"Second content"</TabsPanel>
 </Tabs>"#>
-                    <Tabs active=active>
+                    <Tabs
+                        active=active
+                        on_change=Callback::new(move |v: String| set_active.set(v))
+                    >
                         <TabsList>
                             <TabsTab value="first">"First"</TabsTab>
                             <TabsTab value="second">"Second"</TabsTab>
@@ -1516,9 +1526,9 @@ fn select_doc() -> ComponentDoc {
             },
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<String>>",
+                prop_type: "Option<ReadSignal<String>>",
                 default: None,
-                description: "Currently selected value",
+                description: "Optional external selected value (read-only)",
                 required: false,
             },
             PropDoc {
@@ -1530,7 +1540,7 @@ fn select_doc() -> ComponentDoc {
             },
         ],
         demo: || {
-            let value = RwSignal::new(String::new());
+            let (value, set_value) = signal(String::new());
             view! {
                 <DemoBlock title="Select" code=r#"<Select
     label="Choose a framework"
@@ -1551,7 +1561,7 @@ fn select_doc() -> ComponentDoc {
                                 SelectOption::new("yew", "Yew"),
                                 SelectOption::new("dioxus", "Dioxus"),
                             ]
-                            on_change=Callback::new(move |v| value.set(v))
+                            on_change=Callback::new(move |v: String| set_value.set(v))
                         />
                     </div>
                 </DemoBlock>
