@@ -50,7 +50,7 @@ All line numbers are approximate (fmt drift) — the quoted code is the anchor.
 
 `rg -n "AngleInput|IntervalInput|VectorInput|CoordinateInput|TensorInput|MatrixInput|PointLocator|UnitInput|FractionInput|EquationEditor" demo/src`
 → for each controlled usage passing `value=`, convert to
-`value=Some(read_signal)` (the on_change callbacks are already correct).
+`value=read_signal` (the on_change callbacks are already correct).
 Uncontrolled usages unchanged. `cargo +nightly check -p <demo package name>`
 must pass (check demo/Cargo.toml for the name).
 
@@ -58,7 +58,7 @@ must pass (check demo/Cargo.toml for the name).
 
 One representative test for the family:
 `matrix_input_external_syncs_and_on_change_fires`: mount
-`<MatrixInput value=Some(ext) on_change=Callback rows=2 cols=2 …>` (match
+`<MatrixInput value=ext on_change=Callback rows=2 cols=2 …>` (match
 real prop names from matrix_input.rs). Assert initial cell inputs show the
 external matrix values; then simulate typing into a cell (set the input's
 value + dispatch "input"/"change" per the harness's synthetic-event notes) →

@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Industrial Algebra
 // SPDX-License-Identifier: Apache-2.0
 use crate::theme::use_theme;
+use crate::utils::echo_signal;
 use crate::utils::StyleBuilder;
 use leptos::ev;
 use leptos::prelude::*;
@@ -16,7 +17,9 @@ pub enum CheckboxSize {
 
 #[component]
 pub fn Checkbox(
-    #[prop(optional)] checked: Option<RwSignal<bool>>,
+    /// External controlled value (read-only); echo-back convention — see docs/plans/2026-10-09-echo-back.md.
+    #[prop(optional)]
+    checked: Option<ReadSignal<bool>>,
     #[prop(optional)] size: Option<CheckboxSize>,
     #[prop(optional, into)] color: Option<String>,
     #[prop(optional, into)] label: Option<String>,
@@ -31,7 +34,7 @@ pub fn Checkbox(
     let size = size.unwrap_or(CheckboxSize::Md);
     let color = color.unwrap_or_else(|| "blue".to_string());
 
-    let is_checked = checked.unwrap_or_else(|| RwSignal::new(false));
+    let is_checked = echo_signal(checked, false);
 
     let error_clone = error.clone();
 

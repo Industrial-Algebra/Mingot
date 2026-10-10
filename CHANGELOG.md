@@ -48,6 +48,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rust_decimal reality; ecosystem link corrected
 - lib.rs documents the per-domain error-home convention
 
+#### Echo-back component API convention (breaking)
+
+- **Breaking**: Boolean-toggle components (`Switch`, `Checkbox`, `Radio`,
+  `Popover`, `AccordionItem`, `Banner`) now take optional `ReadSignal` value
+  props instead of `RwSignal` — read-signals in, intent-callbacks out; the
+  parent owns state. `Popover` and `AccordionItem` gain `on_change:
+  Option<Callback<bool>>`. Controlled usage changes from
+  `checked=signal(...)` to `checked=read` (the `ReadSignal` half of `signal(..)`;
+  `Some(read)` is not accepted by the prop macro) + `on_change=Callback::new(set)`.
+  Uncontrolled usage is unchanged. See docs/plans/2026-10-09-echo-back.md.
+
 #### Relicensing to Apache-2.0 + CLA
 
 - **License**: `AGPL-3.0-only` → `Apache-2.0` (per the IA ecosystem standard)

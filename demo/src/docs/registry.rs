@@ -1365,7 +1365,7 @@ fn checkbox_doc() -> ComponentDoc {
                 <DemoBlock title="Checkbox">
                     <Stack spacing="md">
                         <Checkbox
-                            checked=checked
+                            checked=checked.read_only()
                             label="Accept terms and conditions"
                             on_change=Callback::new(move |v| checked.set(v))
                         />
@@ -1601,7 +1601,7 @@ fn switch_doc() -> ComponentDoc {
             view! {
                 <DemoBlock title="Switch">
                     <Switch
-                        checked=checked
+                        checked=checked.read_only()
                         label="Enable notifications"
                         on_change=Callback::new(move |v| checked.set(v))
                     />

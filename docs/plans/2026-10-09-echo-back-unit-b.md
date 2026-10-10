@@ -171,7 +171,7 @@ NumberInput/Tabs/TableWithPagination). Convert each controlled call site:
 let (active, set_active) = signal("first".to_string());
 <Tabs active=active ...>
 // after
-<Tabs active=Some(active) on_change=Callback::new(set_active) ...>
+<Tabs active=active on_change=Callback::new(set_active) ...>
 ```
 Uncontrolled call sites (no signal prop passed) need NO change — verify Tabs
 call sites especially: previously REQUIRED prop means every demo Tabs usage
@@ -183,11 +183,11 @@ differ — check demo/Cargo.toml name field).
 
 Follow its conventions. Two tests:
 1. `tabs_external_active_syncs_and_on_change_fires`: mount `<Tabs
-   active=Some(ext) on_change=...>` with two `<Tab value="a">`/`"b"` children
+   active=ext on_change=...>` with two `<Tab value="a">`/`"b"` children
    (match real prop names from tabs.rs). Assert initial active styles/classes
    reflect "a"; `set_ext("b")` → active reflects "b" without clicks; click tab
    "a" header → on_change fired with "a"; `ext.get_untracked()` unchanged.
-2. `select_on_change_fires_and_external_syncs`: mount `<Select value=Some(ext)
+2. `select_on_change_fires_and_external_syncs`: mount `<Select value=ext
    on_change=...>` with options (match real API incl. how options are
    declared); set ext to an option value → rendered selection updates; fire
    change on the select element (set its value + dispatch "change" event as
@@ -211,7 +211,8 @@ add a sibling block if Unit A's was merged already):
   read-only. `RadioGroup`'s underscored `_value`/`_on_change`/`_name`
   placeholders are promoted to real `value`/`on_change`/`name` props with
   group-managed context state. Controlled usage:
-  `value=Some(read)` + `on_change=Callback::new(set)`.
+  `value=read` (bare `ReadSignal`; `Some(..)` is rejected by the prop macro) +
+  `on_change=Callback::new(set)`.
 ```
 
 ## Report format
