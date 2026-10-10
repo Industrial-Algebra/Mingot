@@ -407,7 +407,11 @@ pub fn VectorInput(
         let vec = internal_vector.get();
         let mut new_components = vec.components.clone();
         new_components.push(0.0);
-        internal_vector.set(Vector::new(new_components));
+        let new_vec = Vector::new(new_components);
+        internal_vector.set(new_vec.clone());
+        if let Some(cb) = on_change {
+            cb.run(new_vec);
+        }
     };
 
     // Remove dimension
@@ -416,7 +420,11 @@ pub fn VectorInput(
         if vec.dimensions() > 1 {
             let mut new_components = vec.components.clone();
             new_components.pop();
-            internal_vector.set(Vector::new(new_components));
+            let new_vec = Vector::new(new_components);
+            internal_vector.set(new_vec.clone());
+            if let Some(cb) = on_change {
+                cb.run(new_vec);
+            }
         }
     };
 

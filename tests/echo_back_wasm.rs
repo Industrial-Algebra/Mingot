@@ -25,7 +25,7 @@ use leptos::mount::mount_to;
 use leptos::prelude::*;
 use mingot::{
     AccordionItem, Matrix, MatrixInput, MingotProvider, Popover, PopoverDropdown, PopoverTarget,
-    Select, SelectOption, Switch, Tabs, TabsList, TabsTab,
+    Select, SelectOption, Switch, TableColumn, TableWithPagination, Tabs, TabsList, TabsTab,
 };
 use wasm_bindgen::JsCast;
 use wasm_bindgen_test::*;
@@ -177,8 +177,9 @@ async fn switch_external_syncs_and_callback_fires() {
 /// not written.
 #[wasm_bindgen_test]
 async fn popover_target_toggles_and_fires_on_change() {
-    let (ext, _set_ext) = signal(false);
+    let (ext, set_ext) = signal(false);
     let (fired, set_fired) = signal(None::<bool>);
+    let (fired_count, set_fired_count) = signal(0u32);
 
     let host = host_element();
     mount_to(host.clone(), move || {
@@ -186,7 +187,10 @@ async fn popover_target_toggles_and_fires_on_change() {
             <MingotProvider>
                 <Popover
                     opened=ext
-                    on_change=Callback::new(move |v: bool| set_fired.set(Some(v)))
+                    on_change=Callback::new(move |v: bool| {
+                        set_fired.set(Some(v));
+                        set_fired_count.update(|c| *c += 1);
+                    })
                 >
                     <PopoverTarget>"toggle"</PopoverTarget>
                     <PopoverDropdown>"content"</PopoverDropdown>
@@ -225,6 +229,22 @@ async fn popover_target_toggles_and_fires_on_change() {
         "component must not write the parent's external signal"
     );
 
+    // Inward sync: an external change must reach the rendered state without
+    // emitting a new intent callback (the mirrors-external guard).
+    let fired_before = fired_count.get_untracked();
+    set_ext.set(false);
+    settle().await;
+    assert!(
+        !dropdown_style(&host).contains("display: block"),
+        "external set(false) must close the dropdown; style={}",
+        dropdown_style(&host)
+    );
+    assert_eq!(
+        fired_count.get_untracked(),
+        fired_before,
+        "external sync must not re-fire on_change"
+    );
+
     host.remove();
 }
 
@@ -232,7 +252,7 @@ async fn popover_target_toggles_and_fires_on_change() {
 /// the external signal is not written.
 #[wasm_bindgen_test]
 async fn accordion_item_toggle_fires_on_change() {
-    let (ext, _set_ext) = signal(false);
+    let (ext, set_ext) = signal(false);
     let (fired, set_fired) = signal(None::<bool>);
 
     let host = host_element();
@@ -268,6 +288,26 @@ async fn accordion_item_toggle_fires_on_change() {
     assert!(
         !ext.get_untracked(),
         "component must not write the parent's external signal"
+    );
+    assert!(
+        item_body_style(&host).contains("1000px"),
+        "item body must render open after toggle; style={}",
+        item_body_style(&host)
+    );
+
+    // Inward sync: external close must reach the rendered state without a
+    // new intent callback (fired would flip to Some(false) on a refire).
+    set_ext.set(false);
+    settle().await;
+    assert!(
+        !item_body_style(&host).contains("1000px"),
+        "external set(false) must close the item body; style={}",
+        item_body_style(&host)
+    );
+    assert_eq!(
+        fired.get_untracked(),
+        Some(true),
+        "external sync must not re-fire on_change"
     );
 
     host.remove();
@@ -485,6 +525,99 @@ async fn matrix_input_external_syncs_and_on_change_fires() {
         ext.get_untracked().get(0, 1),
         Some(0.0),
         "component must not write the parent's external signal"
+    );
+
+    host.remove();
+}
+
+/// The inline `style` attribute of the accordion item's panel.
+fn item_body_style(host: &web_sys::HtmlElement) -> String {
+    host.query_selector(".mingot-accordion-panel")
+        .expect("query failed")
+        .expect("accordion panel rendered")
+        .get_attribute("style")
+        .unwrap_or_default()
+}
+
+/// TableWithPagination without `current_page` must default to page 1
+/// (pagination is 1-based); page 0 would underflow the slice offset.
+/// Regression for the review finding on the uncontrolled default.
+#[wasm_bindgen_test]
+async fn table_with_pagination_uncontrolled_defaults_to_page_one() {
+    let host = host_element();
+    mount_to(host.clone(), || {
+        view! {
+            <MingotProvider>
+                <TableWithPagination
+                    columns=vec![TableColumn::new("v", "V", |n: &u32| n.to_string())]
+                    data=Signal::derive(|| vec![42u32])
+                    page_size=Signal::derive(|| 10usize)
+                />
+            </MingotProvider>
+        }
+    })
+    .forget();
+    settle().await;
+
+    assert!(
+        host.text_content().unwrap().contains("42"),
+        "uncontrolled table must render the first page's rows; text={}",
+        host.text_content().unwrap_or_default()
+    );
+
+    host.remove();
+}
+
+/// Resize intents must reach the parent: clicking + Row fires `on_change`
+/// with the resized matrix while the external signal stays unwritten.
+/// Regression for the review finding on resize handlers.
+#[wasm_bindgen_test]
+async fn matrix_resize_reports_intent() {
+    let (ext, _set_ext) = signal(Matrix::identity(2));
+    let (fired, set_fired) = signal(None::<Matrix>);
+
+    let host = host_element();
+    mount_to(host.clone(), move || {
+        view! {
+            <MingotProvider>
+                <MatrixInput
+                    value=ext
+                    allow_resize=true
+                    on_change=Callback::new(move |m| set_fired.set(Some(m)))
+                />
+            </MingotProvider>
+        }
+    })
+    .forget();
+    settle().await;
+
+    let button = host
+        .query_selector(".mingot-matrix-input button")
+        .expect("query failed")
+        .expect("resize button rendered");
+    assert!(
+        button.text_content().unwrap().contains("Row"),
+        "first resize button should be add-row; text={}",
+        button.text_content().unwrap_or_default()
+    );
+    click(&button);
+    settle().await;
+
+    assert!(
+        host.query_selector(".mingot-matrix-input input:nth-child(6)")
+            .expect("query failed")
+            .is_some(),
+        "a sixth cell input must render for the 3-row matrix"
+    );
+    assert_eq!(
+        ext.get_untracked().rows(),
+        2,
+        "component must not write the parent's external signal"
+    );
+    assert_eq!(
+        fired.get_untracked().map(|m| m.rows()),
+        Some(3),
+        "resize must emit the new 3-row matrix via on_change"
     );
 
     host.remove();

@@ -454,14 +454,20 @@ pub fn MatrixInput(
     let add_row = move |_| {
         let mut matrix = internal_matrix.get();
         matrix.add_row(matrix.rows());
-        internal_matrix.set(matrix);
+        internal_matrix.set(matrix.clone());
+        if let Some(cb) = on_change {
+            cb.run(matrix);
+        }
     };
 
     // Add column
     let add_col = move |_| {
         let mut matrix = internal_matrix.get();
         matrix.add_col(matrix.cols());
-        internal_matrix.set(matrix);
+        internal_matrix.set(matrix.clone());
+        if let Some(cb) = on_change {
+            cb.run(matrix);
+        }
     };
 
     // Remove row
@@ -469,7 +475,10 @@ pub fn MatrixInput(
         let mut matrix = internal_matrix.get();
         if matrix.rows() > 1 {
             matrix.remove_row(matrix.rows() - 1);
-            internal_matrix.set(matrix);
+            internal_matrix.set(matrix.clone());
+            if let Some(cb) = on_change {
+                cb.run(matrix);
+            }
         }
     };
 
@@ -478,7 +487,10 @@ pub fn MatrixInput(
         let mut matrix = internal_matrix.get();
         if matrix.cols() > 1 {
             matrix.remove_col(matrix.cols() - 1);
-            internal_matrix.set(matrix);
+            internal_matrix.set(matrix.clone());
+            if let Some(cb) = on_change {
+                cb.run(matrix);
+            }
         }
     };
 

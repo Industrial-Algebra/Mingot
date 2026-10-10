@@ -539,7 +539,9 @@ pub fn TableWithPagination<T>(
 where
     T: Clone + Send + Sync + 'static,
 {
-    let current_page = echo_signal(current_page, 0);
+    // Pagination is 1-based: the uncontrolled default is page 1. (Page 0
+    // would underflow the `(page - 1) * size` slice offset below.)
+    let current_page = echo_signal(current_page, 1);
     let on_page = on_page_change;
     let total_items = Signal::derive(move || data.get().len());
     let total_pages = Signal::derive(move || {

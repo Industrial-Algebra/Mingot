@@ -4270,7 +4270,8 @@ fn matrix_input_doc() -> ComponentDoc {
                 <DemoBlock title="Matrix Input" code=r#"let matrix = RwSignal::new(Matrix::identity(3));
 
 <MatrixInput
-    value=matrix
+    value=matrix.read_only()
+    on_change=Callback::new(move |m| matrix.set(m))
     show_operations=true
     allow_resize=true
 />"#>
@@ -4360,7 +4361,8 @@ fn vector_input_doc() -> ComponentDoc {
                 <DemoBlock title="Vector Input" code=r#"let vector = RwSignal::new(Vector::new(vec![1.0, 2.0, 3.0]));
 
 <VectorInput
-    value=vector
+    value=vector.read_only()
+    on_change=Callback::new(move |v| vector.set(v))
     notation=VectorNotation::Column
     show_magnitude=true
 />"#>
@@ -4460,7 +4462,8 @@ let data: Vec<f64> = (1..=12).map(|x| x as f64).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![3, 4]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="2D Tensor (3 × 4)"
     show_stats=true
 />"#>
@@ -4476,7 +4479,8 @@ let data: Vec<f64> = (0..24).map(|x| x as f64).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 3, 4]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="3D Tensor (2 × 3 × 4) - use dim[0] to switch slices"
     show_stats=true
 />"#>
@@ -4493,7 +4497,8 @@ let data: Vec<f64> = (0..36).map(|x| x as f64).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 3, 3]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="4D Tensor (2 × 2 × 3 × 3) - navigate dim[0] and dim[1]"
     show_stats=true
 />"#>
@@ -4510,7 +4515,8 @@ let data: Vec<f64> = (0..48).map(|x| x as f64 * 0.1).collect();
 let tensor = RwSignal::new(Tensor::from_data(data, vec![2, 2, 2, 2, 3]).unwrap());
 
 <TensorInput
-    value=tensor
+    value=tensor.read_only()
+    on_change=Callback::new(move |t| tensor.set(t))
     label="5D Tensor (2 × 2 × 2 × 2 × 3)"
     precision=2
     show_stats=true
@@ -4727,7 +4733,7 @@ fn formula_input_doc() -> ComponentDoc {
         props: vec![
             PropDoc {
                 name: "value",
-                prop_type: "Option<RwSignal<String>>",
+                prop_type: "Option<ReadSignal<String>>",
                 default: None,
                 description: "Controlled formula string value",
                 required: false,

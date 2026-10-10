@@ -65,9 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `RwSignal` (read-signals in, intent-callbacks out). `Tabs.active` and
   `TableWithPagination.current_page` become optional and gain callbacks
   (`on_change`, `on_page_change`); sort props on both table variants are
-  read-only. `RadioGroup`'s underscored `_value`/`_on_change`/`_name`
-  placeholders are promoted to real `value`/`on_change`/`name` props with
-  group-managed context state. Controlled usage:
+  read-only. `RadioGroup`'s underscored `_value`/`_on_change`
+  placeholders are promoted to real `value`/`on_change` props with
+  group-managed context state (no coordinated children yet); the unused
+  `_name` placeholder is **deleted** — there is no `name` prop. Controlled
+  usage:
   `value=read` (bare `ReadSignal`; `Some(..)` is rejected by the prop macro) +
   `on_change=Callback::new(move |v| set.set(v))`.
 
