@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+#### CONTEXT.md decommissioned (docs)
+
+- Deleted `docs/CONTEXT.md` — a pre-memory-era state snapshot that rotted by
+  construction (test counts, versions, phase status drifting from reality).
+  Its durable content was salvaged:
+  - `docs/DECISIONS.md` — new thin decision records (D1–D9, pointer-style:
+    rust_decimal-not-Amari pivot, text-input doctrine, Callback/Cow props,
+  theme system, zero-cost features, node-graph doctrine, bounded-precision
+  honesty, per-domain error homes).
+  - `AGENTS.md` — new pointer file for AI agents: where truth lives
+    (CHANGELOG/ROADMAP/DECISIONS/plans/audits/lib.rs/Cargo.toml), working
+    conventions, and an explicit no-state-snapshots policy.
+  Living working state belongs to the IA memory service, not the repo.
+
 ### Changed
 
 #### Audit remediation (breaking)
